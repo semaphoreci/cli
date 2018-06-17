@@ -1,0 +1,7 @@
+apiVersion: v1alpha
+kind: Secret
+data:
+  - name: aws-id
+    value: "1"
+  - name: aws-secret
+    value: "42 > 23"
