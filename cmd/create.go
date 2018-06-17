@@ -50,7 +50,7 @@ func RunCreate(cmd *cobra.Command, args []string) {
 func parse(data []byte) (map[string]interface{}, error) {
   m := make(map[string]interface{})
 
-  fmt.Print(string(data))
+  // fmt.Print(string(data))
 
   err := yaml.Unmarshal(data, &m)
 
@@ -58,8 +58,8 @@ func parse(data []byte) (map[string]interface{}, error) {
 }
 
 func upload(version string, kind string, data []byte) {
-  fmt.Printf("apiVersion: %s\n", version)
-  fmt.Printf("kind: %s\n", kind)
+  // fmt.Printf("apiVersion: %s\n", version)
+  // fmt.Printf("kind: %s\n", kind)
 
   var path string
 
@@ -73,11 +73,11 @@ func upload(version string, kind string, data []byte) {
 
   url := fmt.Sprintf("http://renderedtext.semaphoreci.com%s", path)
 
-  fmt.Printf("Path: %s\n", url)
+  // fmt.Printf("Path: %s\n", url)
 
   j, err := yaml.YAMLToJSON(data)
 
-  fmt.Printf("Content : %s\n", j)
+  // fmt.Printf("Content : %s\n", j)
 
   req, err := http.NewRequest("POST", url, bytes.NewBuffer(j))
 
@@ -93,10 +93,10 @@ func upload(version string, kind string, data []byte) {
   }
   defer resp.Body.Close()
 
-  fmt.Println("response Status:", resp.Status)
-  fmt.Println("response Headers:", resp.Header)
+  // fmt.Println("response Status:", resp.Status)
+  // fmt.Println("response Headers:", resp.Header)
   body, _ := ioutil.ReadAll(resp.Body)
-  fmt.Println("response Body:", string(body))
+  fmt.Println(string(body))
 }
 
 func check(err error, message string) {
