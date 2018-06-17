@@ -4,6 +4,6 @@ metadata:
   name: aws-secrets
 data:
   - name: aws-id
-    value: "1"
+    value: "2"
   - name: aws-secret
     value: "42 > 23"
