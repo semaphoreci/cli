@@ -5,7 +5,7 @@ import (
   "io/ioutil"
 
 	"github.com/spf13/cobra"
-  // "gopkg.in/yaml.v2"
+  "github.com/ghodss/yaml"
 )
 
 var createCmd = &cobra.Command{
@@ -18,14 +18,15 @@ var createCmd = &cobra.Command{
 
     fmt.Printf("%+v\n", path)
 
-    dat, err := ioutil.ReadFile(path)
+    data, err := ioutil.ReadFile(path)
 
     if err != nil {
       fmt.Printf("%+v\n", err)
       return
     }
 
-    fmt.Print(string(dat))
+    parse(data)
+
 	},
 }
 
@@ -39,4 +40,14 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func parse(data []byte) {
+  j, err := yaml.YAMLToJSON(data)
+
+  if err != nil {
+    fmt.Printf("%#v\n", err)
+  }
+
+  fmt.Printf("%s\n", j)
 }
