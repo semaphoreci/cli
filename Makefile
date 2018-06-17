@@ -15,7 +15,7 @@ build:
 
 gsutil.configure:
 	sudo apt-get update -y
-	sudo apt-get install gsutil -y
+	sudo apt-get install gsutil gcloud -y
 	gcloud auth activate-service-account deploy-from-semaphore@semaphore2-prod.iam.gserviceaccount.com --key-file ~/semaphore2-prod-2fd29ae99af8.json
 	gcloud config set project semaphore2-prod
 	gcloud container clusters get-credentials prod --zone us-east4
