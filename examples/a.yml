@@ -1,5 +1,7 @@
 apiVersion: v1alpha
 kind: Secret
+metadata:
+  name: aws-secrets
 data:
   - name: aws-id
     value: "1"
