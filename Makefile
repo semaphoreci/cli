@@ -14,7 +14,7 @@ build:
 	tar -czvf /tmp/sem.tar.gz sem
 
 gsutil.configure:
-	$(shell CLOUDSDK_INSTALL_DIR=/home/runner CLOUDSDK_CORE_DISABLE_PROMPTS=1 curl https://sdk.cloud.google.com | bash)
+	$(shell export CLOUDSDK_INSTALL_DIR=/home/runner && export CLOUDSDK_CORE_DISABLE_PROMPTS=1 && curl https://sdk.cloud.google.com | bash)
 	gcloud auth activate-service-account deploy-from-semaphore@semaphore2-prod.iam.gserviceaccount.com --key-file ~/semaphore2-prod-2fd29ae99af8.json
 	gcloud config set project semaphore2-prod
 	gcloud container clusters get-credentials prod --zone us-east4
