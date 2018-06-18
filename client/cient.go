@@ -5,6 +5,8 @@ import (
   "net/http"
   "io/ioutil"
   "bytes"
+
+	"github.com/spf13/viper"
 )
 
 type Client struct {
@@ -14,7 +16,11 @@ type Client struct {
 }
 
 func FromConfig() Client {
-  return New("C4V6j96w7D5YHqWJGHxz", "renderedtext.semaphoreci.com", "v1alpha")
+  authToken := viper.GetString("authToken")
+  host := viper.GetString("host")
+  apiVersion := viper.GetString("apiVersion")
+
+  return New(authToken, host, apiVersion)
 }
 
 func New(authToken string, host string, apiVersion string) Client {
@@ -30,7 +36,7 @@ func (c *Client) SetApiVersion(apiVersion string) *Client {
 func (c *Client) Get(kind string, name string) ([]byte, error) {
   url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
-  // fmt.Println(url)
+  fmt.Println(url)
 
   req, err := http.NewRequest("GET", url, nil)
 
@@ -57,7 +63,7 @@ func (c *Client) Get(kind string, name string) ([]byte, error) {
 func (c *Client) List(kind string) ([]byte, error) {
   url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
-  // fmt.Println(url)
+  fmt.Println(url)
 
   req, err := http.NewRequest("GET", url, nil)
 
@@ -84,7 +90,7 @@ func (c *Client) List(kind string) ([]byte, error) {
 func (c *Client) Delete(kind string, name string) ([]byte, error) {
   url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
-  // fmt.Println(url)
+  fmt.Println(url)
 
   req, err := http.NewRequest("DELETE", url, nil)
 
@@ -111,7 +117,7 @@ func (c *Client) Delete(kind string, name string) ([]byte, error) {
 func (c *Client) Post(kind string, resource []byte) ([]byte, error) {
   url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
-  // fmt.Println(url)
+  fmt.Println(url)
 
   req, err := http.NewRequest("POST", url, bytes.NewBuffer(resource))
 

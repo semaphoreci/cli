@@ -50,7 +50,7 @@ func RunCreate(cmd *cobra.Command, args []string) {
 
         resource, _ := yaml.YAMLToJSON(data)
 
-        body, _ := c.Post(kind, resource)
+        body, _ := c.Post("secrets", resource)
 
         fmt.Println(string(body))
 
