@@ -1,7 +1,7 @@
 .PHONY: build release
 
 REL_VERSION=$(shell git rev-parse HEAD)
-REL_BUCKET="gs://sem-cli-releases"
+REL_BUCKET=sem-cli-releases
 
 go.get:
 	go get -t -d -v ./... && go build -v ./...
@@ -20,6 +20,6 @@ gsutil.configure:
 	gcloud container clusters get-credentials prod --zone us-east4
 
 release: build
-	gsutil cp /tmp/sem.tar.gz $(REL_BUCKET)/$(REL_VERSION)
-	gsutil acl -R ch -u AllUsers:R $(REL_BUCKET)/$(REL_VERSION)
-	echo "https://storage.googleapis.com/$(REL_BUCKET)/$(REL_VERSION)
+	gsutil cp /tmp/sem.tar.gz gs://$(REL_BUCKET)/$(REL_VERSION)
+	gsutil acl -R ch -u AllUsers:R gs://$(REL_BUCKET)/$(REL_VERSION)
+	echo "https://storage.googleapis.com/$(REL_BUCKET)/$(REL_VERSION)"
