@@ -2,11 +2,10 @@ package cmd
 
 import (
 	"fmt"
-  "io/ioutil"
   "os"
-  "net/http"
-  "bytes"
+  "io/ioutil"
 
+	"github.com/renderedtext/sem/client"
 	"github.com/spf13/cobra"
   "github.com/ghodss/yaml"
 )
@@ -18,14 +17,14 @@ var createCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
     RunCreate(cmd, args)
-
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(createCmd)
 
-	createCmd.PersistentFlags().StringP("file", "f", "", "Filename, directory, or URL to files to use to create the resource")
+  desc := "Filename, directory, or URL to files to use to create the resource"
+	createCmd.PersistentFlags().StringP("file", "f", "", desc)
 }
 
 func RunCreate(cmd *cobra.Command, args []string) {
@@ -44,7 +43,20 @@ func RunCreate(cmd *cobra.Command, args []string) {
     apiVersion := resource["apiVersion"].(string)
     kind := resource["kind"].(string)
 
-    upload(apiVersion, kind, data)
+    switch kind {
+      case "Secret":
+        c := client.FromConfig()
+        c.SetApiVersion(apiVersion)
+
+        resource, _ := yaml.YAMLToJSON(data)
+
+        body, _ := c.Post(kind, resource)
+
+        fmt.Println(string(body))
+
+      default:
+        panic("Unsuported kind")
+    }
 }
 
 func parse(data []byte) (map[string]interface{}, error) {
@@ -55,48 +67,6 @@ func parse(data []byte) (map[string]interface{}, error) {
   err := yaml.Unmarshal(data, &m)
 
   return m, err
-}
-
-func upload(version string, kind string, data []byte) {
-  // fmt.Printf("apiVersion: %s\n", version)
-  // fmt.Printf("kind: %s\n", kind)
-
-  var path string
-
-  switch kind {
-    case "Secret":
-      path = fmt.Sprintf("/api/%s/secrets", version)
-
-    default:
-      panic("Unsuported kind")
-  }
-
-  url := fmt.Sprintf("http://renderedtext.semaphoreci.com%s", path)
-
-  // fmt.Printf("Path: %s\n", url)
-
-  j, err := yaml.YAMLToJSON(data)
-
-  // fmt.Printf("Content : %s\n", j)
-
-  req, err := http.NewRequest("POST", url, bytes.NewBuffer(j))
-
-  req.Header.Set("Content-Type", "application/json")
-  req.Header.Set("X-Semaphore-Req-ID", "111")
-  req.Header.Set("X-Semaphore-User-ID", "111")
-  req.Header.Set("Authorization", "Token C4V6j96w7D5YHqWJGHxz")
-
-  client := &http.Client{}
-  resp, err := client.Do(req)
-  if err != nil {
-      panic(err)
-  }
-  defer resp.Body.Close()
-
-  // fmt.Println("response Status:", resp.Status)
-  // fmt.Println("response Headers:", resp.Header)
-  body, _ := ioutil.ReadAll(resp.Body)
-  fmt.Println(string(body))
 }
 
 func check(err error, message string) {
