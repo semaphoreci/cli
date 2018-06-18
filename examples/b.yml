@@ -1,0 +1,9 @@
+apiVersion: v1alpha
+kind: Secret
+metadata:
+  name: gcloud-secrets
+data:
+  - name: aws-id
+    value: "2"
+  - name: aws-secret
+    value: "42 > 23"
