@@ -58,7 +58,7 @@ func (c *Client) Get(kind string, name string) ([]byte, error) {
 
   body, err := ioutil.ReadAll(resp.Body)
 
-  fmt.Println(string(body))
+  log.Println(string(body))
 
   return body, err
 }
