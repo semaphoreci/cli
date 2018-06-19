@@ -55,7 +55,11 @@ func (c *Client) Get(kind string, name string) ([]byte, error) {
   // fmt.Println("response Status:", resp.Status)
   // fmt.Println("response Headers:", resp.Header)
 
-  return ioutil.ReadAll(resp.Body)
+  body, err := ioutil.ReadAll(resp.Body)
+
+  fmt.Println(string(body))
+
+  return body, err
 }
 
 func (c *Client) List(kind string) ([]byte, error) {
@@ -80,7 +84,11 @@ func (c *Client) List(kind string) ([]byte, error) {
   // fmt.Println("response Status:", resp.Status)
   // fmt.Println("response Headers:", resp.Header)
 
-  return ioutil.ReadAll(resp.Body)
+  body, err := ioutil.ReadAll(resp.Body)
+
+  fmt.Println(string(body))
+
+  return body, err
 }
 
 func (c *Client) Delete(kind string, name string) ([]byte, error) {
@@ -105,7 +113,11 @@ func (c *Client) Delete(kind string, name string) ([]byte, error) {
   // fmt.Println("response Status:", resp.Status)
   // fmt.Println("response Headers:", resp.Header)
 
-  return ioutil.ReadAll(resp.Body)
+  body, err := ioutil.ReadAll(resp.Body)
+
+  fmt.Println(string(body))
+
+  return body, err
 }
 
 func (c *Client) Post(kind string, resource []byte) ([]byte, error) {
@@ -130,5 +142,9 @@ func (c *Client) Post(kind string, resource []byte) ([]byte, error) {
   // fmt.Println("response Status:", resp.Status)
   // fmt.Println("response Headers:", resp.Header)
 
-  return ioutil.ReadAll(resp.Body)
+  body, err := ioutil.ReadAll(resp.Body)
+
+  fmt.Println(string(body))
+
+  return body, err
 }
