@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 	"os"
+  "log"
+  "io/ioutil"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -10,11 +12,17 @@ import (
 )
 
 var cfgFile string
+var Verbose bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "sem",
 	Short: "Semaphore 2.0 command line interface",
+  PersistentPreRun: func(cmd *cobra.Command, args []string) {
+    if !Verbose {
+      log.SetOutput(ioutil.Discard)
+    }
+  },
 
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
@@ -33,14 +41,8 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.sem.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 }
 
 // initConfig reads in config file and ENV variables if set.

@@ -11,7 +11,7 @@ import (
 // getCmd represents the get command
 var getCmd = &cobra.Command{
 	Use:   "get",
-	Short: "Get a resource of a list of resources.",
+	Short: "List of resources.",
 	Long: ``,
 	Run: func(cmd *cobra.Command, args []string) {
     RunGet(cmd, args)

@@ -5,6 +5,7 @@ import (
   "net/http"
   "io/ioutil"
   "bytes"
+  "log"
 
 	"github.com/spf13/viper"
 )
@@ -36,7 +37,7 @@ func (c *Client) SetApiVersion(apiVersion string) *Client {
 func (c *Client) Get(kind string, name string) ([]byte, error) {
   url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
-  fmt.Println(url)
+  log.Println(url)
 
   req, err := http.NewRequest("GET", url, nil)
 
@@ -52,8 +53,8 @@ func (c *Client) Get(kind string, name string) ([]byte, error) {
 
   defer resp.Body.Close()
 
-  // fmt.Println("response Status:", resp.Status)
-  // fmt.Println("response Headers:", resp.Header)
+  log.Println("response Status:", resp.Status)
+  log.Println("response Headers:", resp.Header)
 
   body, err := ioutil.ReadAll(resp.Body)
 
@@ -65,7 +66,7 @@ func (c *Client) Get(kind string, name string) ([]byte, error) {
 func (c *Client) List(kind string) ([]byte, error) {
   url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
-  fmt.Println(url)
+  log.Println(url)
 
   req, err := http.NewRequest("GET", url, nil)
 
@@ -81,12 +82,12 @@ func (c *Client) List(kind string) ([]byte, error) {
 
   defer resp.Body.Close()
 
-  // fmt.Println("response Status:", resp.Status)
-  // fmt.Println("response Headers:", resp.Header)
+  log.Println("response Status:", resp.Status)
+  log.Println("response Headers:", resp.Header)
 
   body, err := ioutil.ReadAll(resp.Body)
 
-  fmt.Println(string(body))
+  log.Println(string(body))
 
   return body, err
 }
@@ -94,7 +95,7 @@ func (c *Client) List(kind string) ([]byte, error) {
 func (c *Client) Delete(kind string, name string) ([]byte, error) {
   url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
-  fmt.Println(url)
+  log.Println(url)
 
   req, err := http.NewRequest("DELETE", url, nil)
 
@@ -110,12 +111,12 @@ func (c *Client) Delete(kind string, name string) ([]byte, error) {
 
   defer resp.Body.Close()
 
-  // fmt.Println("response Status:", resp.Status)
-  // fmt.Println("response Headers:", resp.Header)
+  log.Println("response Status:", resp.Status)
+  log.Println("response Headers:", resp.Header)
 
   body, err := ioutil.ReadAll(resp.Body)
 
-  fmt.Println(string(body))
+  log.Println(string(body))
 
   return body, err
 }
@@ -123,7 +124,7 @@ func (c *Client) Delete(kind string, name string) ([]byte, error) {
 func (c *Client) Post(kind string, resource []byte) ([]byte, error) {
   url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
-  fmt.Println(url)
+  log.Println(url)
 
   req, err := http.NewRequest("POST", url, bytes.NewBuffer(resource))
 
@@ -139,12 +140,12 @@ func (c *Client) Post(kind string, resource []byte) ([]byte, error) {
 
   defer resp.Body.Close()
 
-  // fmt.Println("response Status:", resp.Status)
-  // fmt.Println("response Headers:", resp.Header)
+  log.Println("response Status:", resp.Status)
+  log.Println("response Headers:", resp.Header)
 
   body, err := ioutil.ReadAll(resp.Body)
 
-  fmt.Println(string(body))
+  log.Println(string(body))
 
   return body, err
 }
