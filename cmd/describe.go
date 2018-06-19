@@ -5,6 +5,7 @@ import (
 
 	"github.com/renderedtext/sem/client"
 	"github.com/spf13/cobra"
+  "github.com/ghodss/yaml"
 )
 
 // describeCmd represents the describe command
@@ -31,8 +32,9 @@ func RunDescribe(cmd *cobra.Command, args []string) {
 			c := client.FromConfig()
 
 			body, _ := c.Get("secrets", name)
+      j, _ := yaml.JSONToYAML(body)
 
-			fmt.Println(string(body))
+      fmt.Println(string(j))
     default:
       panic("Unsuported kind")
   }

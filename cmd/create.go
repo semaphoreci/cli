@@ -52,8 +52,9 @@ func RunCreate(cmd *cobra.Command, args []string) {
 
         body, _ := c.Post("secrets", resource)
 
-        fmt.Println(string(body))
+        j, _ := yaml.JSONToYAML(body)
 
+        fmt.Println(string(j))
       default:
         panic("Unsuported kind")
     }
