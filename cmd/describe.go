@@ -3,9 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/renderedtext/sem/client"
+	"github.com/renderedtext/sem/cmd/handler"
 	"github.com/spf13/cobra"
-  "github.com/ghodss/yaml"
 )
 
 // describeCmd represents the describe command
@@ -27,15 +26,13 @@ func RunDescribe(cmd *cobra.Command, args []string) {
   kind := args[0]
   name := args[1]
 
-  switch kind {
-    case "secret", "secrets":
-			c := client.FromConfig()
+  params := handler.DescribeParams { Name: name }
+  handler, err := handler.FindHandler(kind)
 
-			body, _ := c.Get("secrets", name)
-      j, _ := yaml.JSONToYAML(body)
-
-      fmt.Println(string(j))
-    default:
-      panic("Unsuported kind")
+  if err != nil {
+    fmt.Println(err);
+    return;
   }
+
+  handler.Describe(params);
 }

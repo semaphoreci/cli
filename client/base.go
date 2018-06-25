@@ -34,7 +34,7 @@ func (c *Client) SetApiVersion(apiVersion string) *Client {
   return c
 }
 
-func (c *Client) Get(kind string, name string) ([]byte, error) {
+func (c *Client) Get(kind string, name string) ([]byte, int, error) {
   url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
   log.Println(url)
@@ -48,7 +48,7 @@ func (c *Client) Get(kind string, name string) ([]byte, error) {
   resp, err := client.Do(req)
 
   if err != nil {
-    return []byte(""), err
+    return []byte(""), 0, err
   }
 
   defer resp.Body.Close()
@@ -60,10 +60,10 @@ func (c *Client) Get(kind string, name string) ([]byte, error) {
 
   log.Println(string(body))
 
-  return body, err
+  return body, resp.StatusCode, err
 }
 
-func (c *Client) List(kind string) ([]byte, error) {
+func (c *Client) List(kind string) ([]byte, int, error) {
   url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
   log.Println(url)
@@ -77,7 +77,7 @@ func (c *Client) List(kind string) ([]byte, error) {
   resp, err := client.Do(req)
 
   if err != nil {
-    return []byte(""), err
+    return []byte(""), 0, err
   }
 
   defer resp.Body.Close()
@@ -89,10 +89,10 @@ func (c *Client) List(kind string) ([]byte, error) {
 
   log.Println(string(body))
 
-  return body, err
+  return body, resp.StatusCode, err
 }
 
-func (c *Client) Delete(kind string, name string) ([]byte, error) {
+func (c *Client) Delete(kind string, name string) ([]byte, int, error) {
   url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
   log.Println(url)
@@ -106,7 +106,7 @@ func (c *Client) Delete(kind string, name string) ([]byte, error) {
   resp, err := client.Do(req)
 
   if err != nil {
-    return []byte(""), err
+    return []byte(""), 0, err
   }
 
   defer resp.Body.Close()
@@ -118,10 +118,10 @@ func (c *Client) Delete(kind string, name string) ([]byte, error) {
 
   log.Println(string(body))
 
-  return body, err
+  return body, resp.StatusCode, err
 }
 
-func (c *Client) Post(kind string, resource []byte) ([]byte, error) {
+func (c *Client) Post(kind string, resource []byte) ([]byte, int, error) {
   url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
   log.Println(url)
@@ -135,7 +135,7 @@ func (c *Client) Post(kind string, resource []byte) ([]byte, error) {
   resp, err := client.Do(req)
 
   if err != nil {
-    return []byte(""), err
+    return []byte(""), 0, err
   }
 
   defer resp.Body.Close()
@@ -147,5 +147,5 @@ func (c *Client) Post(kind string, resource []byte) ([]byte, error) {
 
   log.Println(string(body))
 
-  return body, err
+  return body, resp.StatusCode, err
 }

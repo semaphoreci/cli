@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/renderedtext/sem/client"
+	"github.com/renderedtext/sem/cmd/handler"
 	"github.com/spf13/cobra"
 )
 
@@ -25,14 +25,13 @@ func RunDelete(cmd *cobra.Command, args []string) {
   kind := args[0]
   name := args[1]
 
-  switch kind {
-    case "secret", "secrets":
-			c := client.FromConfig()
+  params := handler.DeleteParams { Name: name }
+  handler, err := handler.FindHandler(kind)
 
-      body, _ := c.Delete("secrets", name)
-
-			fmt.Println(string(body))
-    default:
-      panic("Unsuported kind")
+  if err != nil {
+    fmt.Println(err);
+    return;
   }
+
+  handler.Delete(params);
 }
