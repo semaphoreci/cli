@@ -5,7 +5,7 @@ import (
   "os"
   "io/ioutil"
 
-	"github.com/renderedtext/sem/client"
+	"github.com/renderedtext/sem/cmd/handler"
 	"github.com/spf13/cobra"
   "github.com/ghodss/yaml"
 )
@@ -28,36 +28,34 @@ func init() {
 }
 
 func RunCreate(cmd *cobra.Command, args []string) {
-    path, err := cmd.Flags().GetString("file")
+  path, err := cmd.Flags().GetString("file")
 
-    check(err, "Path not provided")
+  check(err, "Path not provided")
 
-    data, err := ioutil.ReadFile(path)
+  data, err := ioutil.ReadFile(path)
 
-    check(err, "Failed to read from resource file.")
+  check(err, "Failed to read from resource file.")
 
-    resource, err := parse(data)
+  resource, err := parse(data)
 
-    check(err, "Failed to parse resource file.")
+  check(err, "Failed to parse resource file.")
 
-    apiVersion := resource["apiVersion"].(string)
-    kind := resource["kind"].(string)
+  apiVersion := resource["apiVersion"].(string)
+  kind := resource["kind"].(string)
 
-    switch kind {
-      case "Secret":
-        c := client.FromConfig()
-        c.SetApiVersion(apiVersion)
+  json_resource, err := yaml.YAMLToJSON(data)
 
-        resource, _ := yaml.YAMLToJSON(data)
+  check(err, "Failed to parse resource file.")
 
-        body, _ := c.Post("secrets", resource)
+  params := handler.CreateParams { ApiVersion: apiVersion, Resource: json_resource }
+  handler, err := handler.FindHandler(kind)
 
-        j, _ := yaml.JSONToYAML(body)
+  if err != nil {
+    fmt.Println(err);
+    return;
+  }
 
-        fmt.Println(string(j))
-      default:
-        panic("Unsuported kind")
-    }
+  handler.Create(params);
 }
 
 func parse(data []byte) (map[string]interface{}, error) {

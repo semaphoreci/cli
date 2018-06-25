@@ -2,9 +2,8 @@ package cmd
 
 import (
 	"fmt"
-  "encoding/json"
 
-	"github.com/renderedtext/sem/client"
+	"github.com/renderedtext/sem/cmd/handler"
 	"github.com/spf13/cobra"
 )
 
@@ -25,22 +24,13 @@ func init() {
 func RunGet(cmd *cobra.Command, args []string) {
   kind := args[0]
 
-  switch kind {
-    case "secret", "secrets":
-			c := client.FromConfig()
+  params := handler.GetParams{}
+  handler, err := handler.FindHandler(kind)
 
-      body, _ := c.List("secrets")
-
-      var secrets []map[string]interface{}
-
-      json.Unmarshal([]byte(body), &secrets)
-
-      fmt.Println("NAME")
-
-      for _, secret := range secrets {
-        fmt.Println(secret["metadata"].(map[string]interface{})["name"])
-      }
-    default:
-      panic("Unsupported type")
+  if err != nil {
+    fmt.Println(err);
+    return;
   }
+
+  handler.Get(params);
 }
