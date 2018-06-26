@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
   "errors"
+  "strings"
 )
 
 type GetParams struct {
@@ -29,7 +30,7 @@ type Handler interface {
 }
 
 func FindHandler(resource_kind string) (Handler, error) {
-  switch resource_kind {
+  switch strings.ToLower(resource_kind) {
     case "secret", "secrets":
       return new(SecretHandler), nil
     case "project", "projects":

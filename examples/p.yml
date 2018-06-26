@@ -1,0 +1,7 @@
+apiVersion: v1alpha
+kind: Project
+metadata:
+  name: test
+spec:
+  repository:
+    url: "git@github.com:shiroyasha/test.git"
