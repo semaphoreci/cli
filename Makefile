@@ -13,6 +13,9 @@ build:
 	go build
 	tar -czvf /tmp/sem.tar.gz sem
 
+build-all: go.get
+	GOOS=darwin GOARCH=arm64 go build
+
 gsutil.configure:
 	./scripts/install-gcloud
 	gcloud auth activate-service-account deploy-from-semaphore@semaphore2-prod.iam.gserviceaccount.com --key-file ~/semaphore2-prod-2fd29ae99af8.json
