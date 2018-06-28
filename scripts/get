@@ -7,6 +7,10 @@ case "${unameOut}" in
       os=linux
       ;;
 
+    Darwin*)
+      os=linux
+      ;;
+
     *)
       echo "Unsupported operating system."
       exit 1
@@ -16,6 +20,10 @@ esac
 case "${unameOut}" in
      *x86_64*)
       arch=amd64
+      ;;
+
+     *386*)
+      arch=386
       ;;
 
     *)
