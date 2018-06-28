@@ -34,8 +34,8 @@ release.all:
 	$(MAKE) release OS=linux   ARCH=amd64
 	$(MAKE) release OS=darwin  ARCH=386
 	$(MAKE) release OS=darwin  ARCH=amd64
-	$(MAKE) release OS=windows ARCH=386
-	$(MAKE) release OS=windows ARCH=amd64
+	# $(MAKE) release OS=windows ARCH=386    # mousetrap issues?
+	# $(MAKE) release OS=windows ARCH=amd64
 
 release.stable:
 	$(MAKE) release.all REL_VERSION=stable
