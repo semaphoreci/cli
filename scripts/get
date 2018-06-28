@@ -32,7 +32,7 @@ case "${unameOut}" in
       ;;
 esac
 
-wget "https://storage.googleapis.com/sem-cli-releases/stable-${os}-${arch}.tar.gz" -O /tmp/sem.tar.gz
+curl "https://storage.googleapis.com/sem-cli-releases/stable-${os}-${arch}.tar.gz" -o /tmp/sem.tar.gz
 
 if [ ! -f /tmp/sem.tar.gz ]; then
   echo "Failed to fetch sem binary"
