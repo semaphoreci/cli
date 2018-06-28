@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/spf13/viper"
 )
@@ -17,9 +18,29 @@ type Client struct {
 }
 
 func FromConfig() Client {
-	authToken := viper.GetString("authToken")
+	authToken := viper.GetString("auth.token")
 	host := viper.GetString("host")
-	apiVersion := "v1alpha" // viper.GetString("apiVersion")
+	apiVersion := "v1alpha"
+
+	if authToken == "" {
+		fmt.Println("Auth Token is not configured.")
+		fmt.Println("Run the following command to set it:")
+		fmt.Println("")
+		fmt.Println("  sem config set auth.token [AUTH_TOKEN]")
+		fmt.Println("")
+
+		os.Exit(1)
+	}
+
+	if host == "" {
+		fmt.Println("Api host is not configured.")
+		fmt.Println("Run the following command to set it:")
+		fmt.Println("")
+		fmt.Println("  sem config set host [API_HOST]")
+		fmt.Println("")
+
+		os.Exit(1)
+	}
 
 	return New(authToken, host, apiVersion)
 }

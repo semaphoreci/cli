@@ -41,32 +41,24 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.sem.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+	home, err := homedir.Dir()
 
-		// Search config in home directory with name ".sem" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".sem")
-	}
+	check(err, "Failed to find home directory")
 
-	viper.AutomaticEnv() // read in environment variables that match
+	// Search config in home directory with name ".sem" (without extension).
+	viper.AddConfigPath(home)
+	viper.SetConfigName(".sem")
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		// fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
+	// Touch config file and make sure that it exists
+	path := fmt.Sprintf("%s/.sem.yaml", home)
+	os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
+
+	err = viper.ReadInConfig()
+
+	check(err, "Failed to read in config file")
 }
