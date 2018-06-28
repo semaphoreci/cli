@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"fmt"
-  "io/ioutil"
-  "os"
+	"io/ioutil"
+	"os"
 	"regexp"
 
-	"github.com/spf13/cobra"
 	"github.com/ghodss/yaml"
 	"github.com/renderedtext/sem/client"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tcnksm/go-gitconfig"
 )
@@ -17,10 +17,10 @@ import (
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize a project",
-	Long: ``,
+	Long:  ``,
 
 	Run: func(cmd *cobra.Command, args []string) {
-    RunInit(cmd, args)
+		RunInit(cmd, args)
 	},
 }
 
@@ -85,40 +85,40 @@ func init() {
 func RunInit(cmd *cobra.Command, args []string) {
 	c := client.FromConfig()
 
-  repo_url, err := gitconfig.OriginURL()
+	repo_url, err := gitconfig.OriginURL()
 
-  check(err, "Failed to extract git origin from gitconfig")
+	check(err, "Failed to extract git origin from gitconfig")
 
-  re := regexp.MustCompile(`git\@github\.com:.*\/(.*).git`)
-  match := re.FindStringSubmatch(repo_url)
+	re := regexp.MustCompile(`git\@github\.com:.*\/(.*).git`)
+	match := re.FindStringSubmatch(repo_url)
 
 	name := match[1]
 	host := viper.GetString("host")
-  project_url := fmt.Sprintf("https://%s/projects/%s", host, name)
+	project_url := fmt.Sprintf("https://%s/projects/%s", host, name)
 
-  check(err, "Failed to construct project name")
+	check(err, "Failed to construct project name")
 
-  err = ioutil.WriteFile(".semaphore.yml", []byte(semaphore_yaml_template), 0644)
+	err = ioutil.WriteFile(".semaphore.yml", []byte(semaphore_yaml_template), 0644)
 
-  check(err, "Failed to create .semaphore.yml")
+	check(err, "Failed to create .semaphore.yml")
 
-  project, err := yaml.YAMLToJSON([]byte(fmt.Sprintf(project_template, name, repo_url)))
+	project, err := yaml.YAMLToJSON([]byte(fmt.Sprintf(project_template, name, repo_url)))
 
-  check(err, "Failed to connect project to Semaphore")
+	check(err, "Failed to connect project to Semaphore")
 
 	body, status, err := c.Post("projects", project)
 
-  check(err, "Failed to connect project to Semaphore")
+	check(err, "Failed to connect project to Semaphore")
 
-  if status != 200 {
+	if status != 200 {
 		fmt.Fprintf(os.Stderr, "%s\n", body)
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 
-    os.Exit(1)
-  }
+		os.Exit(1)
+	}
 
-  fmt.Printf("Project is created. You can find it at %s.\n", project_url)
-  fmt.Println("")
-  fmt.Printf("To run our first pipeline execute:")
-  fmt.Printf("git add .semaphore.yml && git commit -m \"First pipeline\" && git push")
+	fmt.Printf("Project is created. You can find it at %s.\n", project_url)
+	fmt.Println("")
+	fmt.Printf("To run our first pipeline execute:")
+	fmt.Printf("git add .semaphore.yml && git commit -m \"First pipeline\" && git push")
 }

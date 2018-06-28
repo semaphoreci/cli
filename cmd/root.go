@@ -46,19 +46,19 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-  home, err := homedir.Dir()
+	home, err := homedir.Dir()
 
-  check(err, "Failed to find home directory")
+	check(err, "Failed to find home directory")
 
-  // Search config in home directory with name ".sem" (without extension).
-  viper.AddConfigPath(home)
-  viper.SetConfigName(".sem")
+	// Search config in home directory with name ".sem" (without extension).
+	viper.AddConfigPath(home)
+	viper.SetConfigName(".sem")
 
-  // Touch config file and make sure that it exists
-  path := fmt.Sprintf("%s/.sem.yaml", home)
-  os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
+	// Touch config file and make sure that it exists
+	path := fmt.Sprintf("%s/.sem.yaml", home)
+	os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
 
-  err = viper.ReadInConfig()
+	err = viper.ReadInConfig()
 
-  check(err, "Failed to read in config file")
+	check(err, "Failed to read in config file")
 }

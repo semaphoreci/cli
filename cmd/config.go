@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-  "os"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -22,15 +22,15 @@ var configGetCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
-    if viper.IsSet(name) {
-      value := viper.GetString(name)
+		if viper.IsSet(name) {
+			value := viper.GetString(name)
 
-      fmt.Println(value)
-    } else {
-      fmt.Printf("configuration \"%s\" not found\n", name)
+			fmt.Println(value)
+		} else {
+			fmt.Printf("configuration \"%s\" not found\n", name)
 
-      os.Exit(1)
-    }
+			os.Exit(1)
+		}
 	},
 }
 
@@ -43,8 +43,8 @@ var configSetCmd = &cobra.Command{
 		name := args[0]
 		value := args[1]
 
-    viper.Set(name, value)
-    viper.WriteConfig()
+		viper.Set(name, value)
+		viper.WriteConfig()
 	},
 }
 

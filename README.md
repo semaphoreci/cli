@@ -20,7 +20,7 @@ touch ~/.sem.yaml
 ```
 
 ``` bash
-sem config set authToken <token>
+sem config set auth.token <token>
 sem config set host <org>.semaphoreci.com
 ```
 
