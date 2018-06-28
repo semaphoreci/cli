@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
-  "log"
-  "io/ioutil"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -18,11 +18,11 @@ var Verbose bool
 var rootCmd = &cobra.Command{
 	Use:   "sem",
 	Short: "Semaphore 2.0 command line interface",
-  PersistentPreRun: func(cmd *cobra.Command, args []string) {
-    if !Verbose {
-      log.SetOutput(ioutil.Discard)
-    }
-  },
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if !Verbose {
+			log.SetOutput(ioutil.Discard)
+		}
+	},
 
 	// Uncomment the following line if your bare application
 	// has an action associated with it:

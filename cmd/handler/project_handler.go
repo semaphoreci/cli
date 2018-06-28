@@ -1,62 +1,62 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
-  "encoding/json"
 
+	"github.com/ghodss/yaml"
 	"github.com/renderedtext/sem/client"
-  "github.com/ghodss/yaml"
 )
 
 type ProjectHandler struct {
 }
 
 func (h *ProjectHandler) Get(params GetParams) {
-  c := client.FromConfig()
+	c := client.FromConfig()
 
-  body, _, _ := c.List("projects")
+	body, _, _ := c.List("projects")
 
-  var secrets []map[string]interface{}
+	var secrets []map[string]interface{}
 
-  json.Unmarshal([]byte(body), &secrets)
+	json.Unmarshal([]byte(body), &secrets)
 
-  fmt.Println("NAME")
+	fmt.Println("NAME")
 
-  for _, secret := range secrets {
-    fmt.Println(secret["metadata"].(map[string]interface{})["name"])
-  }
+	for _, secret := range secrets {
+		fmt.Println(secret["metadata"].(map[string]interface{})["name"])
+	}
 }
 
 func (h *ProjectHandler) Describe(params DescribeParams) {
-  c := client.FromConfig()
+	c := client.FromConfig()
 
-  body, _, _ := c.Get("projects", params.Name)
-  j, _ := yaml.JSONToYAML(body)
+	body, _, _ := c.Get("projects", params.Name)
+	j, _ := yaml.JSONToYAML(body)
 
-  fmt.Println(string(j))
+	fmt.Println(string(j))
 }
 
 func (h *ProjectHandler) Create(params CreateParams) {
-  c := client.FromConfig()
-  c.SetApiVersion(params.ApiVersion)
+	c := client.FromConfig()
+	c.SetApiVersion(params.ApiVersion)
 
-  body, _, _ := c.Post("projects", params.Resource)
+	body, _, _ := c.Post("projects", params.Resource)
 
-  j, _ := yaml.JSONToYAML(body)
+	j, _ := yaml.JSONToYAML(body)
 
-  fmt.Println(string(j))
+	fmt.Println(string(j))
 }
 
 func (h *ProjectHandler) Delete(params DeleteParams) {
-  c := client.FromConfig()
+	c := client.FromConfig()
 
-  body, status, _ := c.Delete("projects", params.Name)
+	body, status, _ := c.Delete("projects", params.Name)
 
-  if status == 200 {
-    fmt.Printf("project \"%s\" deleted\n", params.Name)
-  } else {
-    fmt.Printf("failed to delete secret \"%s\"\n", params.Name)
+	if status == 200 {
+		fmt.Printf("project \"%s\" deleted\n", params.Name)
+	} else {
+		fmt.Printf("failed to delete secret \"%s\"\n", params.Name)
 
-    fmt.Println(string(body))
-  }
+		fmt.Println(string(body))
+	}
 }
