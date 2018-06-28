@@ -2,12 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
+  "os"
 
-	"github.com/ghodss/yaml"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var configCmd = &cobra.Command{
@@ -24,19 +22,15 @@ var configGetCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
-		home, err := homedir.Dir()
-		path := fmt.Sprintf("%s/.sem.yaml", home)
-		data, err := ioutil.ReadFile(path)
+    if viper.IsSet(name) {
+      value := viper.GetString(name)
 
-		m := make(map[string]string)
+      fmt.Println(value)
+    } else {
+      fmt.Printf("configuration \"%s\" not found\n", name)
 
-		err = yaml.Unmarshal([]byte(data), &m)
-
-		if err != nil {
-			log.Fatalf("error: %v", err)
-		}
-
-		fmt.Println(m[name])
+      os.Exit(1)
+    }
 	},
 }
 
@@ -49,31 +43,8 @@ var configSetCmd = &cobra.Command{
 		name := args[0]
 		value := args[1]
 
-		home, err := homedir.Dir()
-		path := fmt.Sprintf("%s/.sem.yaml", home)
-		data, err := ioutil.ReadFile(path)
-
-		m := make(map[string]string)
-
-		err = yaml.Unmarshal([]byte(data), &m)
-
-		if err != nil {
-			fmt.Printf("sdasdsa")
-		}
-
-		m[name] = value
-
-		d, err := yaml.Marshal(&m)
-
-		if err != nil {
-			log.Fatalf("error: %v", err)
-		}
-
-		err = ioutil.WriteFile(path, d, 0644)
-
-		if err != nil {
-			log.Fatalf("error: %v", err)
-		}
+    viper.Set(name, value)
+    viper.WriteConfig()
 	},
 }
 
