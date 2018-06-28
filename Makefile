@@ -3,8 +3,11 @@
 REL_VERSION=$(shell git rev-parse HEAD)
 REL_BUCKET=sem-cli-releases
 
-OS=linux
-ARCH=amd64
+gsutil.configure:
+	./scripts/install-gcloud
+	gcloud auth activate-service-account deploy-from-semaphore@semaphore2-prod.iam.gserviceaccount.com --key-file ~/semaphore2-prod-2fd29ae99af8.json
+	gcloud config set project semaphore2-prod
+	gcloud container clusters get-credentials prod --zone us-east4
 
 go.get:
 	go get -t -d -v ./... && go build -v ./...
@@ -16,23 +19,26 @@ test:
 	go test -v ./...
 
 build:
-	go build
-	tar -czvf /tmp/sem.tar.gz sem
+	env GOOS=$(OS) GOARCH=$(ARCH) go build
+	tar -czvf /tmp/sem-$(OS)-$(ARCH).tar.gz sem
 
-gsutil.configure:
-	./scripts/install-gcloud
-	gcloud auth activate-service-account deploy-from-semaphore@semaphore2-prod.iam.gserviceaccount.com --key-file ~/semaphore2-prod-2fd29ae99af8.json
-	gcloud config set project semaphore2-prod
-	gcloud container clusters get-credentials prod --zone us-east4
-
-release: build
+release:
+	$(MAKE) build OS=$(OS) ARCH=$(ARCH)
 	gsutil cp /tmp/sem.tar.gz gs://$(REL_BUCKET)/$(REL_VERSION)-$(OS)-$(ARCH).tar.gz
 	gsutil acl -R ch -u AllUsers:R gs://$(REL_BUCKET)/$(REL_VERSION)-$(OS)-$(ARCH).tar.gz
 	gsutil setmeta -h "Cache-Control:private, max-age=0, no-transform" gs://$(REL_BUCKET)/$(REL_VERSION)-$(OS)-$(ARCH).tar.gz
 	echo "https://storage.googleapis.com/$(REL_BUCKET)/$(REL_VERSION)-$(OS)-$(ARCH).tar.gz"
 
+release.all:
+	$(MAKE) release OS=linux   ARCH=386
+	$(MAKE) release OS=linux   ARCH=amd64
+	$(MAKE) release OS=darwin  ARCH=386
+	$(MAKE) release OS=darwin  ARCH=amd64
+	$(MAKE) release OS=windows ARCH=386
+	$(MAKE) release OS=windows ARCH=amd64
+
 release.stable:
-	$(MAKE) release REL_VERSION=stable
+	$(MAKE) release.all REL_VERSION=stable
 
 release.install.script:
 	gsutil cp scripts/get gs://$(REL_BUCKET)/get.sh
