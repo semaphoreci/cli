@@ -121,6 +121,6 @@ func RunInit(cmd *cobra.Command, args []string) {
 	fmt.Println("")
 	fmt.Printf("To run your first pipeline execute:\n")
 	fmt.Println("")
-	fmt.Printf("  git add .semaphore.yml && git commit -m \"First pipeline\" && git push")
+	fmt.Printf("  git add .semaphore.yml && git commit -m \"First pipeline\" && git push\n")
 	fmt.Println("")
 }
