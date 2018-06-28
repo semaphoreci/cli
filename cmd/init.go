@@ -3,11 +3,14 @@ package cmd
 import (
 	"fmt"
   "io/ioutil"
+  "os"
+	"regexp"
 
 	"github.com/spf13/cobra"
 	"github.com/ghodss/yaml"
 	"github.com/renderedtext/sem/client"
 	"github.com/spf13/viper"
+	"github.com/tcnksm/go-gitconfig"
 )
 
 // initCmd represents the init command
@@ -82,32 +85,40 @@ func init() {
 func RunInit(cmd *cobra.Command, args []string) {
 	c := client.FromConfig()
 
-  name := "test-125"
-  url := "git@github.com:shiroyasha/test.git"
+  repo_url, err := gitconfig.OriginURL()
 
-  project, err := yaml.YAMLToJSON([]byte(fmt.Sprintf(project_template, name, url)))
+  check(err, "Failed to extract git origin from gitconfig")
 
-  if err != nil {
-    fmt.Printf("%v", err)
-  }
+  re := regexp.MustCompile(`git\@github\.com:.*\/(.*).git`)
+  match := re.FindStringSubmatch(repo_url)
 
-	body, status, _ := c.Post("projects", project)
+	name := match[1]
+	host := viper.GetString("host")
+  project_url := fmt.Sprintf("https://%s/projects/%s", host, name)
 
-  if status != 200 {
-    fmt.Println(string(body))
-    return
-  }
+  check(err, "Failed to construct project name")
 
   err = ioutil.WriteFile(".semaphore.yml", []byte(semaphore_yaml_template), 0644)
 
-  if err != nil {
-    fmt.Printf("%v", err)
-    return
+  check(err, "Failed to create .semaphore.yml")
+
+  project, err := yaml.YAMLToJSON([]byte(fmt.Sprintf(project_template, name, repo_url)))
+
+  check(err, "Failed to connect project to Semaphore")
+
+	body, status, err := c.Post("projects", project)
+
+  check(err, "Failed to connect project to Semaphore")
+
+  if status != 200 {
+		fmt.Fprintf(os.Stderr, "%s\n", body)
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+
+    os.Exit(1)
   }
 
-  project_url := fmt.Sprintf("https://%s/projects/%s", viper.GetString("host"), name)
-
-  fmt.Printf("Project \"%s\" initialized on Semaphore. %s\n", name, project_url)
+  fmt.Printf("Project is created. You can find it at %s.\n", project_url)
   fmt.Println("")
-  fmt.Println("Execute: git add .semaphore.yml && git commit -m \"First pipeline\" && git push")
+  fmt.Printf("To run our first pipeline execute:")
+  fmt.Printf("git add .semaphore.yml && git commit -m \"First pipeline\" && git push")
 }
