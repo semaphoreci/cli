@@ -6,6 +6,9 @@ REL_BUCKET=sem-cli-releases
 go.get:
 	go get -t -d -v ./... && go build -v ./...
 
+go.fmt:
+	go fmt ./...
+
 test:
 	go test -v ./...
 
