@@ -119,6 +119,8 @@ func RunInit(cmd *cobra.Command, args []string) {
 
 	fmt.Printf("Project is created. You can find it at %s.\n", project_url)
 	fmt.Println("")
-	fmt.Printf("To run our first pipeline execute:")
-	fmt.Printf("git add .semaphore.yml && git commit -m \"First pipeline\" && git push")
+	fmt.Printf("To run your first pipeline execute:\n")
+	fmt.Println("")
+	fmt.Printf("  git add .semaphore.yml && git commit -m \"First pipeline\" && git push")
+	fmt.Println("")
 }
