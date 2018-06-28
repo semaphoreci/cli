@@ -24,6 +24,14 @@ sem config set authToken <token>
 sem config set host <org>.semaphoreci.com
 ```
 
+## Initialize Project
+
+In the root of the repository:
+
+``` bash
+sem init
+```
+
 ## Projects
 
 ### Create project
