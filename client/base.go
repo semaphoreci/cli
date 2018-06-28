@@ -19,7 +19,7 @@ type Client struct {
 func FromConfig() Client {
 	authToken := viper.GetString("authToken")
 	host := viper.GetString("host")
-	apiVersion := viper.GetString("apiVersion")
+	apiVersion := "v1alpha" // viper.GetString("apiVersion")
 
 	return New(authToken, host, apiVersion)
 }
