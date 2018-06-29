@@ -3,7 +3,8 @@ kind: Secret
 metadata:
   name: aws-secrets
 data:
-  - name: aws-id
-    value: "2"
-  - name: aws-secret
-    value: "42 > 23"
+  env_vars:
+    - name: aws-id
+      value: "2"
+    - name: aws-secret
+      value: "42 > 23"
