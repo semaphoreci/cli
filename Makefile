@@ -19,8 +19,8 @@ test:
 	go test -v ./...
 
 build:
-	env GOOS=$(OS) GOARCH=$(ARCH) go build
-	tar -czvf /tmp/sem-$(OS)-$(ARCH).tar.gz sem
+	env GOOS=$(OS) GOARCH=$(ARCH) go build -o sem
+	tar -czvf /tmp/sem.tar.gz sem
 
 release:
 	$(MAKE) build OS=$(OS) ARCH=$(ARCH)
