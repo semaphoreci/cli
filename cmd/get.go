@@ -27,7 +27,7 @@ func RunGet(cmd *cobra.Command, args []string) {
 	params := handler.GetParams{}
 	handler, err := handler.FindHandler(kind)
 
-	utils.Check(err, err.Error())
+	utils.Check(err)
 
 	handler.Get(params)
 }

@@ -50,7 +50,7 @@ func init() {
 func initConfig() {
 	home, err := homedir.Dir()
 
-	utils.Check(err, "failed to find home directory")
+	utils.CheckWithMessage(err, "failed to find home directory")
 
 	// Search config in home directory with name ".sem" (without extension).
 	viper.AddConfigPath(home)
@@ -62,5 +62,5 @@ func initConfig() {
 
 	err = viper.ReadInConfig()
 
-	utils.Check(err, "failed to load config file")
+	utils.CheckWithMessage(err, "failed to load config file")
 }

@@ -96,7 +96,7 @@ func RunInit(cmd *cobra.Command, args []string) {
 
 	repo_url, err := gitconfig.OriginURL()
 
-	utils.Check(err, "failed to extract remote from git configuration")
+	utils.CheckWithMessage(err, "failed to extract remote from git configuration")
 
 	re := regexp.MustCompile(`git\@github\.com:.*\/(.*).git`)
 	match := re.FindStringSubmatch(repo_url)
@@ -109,19 +109,19 @@ func RunInit(cmd *cobra.Command, args []string) {
 	host := viper.GetString("host")
 	project_url := fmt.Sprintf("https://%s/projects/%s", host, name)
 
-	utils.Check(err, "constructing project name failed")
+	utils.CheckWithMessage(err, "constructing project name failed")
 
 	err = ioutil.WriteFile(".semaphore.yml", []byte(semaphore_yaml_template), 0644)
 
-	utils.Check(err, "failed to create .semaphore.yml")
+	utils.CheckWithMessage(err, "failed to create .semaphore.yml")
 
 	project, err := yaml.YAMLToJSON([]byte(fmt.Sprintf(project_template, name, repo_url)))
 
-	utils.Check(err, "connecting project to Semaphore failed")
+	utils.CheckWithMessage(err, "connecting project to Semaphore failed")
 
 	body, status, err := c.Post("projects", project)
 
-	utils.Check(err, "connecting project to Semaphore failed")
+	utils.CheckWithMessage(err, "connecting project to Semaphore failed")
 
 	if status != 200 {
 		fmt.Fprintf(os.Stderr, "%s\n", body)
