@@ -6,6 +6,7 @@ import (
 
 	"github.com/ghodss/yaml"
 	"github.com/renderedtext/sem/client"
+	"github.com/renderedtext/sem/cmd/utils"
 )
 
 type SecretHandler struct {
@@ -14,7 +15,13 @@ type SecretHandler struct {
 func (h *SecretHandler) Get(params GetParams) {
 	c := client.FromConfig()
 
-	body, _, _ := c.List("secrets")
+	body, status, err := c.List("secrets")
+
+	utils.Check(err)
+
+	if status != 200 {
+		utils.Fail(fmt.Sprintf("http status %d received from upstream", status))
+	}
 
 	var secrets []map[string]interface{}
 
@@ -30,7 +37,14 @@ func (h *SecretHandler) Get(params GetParams) {
 func (h *SecretHandler) Describe(params DescribeParams) {
 	c := client.FromConfig()
 
-	body, _, _ := c.Get("secrets", params.Name)
+	body, status, err := c.Get("secrets", params.Name)
+
+	utils.Check(err)
+
+	if status != 200 {
+		utils.Fail(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
+
 	j, _ := yaml.JSONToYAML(body)
 
 	fmt.Println(string(j))
@@ -40,7 +54,13 @@ func (h *SecretHandler) Create(params CreateParams) {
 	c := client.FromConfig()
 	c.SetApiVersion(params.ApiVersion)
 
-	body, _, _ := c.Post("secrets", params.Resource)
+	body, status, err := c.Post("secrets", params.Resource)
+
+	utils.Check(err)
+
+	if status != 200 {
+		utils.Fail(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
 
 	j, _ := yaml.JSONToYAML(body)
 
@@ -50,13 +70,13 @@ func (h *SecretHandler) Create(params CreateParams) {
 func (h *SecretHandler) Delete(params DeleteParams) {
 	c := client.FromConfig()
 
-	body, status, _ := c.Delete("secrets", params.Name)
+	body, status, err := c.Delete("secrets", params.Name)
 
-	if status == 200 {
-		fmt.Printf("secret \"%s\" deleted\n", params.Name)
-	} else {
-		fmt.Printf("failed to delete secret \"%s\"\n", params.Name)
+	utils.Check(err)
 
-		fmt.Println(string(body))
+	if status != 200 {
+		utils.Fail(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
 	}
+
+	fmt.Printf("secret \"%s\" deleted\n", params.Name)
 }
