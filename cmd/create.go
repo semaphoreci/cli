@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"io/ioutil"
 
 	"github.com/renderedtext/sem/cmd/handler"
