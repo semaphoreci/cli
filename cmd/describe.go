@@ -29,7 +29,7 @@ func RunDescribe(cmd *cobra.Command, args []string) {
 	params := handler.DescribeParams{Name: name}
 	handler, err := handler.FindHandler(kind)
 
-	utils.Check(err, err.Error())
+	utils.Check(err)
 
 	handler.Describe(params)
 }

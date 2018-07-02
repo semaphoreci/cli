@@ -28,7 +28,7 @@ func RunDelete(cmd *cobra.Command, args []string) {
 	params := handler.DeleteParams{Name: name}
 	handler, err := handler.FindHandler(kind)
 
-	utils.Check(err, err.Error())
+	utils.Check(err)
 
 	handler.Delete(params)
 }

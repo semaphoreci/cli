@@ -30,27 +30,27 @@ func init() {
 func RunCreate(cmd *cobra.Command, args []string) {
 	path, err := cmd.Flags().GetString("file")
 
-	utils.Check(err, "Path not provided")
+	utils.CheckWithMessage(err, "Path not provided")
 
 	data, err := ioutil.ReadFile(path)
 
-	utils.Check(err, "Failed to read from resource file.")
+	utils.CheckWithMessage(err, "Failed to read from resource file.")
 
 	resource, err := parse(data)
 
-	utils.Check(err, "Failed to parse resource file.")
+	utils.CheckWithMessage(err, "Failed to parse resource file.")
 
 	apiVersion := resource["apiVersion"].(string)
 	kind := resource["kind"].(string)
 
 	json_resource, err := yaml.YAMLToJSON(data)
 
-	utils.Check(err, "Failed to parse resource file.")
+	utils.CheckWithMessage(err, "Failed to parse resource file.")
 
 	params := handler.CreateParams{ApiVersion: apiVersion, Resource: json_resource}
 	handler, err := handler.FindHandler(kind)
 
-	utils.Check(err, err.Error())
+	utils.Check(err)
 
 	handler.Create(params)
 }
