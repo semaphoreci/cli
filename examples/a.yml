@@ -4,7 +4,7 @@ metadata:
   name: aws-secrets
 data:
   env_vars:
-    - name: aws-id
+    - name: AWS_ID
       value: "2"
-    - name: aws-secret
+    - name: AWS_SECRET
       value: "42 > 23"
