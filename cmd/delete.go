@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/renderedtext/sem/cmd/handler"
+	"github.com/renderedtext/sem/cmd/utils"
+
 	"github.com/spf13/cobra"
 )
 
@@ -28,10 +28,7 @@ func RunDelete(cmd *cobra.Command, args []string) {
 	params := handler.DeleteParams{Name: name}
 	handler, err := handler.FindHandler(kind)
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	utils.Check(err, err.Error())
 
 	handler.Delete(params)
 }

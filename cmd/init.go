@@ -6,8 +6,8 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/renderedtext/sem/cmd/utils"
 	"github.com/renderedtext/sem/client"
+	"github.com/renderedtext/sem/cmd/utils"
 
 	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
@@ -87,42 +87,42 @@ func init() {
 func RunInit(cmd *cobra.Command, args []string) {
 	c := client.FromConfig()
 
-  if _, err := os.Stat(".git"); os.IsNotExist(err) {
-    utils.Fail("not a git repository")
-  }
+	if _, err := os.Stat(".git"); os.IsNotExist(err) {
+		utils.Fail("not a git repository")
+	}
 
-  if _, err := os.Stat(".semaphore.yml"); err == nil {
-    utils.Fail("repository is already initialized")
-  }
+	if _, err := os.Stat(".semaphore.yml"); err == nil {
+		utils.Fail("repository is already initialized")
+	}
 
 	repo_url, err := gitconfig.OriginURL()
 
-  utils.Check(err, "failed to extract remote from git configuration")
+	utils.Check(err, "failed to extract remote from git configuration")
 
 	re := regexp.MustCompile(`git\@github\.com:.*\/(.*).git`)
 	match := re.FindStringSubmatch(repo_url)
 
-  if len(match) < 2 {
-    utils.Fail("unrecognized git remote format")
-  }
+	if len(match) < 2 {
+		utils.Fail("unrecognized git remote format")
+	}
 
 	name := match[1]
 	host := viper.GetString("host")
 	project_url := fmt.Sprintf("https://%s/projects/%s", host, name)
 
-  utils.Check(err, "constructing project name failed")
+	utils.Check(err, "constructing project name failed")
 
 	err = ioutil.WriteFile(".semaphore.yml", []byte(semaphore_yaml_template), 0644)
 
-  utils.Check(err, "failed to create .semaphore.yml")
+	utils.Check(err, "failed to create .semaphore.yml")
 
 	project, err := yaml.YAMLToJSON([]byte(fmt.Sprintf(project_template, name, repo_url)))
 
-  utils.Check(err, "connecting project to Semaphore failed")
+	utils.Check(err, "connecting project to Semaphore failed")
 
 	body, status, err := c.Post("projects", project)
 
-  utils.Check(err, "connecting project to Semaphore failed")
+	utils.Check(err, "connecting project to Semaphore failed")
 
 	if status != 200 {
 		fmt.Fprintf(os.Stderr, "%s\n", body)
