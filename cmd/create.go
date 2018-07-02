@@ -68,11 +68,3 @@ func parse(data []byte) (map[string]interface{}, error) {
 	return m, err
 }
 
-func check(err error, message string) {
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", message)
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-
-		os.Exit(1)
-	}
-}
