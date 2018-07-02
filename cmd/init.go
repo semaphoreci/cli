@@ -45,7 +45,7 @@ blocks:
     build:
       prologue:
         commands:
-          - checkout && cd $SEMAPHORE_GIT_DIR
+          - checkout
       epilogue:
         commands:
           - echo "Yay job finished"
@@ -74,7 +74,6 @@ blocks:
       - name: Echo job
         commands:
           - checkout
-          - cd $SEMAPHORE_GIT_DIR
           - pwd
           - echo $SEMAPHORE_PIPELINE_ID
           - echo "Hello from $SEMAPHORE_JOB_ID"
