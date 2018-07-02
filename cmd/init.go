@@ -124,10 +124,7 @@ func RunInit(cmd *cobra.Command, args []string) {
 	utils.CheckWithMessage(err, "connecting project to Semaphore failed")
 
 	if status != 200 {
-		fmt.Fprintf(os.Stderr, "%s\n", body)
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-
-		os.Exit(1)
+		utils.Fail(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
 	}
 
 	fmt.Printf("Project is created. You can find it at %s.\n", project_url)
