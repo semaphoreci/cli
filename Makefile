@@ -40,8 +40,17 @@ release.all:
 release.stable:
 	$(MAKE) release.all REL_VERSION=stable
 
-release.install.script:
+release.edge:
+	$(MAKE) release.all REL_VERSION=edge
+
+release.stable.install.script:
 	gsutil cp scripts/get gs://$(REL_BUCKET)/get.sh
 	gsutil acl -R ch -u AllUsers:R gs://$(REL_BUCKET)/get.sh
 	gsutil setmeta -h "Cache-Control:private, max-age=0, no-transform" gs://$(REL_BUCKET)/get.sh
 	echo "https://storage.googleapis.com/$(REL_BUCKET)/get.sh"
+
+release.edge.install.script:
+	gsutil cp scripts/get gs://$(REL_BUCKET)/get-edge.sh
+	gsutil acl -R ch -u AllUsers:R gs://$(REL_BUCKET)/get-edge.sh
+	gsutil setmeta -h "Cache-Control:private, max-age=0, no-transform" gs://$(REL_BUCKET)/get-edge.sh
+	echo "https://storage.googleapis.com/$(REL_BUCKET)/get-edge.sh"
