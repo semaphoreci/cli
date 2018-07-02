@@ -9,10 +9,10 @@ import (
 
 // describeCmd represents the describe command
 var describeCmd = &cobra.Command{
-	Use:   "describe",
+	Use:   "describe [KIND] [NAME]",
 	Short: "Describe a resource",
 	Long:  ``,
-
+	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		RunDescribe(cmd, args)
 	},
