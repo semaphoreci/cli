@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"fmt"
 	"io/ioutil"
-	"os"
+
+	"github.com/renderedtext/sem/cmd/handler"
+	"github.com/renderedtext/sem/cmd/utils"
 
 	"github.com/ghodss/yaml"
-	"github.com/renderedtext/sem/cmd/handler"
 	"github.com/spf13/cobra"
 )
 
@@ -30,30 +30,27 @@ func init() {
 func RunCreate(cmd *cobra.Command, args []string) {
 	path, err := cmd.Flags().GetString("file")
 
-	check(err, "Path not provided")
+	utils.Check(err, "Path not provided")
 
 	data, err := ioutil.ReadFile(path)
 
-	check(err, "Failed to read from resource file.")
+	utils.Check(err, "Failed to read from resource file.")
 
 	resource, err := parse(data)
 
-	check(err, "Failed to parse resource file.")
+	utils.Check(err, "Failed to parse resource file.")
 
 	apiVersion := resource["apiVersion"].(string)
 	kind := resource["kind"].(string)
 
 	json_resource, err := yaml.YAMLToJSON(data)
 
-	check(err, "Failed to parse resource file.")
+	utils.Check(err, "Failed to parse resource file.")
 
 	params := handler.CreateParams{ApiVersion: apiVersion, Resource: json_resource}
 	handler, err := handler.FindHandler(kind)
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	utils.Check(err, err.Error())
 
 	handler.Create(params)
 }
@@ -66,13 +63,4 @@ func parse(data []byte) (map[string]interface{}, error) {
 	err := yaml.Unmarshal(data, &m)
 
 	return m, err
-}
-
-func check(err error, message string) {
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", message)
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-
-		os.Exit(1)
-	}
 }

@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/renderedtext/sem/cmd/utils"
+
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -48,7 +50,7 @@ func init() {
 func initConfig() {
 	home, err := homedir.Dir()
 
-	check(err, "Failed to find home directory")
+	utils.Check(err, "failed to find home directory")
 
 	// Search config in home directory with name ".sem" (without extension).
 	viper.AddConfigPath(home)
@@ -60,5 +62,5 @@ func initConfig() {
 
 	err = viper.ReadInConfig()
 
-	check(err, "Failed to read in config file")
+	utils.Check(err, "failed to load config file")
 }
