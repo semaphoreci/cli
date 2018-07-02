@@ -50,7 +50,7 @@ release.stable.install.script:
 	echo "https://storage.googleapis.com/$(REL_BUCKET)/get.sh"
 
 release.edge.install.script:
-	gsutil cp scripts/get gs://$(REL_BUCKET)/get-edge.sh
+	gsutil cp scripts/get-edge gs://$(REL_BUCKET)/get-edge.sh
 	gsutil acl -R ch -u AllUsers:R gs://$(REL_BUCKET)/get-edge.sh
 	gsutil setmeta -h "Cache-Control:private, max-age=0, no-transform" gs://$(REL_BUCKET)/get-edge.sh
 	echo "https://storage.googleapis.com/$(REL_BUCKET)/get-edge.sh"
