@@ -5,6 +5,28 @@ import (
 	"github.com/spf13/viper"
 )
 
+func ContextList() ([]string, error) {
+	m := make(map[string]interface{})
+
+	err := viper.UnmarshalKey("contexts", &m)
+
+	if err != nil {
+		return []string{}, err
+	}
+
+   for k := range m {
+	   if k == GetActiveContext() {
+		   fmt.Print("* ")
+		   fmt.Println(k)
+	   } else {
+		   fmt.Print("  ")
+		   fmt.Println(k)
+	   }
+    }
+
+	return []string{}, nil
+}
+
 func SetActiveContext(name string) {
 	Set("active-context", name)
 }
