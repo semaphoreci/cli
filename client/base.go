@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/spf13/viper"
+	"github.com/renderedtext/sem/config"
 )
 
 type Client struct {
@@ -18,25 +18,15 @@ type Client struct {
 }
 
 func FromConfig() Client {
-	authToken := viper.GetString("auth.token")
-	host := viper.GetString("host")
+	host := config.GetHost()
+	authToken := config.GetAuth()
 	apiVersion := "v1alpha"
 
-	if authToken == "" {
-		fmt.Println("Auth Token is not configured.")
-		fmt.Println("Run the following command to set it:")
+	if authToken == "" || host == "" {
+		fmt.Println("Connection to Semaphore is not established.")
+		fmt.Println("Run the following command to connect to Semaphore:")
 		fmt.Println("")
-		fmt.Println("  sem config set auth.token [AUTH_TOKEN]")
-		fmt.Println("")
-
-		os.Exit(1)
-	}
-
-	if host == "" {
-		fmt.Println("Api host is not configured.")
-		fmt.Println("Run the following command to set it:")
-		fmt.Println("")
-		fmt.Println("  sem config set host [API_HOST]")
+		fmt.Println("  sem connect [HOST] [TOKEN]")
 		fmt.Println("")
 
 		os.Exit(1)
