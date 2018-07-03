@@ -33,7 +33,7 @@ func FindHandler(resource_kind string) (Handler, error) {
 	switch strings.ToLower(resource_kind) {
 	case "secret", "secrets":
 		return new(SecretHandler), nil
-	case "project", "projects":
+	case "project", "projects", "prj":
 		return new(ProjectHandler), nil
 	default:
 		return nil, errors.New(fmt.Sprintf("Unknown resource kind %s.", resource_kind))
