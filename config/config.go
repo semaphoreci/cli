@@ -2,10 +2,13 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/spf13/viper"
 )
 
 func ContextList() ([]string, error) {
+	res := []string{}
+
 	m := make(map[string]interface{})
 
 	err := viper.UnmarshalKey("contexts", &m)
@@ -14,17 +17,11 @@ func ContextList() ([]string, error) {
 		return []string{}, err
 	}
 
-   for k := range m {
-	   if k == GetActiveContext() {
-		   fmt.Print("* ")
-		   fmt.Println(k)
-	   } else {
-		   fmt.Print("  ")
-		   fmt.Println(k)
-	   }
-    }
+	for k := range m {
+		res = append(res, k)
+	}
 
-	return []string{}, nil
+	return res, nil
 }
 
 func SetActiveContext(name string) {

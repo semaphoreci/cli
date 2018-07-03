@@ -1,20 +1,9 @@
-// Copyright © 2018 NAME HERE <EMAIL ADDRESS>
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cmd
 
 import (
+	"fmt"
+
+	"github.com/renderedtext/sem/cmd/utils"
 	"github.com/renderedtext/sem/config"
 	"github.com/spf13/cobra"
 )
@@ -23,14 +12,52 @@ import (
 var contextCmd = &cobra.Command{
 	Use:   "context",
 	Short: "Manage contexts for connecting to Semaphore",
-	Long: ``,
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			config.ContextList()
+		switch len(args) {
+		case 0:
+			listContexts()
+		case 1:
+			setContext(args[0])
+		default:
+			panic("")
 		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(contextCmd)
+}
+
+func listContexts() {
+	contexts, err := config.ContextList()
+
+	utils.Check(err)
+
+	active := config.GetActiveContext()
+
+	for _, ctx := range contexts {
+		if ctx == active {
+			fmt.Print("* ")
+			fmt.Println(ctx)
+		} else {
+			fmt.Print("  ")
+			fmt.Println(ctx)
+		}
+	}
+}
+
+func setContext(name string) {
+	contexts, err := config.ContextList()
+
+	utils.Check(err)
+
+	for _, ctx := range contexts {
+		if ctx == name {
+			config.SetActiveContext(name)
+			return
+		}
+	}
+
+	utils.Fail(fmt.Sprintf("context \"%s\" does not exists", name))
 }
