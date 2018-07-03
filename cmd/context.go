@@ -55,6 +55,8 @@ func setContext(name string) {
 	for _, ctx := range contexts {
 		if ctx == name {
 			config.SetActiveContext(name)
+
+			fmt.Printf("switched to context \"%s\"\n", name)
 			return
 		}
 	}
