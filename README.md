@@ -2,35 +2,34 @@
 
 ## Install
 
-``` bash
-RELEASE=<full-commit-sha>
+Edge (latest build on master branch):
 
-wget "https://storage.googleapis.com/sem-cli-releases/${RELEASE}" -O /tmp/sem.tar.gz
-cd /tmp
-tar -xzvf sem.tar.gz
-sudo chmod +x sem
-sudo mv sem /usr/local/bin/
-cd -
+``` bash
+curl https://storage.googleapis.com/sem-cli-releases/get-edge.sh | bash
+```
+
+Stable (latest stable version, manually released):
+
+``` bash
+curl https://storage.googleapis.com/sem-cli-releases/get.sh | bash
 ```
 
 ## Configure
-
-``` bash
-touch ~/.sem.yaml
-```
 
 ``` bash
 sem config set auth.token <token>
 sem config set host <org>.semaphoreci.com
 ```
 
-## Initialize Project
+## Initialize a project
 
 In the root of the repository:
 
 ``` bash
 sem init
 ```
+
+## Low level interface
 
 ## Projects
 
