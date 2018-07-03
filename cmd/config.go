@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/renderedtext/sem/config"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var configCmd = &cobra.Command{
@@ -22,8 +22,8 @@ var configGetCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
-		if viper.IsSet(name) {
-			value := viper.GetString(name)
+		if config.IsSet(name) {
+			value := config.Get(name)
 
 			fmt.Println(value)
 		} else {
@@ -43,10 +43,10 @@ var configSetCmd = &cobra.Command{
 		name := args[0]
 		value := args[1]
 
-		viper.Set(name, value)
-		viper.WriteConfig()
+		config.Set(name, value)
 	},
 }
+
 
 func init() {
 	rootCmd.AddCommand(configCmd)
