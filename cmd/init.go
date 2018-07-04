@@ -91,7 +91,7 @@ func RunInit(cmd *cobra.Command, args []string) {
 	}
 
 	if _, err := os.Stat(".semaphore.yml"); err == nil {
-		utils.Fail("repository is already initialized")
+		utils.Fail(".semaphore.yml is already present in the repository")
 	}
 
 	repo_url, err := gitconfig.OriginURL()
