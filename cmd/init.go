@@ -8,10 +8,10 @@ import (
 
 	"github.com/renderedtext/sem/client"
 	"github.com/renderedtext/sem/cmd/utils"
+	"github.com/renderedtext/sem/config"
 
 	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/tcnksm/go-gitconfig"
 )
 
@@ -106,7 +106,7 @@ func RunInit(cmd *cobra.Command, args []string) {
 	}
 
 	name := match[1]
-	host := viper.GetString("host")
+	host := config.GetHost()
 	project_url := fmt.Sprintf("https://%s/projects/%s", host, name)
 
 	utils.CheckWithMessage(err, "constructing project name failed")
