@@ -1,41 +1,21 @@
-
 version: "v1.0"
-name: My first pipeline
+name: Pipeline
 semaphore_image: standard
 blocks:
-  - name: "Stage 1"
+  - name: "Test/Build/Release"
     build:
-      prologue:
-        commands:
-          - checkout
-      epilogue:
-        commands:
-          - echo "Yay job finished"
-          - echo $SEMAPHORE_JOB_RESULT
-      env_vars:
-        - name: VAR1
-          value: Environment Variable 1
-        - name: PI
-          value: "3.14159"
-      jobs:
-      - name: Just ls
-        commands:
-          - pwd
-          - echo "test"
-          - ls /etc
+      secrets:
+        - name: s2prod-gce
 
-      - name: List files
-        commands:
-          - echo "First env var -> $VAR1"
-          - echo "My files:"
-          - ls -lah
-
-  - name: "Stage 2"
-    build:
       jobs:
-      - name: Echo job
+      - name: "Test"
         commands:
-          - checkout
-          - pwd
-          - echo $SEMAPHORE_PIPELINE_ID
-          - echo "Hello from $SEMAPHORE_JOB_ID"
+          - echo $GCE_CREDS | base64 --decode > gce-creds.json
+          - curl -L https://gist.githubusercontent.com/shiroyasha/40552df9486fdd7673fbad5656bba423/raw/11180be8fbf220d56c50e93ffd3fc9884a3ecdfb/install-gcloud.sh | bash
+          - make gsutil.configure
+          - make go.get
+          - make test
+          - make build
+          - make release
+          - if [ "$BRANCH_NAME" = "edge" ]; then make release.edge; fi
+          - if [ "$BRANCH_NAME" = "stable" ]; then make release.stable; fi

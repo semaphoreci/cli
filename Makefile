@@ -5,7 +5,7 @@ REL_BUCKET=sem-cli-releases
 
 gsutil.configure:
 	./scripts/install-gcloud
-	gcloud auth activate-service-account deploy-from-semaphore@semaphore2-prod.iam.gserviceaccount.com --key-file ~/semaphore2-prod-2fd29ae99af8.json
+	gcloud auth activate-service-account deploy-from-semaphore@semaphore2-prod.iam.gserviceaccount.com --key-file ~/gce-creds.json
 	gcloud config set project semaphore2-prod
 	gcloud container clusters get-credentials prod --zone us-east4
 
