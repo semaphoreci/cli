@@ -13,10 +13,13 @@ blocks:
           - echo $GCE_CREDS | base64 --decode > gce-creds.json
           - curl -L https://gist.githubusercontent.com/shiroyasha/40552df9486fdd7673fbad5656bba423/raw/11180be8fbf220d56c50e93ffd3fc9884a3ecdfb/install-gcloud.sh | bash
           - checkout
+          - "export GOPATH=~/go"
+          - mkdir -p ~/go/src/github.com/renderedtext
+          - mv ~/sem ~/go/src/github.com/renderedtext/sem
           - make gsutil.configure
           - make go.get
           - make test
           - make build
           - make release
-          - if [ "$BRANCH_NAME" = "edge" ]; then make release.edge; fi
-          - if [ "$BRANCH_NAME" = "stable" ]; then make release.stable; fi
+          - 'if [ "$BRANCH_NAME" = "edge" ]; then make release.edge; fi'
+          - 'if [ "$BRANCH_NAME" = "stable" ]; then make release.stable; fi'
