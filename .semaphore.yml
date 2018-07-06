@@ -12,6 +12,7 @@ blocks:
         commands:
           - echo $GCE_CREDS | base64 --decode > gce-creds.json
           - curl -L https://gist.githubusercontent.com/shiroyasha/40552df9486fdd7673fbad5656bba423/raw/11180be8fbf220d56c50e93ffd3fc9884a3ecdfb/install-gcloud.sh | bash
+          - checkout
           - make gsutil.configure
           - make go.get
           - make test
