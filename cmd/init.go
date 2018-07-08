@@ -26,17 +26,11 @@ var initCmd = &cobra.Command{
 	},
 }
 
-var project_template = `
-apiVersion: v1alpha
-kind: Project
-metadata:
-  name: %s
-spec:
-  repository:
-    url: "%s"
-`
+func init() {
+	rootCmd.AddCommand(initCmd)
+}
 
-var semaphore_yaml_template = `
+const semaphore_yaml_template = `
 version: "v1.0"
 name: My first pipeline
 semaphore_image: standard
@@ -79,25 +73,33 @@ blocks:
           - echo "Hello from $SEMAPHORE_JOB_ID"
 `
 
-func init() {
-	rootCmd.AddCommand(initCmd)
-}
-
 func RunInit(cmd *cobra.Command, args []string) {
-	c := client.FromConfig()
-
 	if _, err := os.Stat(".git"); os.IsNotExist(err) {
 		utils.Fail("not a git repository")
 	}
 
-	if _, err := os.Stat(".semaphore.yml"); err == nil {
-		utils.Fail(".semaphore.yml is already present in the repository")
+	if _, err := os.Stat(".semaphore/semaphore.yml"); err == nil {
+		utils.Fail(".semaphore/semaphore.yml is already present in the repository")
 	}
 
 	repo_url, err := gitconfig.OriginURL()
 
 	utils.CheckWithMessage(err, "failed to extract remote from git configuration")
 
+	name := constructProjectName(repo_url)
+	host := config.GetHost()
+
+	project_url := registerProjectOnSemaphore(name, host, repo_url)
+
+	fmt.Printf("Project is created. You can find it at %s.\n", project_url)
+	fmt.Println("")
+	fmt.Printf("To run your first pipeline execute:\n")
+	fmt.Println("")
+	fmt.Printf("  git add .semaphore.yml && git commit -m \"First pipeline\" && git push\n")
+	fmt.Println("")
+}
+
+func constructProjectName(repo_url string) string {
 	re := regexp.MustCompile(`git\@github\.com:.*\/(.*).git`)
 	match := re.FindStringSubmatch(repo_url)
 
@@ -105,15 +107,33 @@ func RunInit(cmd *cobra.Command, args []string) {
 		utils.Fail("unrecognized git remote format")
 	}
 
-	name := match[1]
-	host := config.GetHost()
-	project_url := fmt.Sprintf("https://%s/projects/%s", host, name)
+	return match[1]
+}
 
-	utils.CheckWithMessage(err, "constructing project name failed")
+func createInitialSemaphoreYaml() {
+	if _, err := os.Stat(".semaphore"); err != nil {
+		err := os.Mkdir(".semaphore", 0644)
 
-	err = ioutil.WriteFile(".semaphore.yml", []byte(semaphore_yaml_template), 0644)
+		utils.Check(err)
+	}
 
-	utils.CheckWithMessage(err, "failed to create .semaphore.yml")
+	err := ioutil.WriteFile(".semaphore/semaphore.yml", []byte(semaphore_yaml_template), 0644)
+
+	utils.CheckWithMessage(err, "failed to create .semaphore/.semaphore.yml")
+}
+
+const project_template = `
+apiVersion: v1alpha
+kind: Project
+metadata:
+  name: %s
+spec:
+  repository:
+    url: "%s"
+`
+
+func registerProjectOnSemaphore(name string, host string, repo_url string) string {
+	c := client.FromConfig()
 
 	project, err := yaml.YAMLToJSON([]byte(fmt.Sprintf(project_template, name, repo_url)))
 
@@ -127,10 +147,5 @@ func RunInit(cmd *cobra.Command, args []string) {
 		utils.Fail(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
 	}
 
-	fmt.Printf("Project is created. You can find it at %s.\n", project_url)
-	fmt.Println("")
-	fmt.Printf("To run your first pipeline execute:\n")
-	fmt.Println("")
-	fmt.Printf("  git add .semaphore.yml && git commit -m \"First pipeline\" && git push\n")
-	fmt.Println("")
+	return fmt.Sprintf("https://%s/projects/%s", host, name)
 }
