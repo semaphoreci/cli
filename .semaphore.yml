@@ -24,3 +24,4 @@ blocks:
           - make release
           - 'if [ "$BRANCH_NAME" = "edge" ]; then make release.edge; fi'
           - 'if [ "$BRANCH_NAME" = "stable" ]; then make release.stable; fi'
+          - 'if [ "$BRANCH_NAME" = "stable" ]; then curl -X POST -H "Content-type: application/json" --data "{\"text\":\"Sem CLI: New stable release: $(git log -1 --pretty=%B | tr -d \"\n\")\"}" "https://hooks.slack.com/services/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"; fi'
