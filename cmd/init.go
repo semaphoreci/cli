@@ -97,7 +97,7 @@ func RunInit(cmd *cobra.Command, args []string) {
 	fmt.Println("")
 	fmt.Printf("To run your first pipeline execute:\n")
 	fmt.Println("")
-	fmt.Printf("  git add .semaphore.yml && git commit -m \"First pipeline\" && git push\n")
+	fmt.Printf("  git add .semaphore/semaphore.yml && git commit -m \"First pipeline\" && git push\n")
 	fmt.Println("")
 }
 
@@ -121,7 +121,7 @@ func createInitialSemaphoreYaml() {
 
 	err := ioutil.WriteFile(".semaphore/semaphore.yml", []byte(semaphore_yaml_template), 0755)
 
-	utils.CheckWithMessage(err, "failed to create .semaphore/.semaphore.yml")
+	utils.CheckWithMessage(err, "failed to create .semaphore/semaphore.yml")
 }
 
 const project_template = `
