@@ -112,7 +112,7 @@ func constructProjectName(repo_url string) string {
 
 func createInitialSemaphoreYaml() {
 	if _, err := os.Stat(".semaphore"); err != nil {
-		err := os.Mkdir(".semaphore", 0644)
+		err := os.Mkdir(".semaphore", 0755)
 
 		utils.Check(err)
 	}
