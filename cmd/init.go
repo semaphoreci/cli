@@ -30,47 +30,69 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 }
 
-const semaphore_yaml_template = `
-version: "v1.0"
-name: My first pipeline
-semaphore_image: standard
+const semaphore_yaml_template = `version: "v1.0-beta-task"
+name: First pipeline example
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1404
+
 blocks:
-  - name: "Stage 1"
-    build:
-      prologue:
-        commands:
-          - checkout
-      epilogue:
-        commands:
-          - echo "Yay job finished"
-          - echo $SEMAPHORE_JOB_RESULT
+  - name: "Build"
+    task:
       env_vars:
-        - name: VAR1
-          value: Environment Variable 1
-        - name: PI
-          value: "3.14159"
+        - name: APP_ENV
+          value: prod
       jobs:
-      - name: Just ls
-        commands:
-          - pwd
-          - echo "test"
-          - ls /etc
-
-      - name: List files
-        commands:
-          - echo "First env var -> $VAR1"
-          - echo "My files:"
-          - ls -lah
-
-  - name: "Stage 2"
-    build:
-      jobs:
-      - name: Echo job
+      - name: Docker build
         commands:
           - checkout
-          - pwd
-          - echo $SEMAPHORE_PIPELINE_ID
-          - echo "Hello from $SEMAPHORE_JOB_ID"
+          - ls -1
+          - echo "APP_ENV: $APP_ENV"
+          - echo "Docker build..."
+          - echo "done"
+
+  - name: "Smoke tests"
+    task:
+      jobs:
+      - name: Smoke
+        commands:
+          - checkout
+          - echo "make smoke"
+
+  - name: "Unit tests"
+    task:
+      jobs:
+      - name: RSpec
+        commands:
+          - checkout
+          - echo "make rspec"
+
+      - name: Lint code
+        commands:
+          - checkout
+          - echo "make lint"
+
+      - name: Check security
+        commands:
+          - checkout
+          - echo "make security"
+
+  - name: "Integration tests"
+    task:
+      jobs:
+      - name: Cucumber
+        commands:
+          - checkout
+          - echo "make cucumber"
+
+  - name: "Push Image"
+    task:
+      jobs:
+      - name: Push
+        commands:
+          - checkout
+          - echo "make docker.push"
 `
 
 func RunInit(cmd *cobra.Command, args []string) {
