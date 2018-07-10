@@ -48,7 +48,7 @@ blocks:
         commands:
           - checkout
           - ls -1
-          - echo "APP_ENV: $APP_ENV"
+          - echo $APP_ENV
           - echo "Docker build..."
           - echo "done"
 
