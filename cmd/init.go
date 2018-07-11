@@ -30,12 +30,12 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 }
 
-const semaphore_yaml_template = `version: "v1.0-beta-task"
+const semaphore_yaml_template = `version: "v1.0"
 name: First pipeline example
 agent:
   machine:
     type: e1-standard-2
-    os_image: ubuntu1404
+    os_image: ubuntu1804-beta
 
 blocks:
   - name: "Build"
