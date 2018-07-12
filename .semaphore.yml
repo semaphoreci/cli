@@ -14,9 +14,9 @@ blocks:
       jobs:
       - name: "Test"
         commands:
-          - make install.go
           - echo $GCE_CREDS | base64 --decode > gce-creds.json
           - checkout
+          - make install.go
           - "export GOPATH=~/go"
           - mkdir -p ~/go/src/github.com/renderedtext
           - mv ~/sem ~/go/src/github.com/renderedtext/sem
