@@ -18,7 +18,7 @@ blocks:
           - checkout
           - make go.install
           - "export GOPATH=~/go"
-          - "export GOROOT=/usr/local/bin/go"
+          - "export GOROOT=/usr/local/go"
           - mkdir -p ~/go/src/github.com/renderedtext
           - mv ~/sem ~/go/src/github.com/renderedtext/sem
           - make gsutil.configure
