@@ -14,7 +14,7 @@ blocks:
       jobs:
       - name: "Test"
         commands:
-          - sudo apt-get install -y golang
+          - make install.go
           - echo $GCE_CREDS | base64 --decode > gce-creds.json
           - checkout
           - "export GOPATH=~/go"

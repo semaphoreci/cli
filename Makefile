@@ -3,8 +3,15 @@
 REL_VERSION=$(shell git rev-parse HEAD)
 REL_BUCKET=sem-cli-releases
 
+install.go:
+	cd /tmp
+	sudo curl -O https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz
+	sudo tar -xvf go1.9.1.linux-amd64.tar.gz
+	sudo mv go /usr/local
+	export PATH=$PATH:/usr/local/go/bin
+	cd -
+
 gsutil.configure:
-	./scripts/install-gcloud
 	gcloud auth activate-service-account deploy-from-semaphore@semaphore2-prod.iam.gserviceaccount.com --key-file ~/gce-creds.json
 	gcloud config set project semaphore2-prod
 	gcloud container clusters get-credentials prod --zone us-east4
