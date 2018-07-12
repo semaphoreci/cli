@@ -1,9 +1,13 @@
 version: "v1.0"
 name: Pipeline
-semaphore_image: standard
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+
 blocks:
   - name: "Test/Build/Release"
-    build:
+    task:
       secrets:
         - name: s2prod-gce
 
