@@ -104,8 +104,6 @@ func RunInit(cmd *cobra.Command, args []string) {
 		utils.Fail(".semaphore/semaphore.yml is already present in the repository")
 	}
 
-	createInitialSemaphoreYaml()
-
 	repo_url, err := gitconfig.OriginURL()
 
 	utils.CheckWithMessage(err, "failed to extract remote from git configuration")
@@ -114,6 +112,8 @@ func RunInit(cmd *cobra.Command, args []string) {
 	host := config.GetHost()
 
 	project_url := registerProjectOnSemaphore(name, host, repo_url)
+
+	createInitialSemaphoreYaml()
 
 	fmt.Printf("Project is created. You can find it at %s.\n", project_url)
 	fmt.Println("")
