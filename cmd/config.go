@@ -36,7 +36,7 @@ var configGetCmd = &cobra.Command{
 
 var configSetCmd = &cobra.Command{
 	Use:   "set [NAME] [VALUE]",
-	Short: "Set a configuration options",
+	Short: "Set a configuration option",
 	Long:  ``,
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
