@@ -30,7 +30,7 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 }
 
-const semaphore_yaml_template = `version: "v1.0"
+const semaphore_yaml_template = `version: v1.0
 name: First pipeline example
 agent:
   machine:
