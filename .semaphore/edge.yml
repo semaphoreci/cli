@@ -25,4 +25,4 @@ blocks:
           - make gsutil.configure
           - make go.get
           - make release.edge
-          - curl -X POST -H "Content-type: application/json" --data "{\"text\":\"Sem CLI: New edge release: $(git log -1 --pretty=%B | tr -d \"\n\")\"}" "https://hooks.slack.com/services/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"
+          - 'curl -X POST -H "Content-type: application/json" --data "{\"text\":\"Sem CLI: New edge release: $(git log -1 --pretty=%B | tr -d \"\n\")\"}" "https://hooks.slack.com/services/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"'
