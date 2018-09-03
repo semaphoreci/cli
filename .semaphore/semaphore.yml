@@ -1,0 +1,36 @@
+version: "v1.0"
+name: Pipeline
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+
+blocks:
+  - name: "Test & Build"
+    task:
+      secrets:
+        - name: s2prod-gce
+
+      jobs:
+      - name: "Test"
+        commands:
+          - echo $GCE_CREDS | base64 --decode > gce-creds.json
+          - checkout
+          - make go.install
+          - "export PATH=/usr/local/go/bin:$PATH"
+          - "export GOPATH=~/go"
+          - "export GOROOT=/usr/local/go"
+          - mkdir -p ~/go/src/github.com/renderedtext
+          - mv ~/sem ~/go/src/github.com/renderedtext/sem
+          - make gsutil.configure
+          - make go.get
+          - make test
+          - make build
+          - make release
+
+promotions:
+  - name: Release Edge
+    pipeline_file: "edge.yml"
+
+  - name: Release Stable
+    pipeline_file: "stable.yml"

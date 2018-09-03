@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -104,16 +105,19 @@ func RunInit(cmd *cobra.Command, args []string) {
 		utils.Fail(".semaphore/semaphore.yml is already present in the repository")
 	}
 
-	createInitialSemaphoreYaml()
-
 	repo_url, err := gitconfig.OriginURL()
 
 	utils.CheckWithMessage(err, "failed to extract remote from git configuration")
 
-	name := constructProjectName(repo_url)
+	name, err := ConstructProjectName(repo_url)
+
+	utils.Check(err)
+
 	host := config.GetHost()
 
 	project_url := registerProjectOnSemaphore(name, host, repo_url)
+
+	createInitialSemaphoreYaml()
 
 	fmt.Printf("Project is created. You can find it at %s.\n", project_url)
 	fmt.Println("")
@@ -123,15 +127,28 @@ func RunInit(cmd *cobra.Command, args []string) {
 	fmt.Println("")
 }
 
-func constructProjectName(repo_url string) string {
-	re := regexp.MustCompile(`git\@github\.com:.*\/(.*).git`)
-	match := re.FindStringSubmatch(repo_url)
-
-	if len(match) < 2 {
-		utils.Fail("unrecognized git remote format")
+func ConstructProjectName(repo_url string) (string, error) {
+	formats := []*regexp.Regexp{
+		regexp.MustCompile(`git\@github\.com:.*\/(.*).git`),
+		regexp.MustCompile(`git\@github\.com:.*\/(.*)`),
+		regexp.MustCompile(`git\@github\.com:.*\/(.*)`),
 	}
 
-	return match[1]
+	for _, r := range formats {
+		match := r.FindStringSubmatch(repo_url)
+
+		if len(match) >= 2 {
+			return match[1], nil
+		}
+	}
+
+	errTemplate := "unknown git remote format '%s'.\n"
+	errTemplate += "\n"
+	errTemplate += "Format must be one of the following:\n"
+	errTemplate += "  - git@github.com:/<owner>/<repo_name>.git\n"
+	errTemplate += "  - git@github.com:/<owner>/<repo_name>\n"
+
+	return "", errors.New(fmt.Sprintf(errTemplate, repo_url))
 }
 
 func createInitialSemaphoreYaml() {
