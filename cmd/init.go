@@ -158,7 +158,7 @@ func createInitialSemaphoreYaml() {
 		utils.Check(err)
 	}
 
-	err := ioutil.WriteFile(".semaphore/semaphore.yml", []byte(semaphore_yaml_template), 0755)
+	err := ioutil.WriteFile(".semaphore/semaphore.yml", []byte(semaphore_yaml_template), 0644)
 
 	utils.CheckWithMessage(err, "failed to create .semaphore/semaphore.yml")
 }
