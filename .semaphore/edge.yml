@@ -17,7 +17,7 @@ blocks:
           - echo $GCE_CREDS | base64 --decode > gce-creds.json
           - checkout
           - make go.install
-          - "export PATH=$PATH:/usr/local/go/bin"
+          - "export PATH=/usr/local/go/bin:$PATH"
           - "export GOPATH=~/go"
           - "export GOROOT=/usr/local/go"
           - mkdir -p ~/go/src/github.com/renderedtext
