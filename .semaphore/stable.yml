@@ -1,18 +1,18 @@
 version: "v1.0"
-name: Pipeline
+name: Stable
 agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu1804
 
 blocks:
-  - name: "Test & Build"
+  - name: "Edge Release"
     task:
       secrets:
         - name: s2prod-gce
 
       jobs:
-      - name: "Test"
+      - name: "Stable"
         commands:
           - echo $GCE_CREDS | base64 --decode > gce-creds.json
           - checkout
@@ -24,13 +24,5 @@ blocks:
           - mv ~/sem ~/go/src/github.com/renderedtext/sem
           - make gsutil.configure
           - make go.get
-          - make test
-          - make build
-          - make release
-
-promotions:
-  - name: Release Edge
-    pipeline_file: "edge.yml"
-
-  - name: Release Stable
-    pipeline_file: "stable.yml"
+          - make release.stable
+          - curl -X POST -H "Content-type: application/json" --data "{\"text\":\"Sem CLI: New stable release: $(git log -1 --pretty=%B | tr -d \"\n\")\"}" "https://hooks.slack.com/services/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"
