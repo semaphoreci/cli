@@ -2,124 +2,81 @@ package cmd
 
 import (
 	"errors"
+	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"regexp"
 
 	"github.com/renderedtext/sem/client"
 	"github.com/renderedtext/sem/cmd/utils"
 	"github.com/renderedtext/sem/config"
+	"github.com/renderedtext/sem/generators"
 
-	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
 	"github.com/tcnksm/go-gitconfig"
 )
 
-// initCmd represents the init command
-var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize a project",
-	Long:  ``,
+var flagProjectName string
+var flagRepoUrl string
 
-	Run: func(cmd *cobra.Command, args []string) {
-		RunInit(cmd, args)
-	},
+func InitCmd() cobra.Command {
+	cmd := cobra.Command{
+		Use:   "init",
+		Short: "Initialize a project",
+		Long:  ``,
+
+		Run: func(cmd *cobra.Command, args []string) {
+			RunInit(cmd, args)
+		},
+	}
+
+	cmd.Flags().StringVar(&flagRepoUrl, "repo-url", "", "explicitly set the repository url, if not set it is extracted from local git repository")
+	cmd.Flags().StringVar(&flagProjectName, "project-name", "", "explicitly set the project name, if not set it is extracted from the repo-url")
+
+	return cmd
 }
 
 func init() {
-	rootCmd.AddCommand(initCmd)
+	cmd := InitCmd()
+
+	rootCmd.AddCommand(&cmd)
 }
 
-const semaphore_yaml_template = `version: v1.0
-name: First pipeline example
-agent:
-  machine:
-    type: e1-standard-2
-    os_image: ubuntu1804
-
-blocks:
-  - name: "Build"
-    task:
-      env_vars:
-        - name: APP_ENV
-          value: prod
-      jobs:
-      - name: Docker build
-        commands:
-          - checkout
-          - ls -1
-          - echo $APP_ENV
-          - echo "Docker build..."
-          - echo "done"
-
-  - name: "Smoke tests"
-    task:
-      jobs:
-      - name: Smoke
-        commands:
-          - checkout
-          - echo "make smoke"
-
-  - name: "Unit tests"
-    task:
-      jobs:
-      - name: RSpec
-        commands:
-          - checkout
-          - echo "make rspec"
-
-      - name: Lint code
-        commands:
-          - checkout
-          - echo "make lint"
-
-      - name: Check security
-        commands:
-          - checkout
-          - echo "make security"
-
-  - name: "Integration tests"
-    task:
-      jobs:
-      - name: Cucumber
-        commands:
-          - checkout
-          - echo "make cucumber"
-
-  - name: "Push Image"
-    task:
-      jobs:
-      - name: Push
-        commands:
-          - checkout
-          - echo "make docker.push"
-`
-
 func RunInit(cmd *cobra.Command, args []string) {
-	if _, err := os.Stat(".git"); os.IsNotExist(err) {
-		utils.Fail("not a git repository")
+	var err error
+	var name string
+	var repoUrl string
+
+	if flagRepoUrl != "" {
+		repoUrl = flagRepoUrl
+	} else {
+		repoUrl, err = getGitOriginUrl()
+
+		utils.Check(err)
 	}
 
-	if _, err := os.Stat(".semaphore/semaphore.yml"); err == nil {
-		utils.Fail(".semaphore/semaphore.yml is already present in the repository")
+	if flagProjectName != "" {
+		name = flagProjectName
+	} else {
+		name, err = ConstructProjectName(repoUrl)
+
+		utils.Check(err)
 	}
 
-	repo_url, err := gitconfig.OriginURL()
-
-	utils.CheckWithMessage(err, "failed to extract remote from git configuration")
-
-	name, err := ConstructProjectName(repo_url)
+	project := client.InitProject(name, repoUrl)
+	err = project.Create()
 
 	utils.Check(err)
 
-	host := config.GetHost()
+	if generators.PipelineFileExists() {
+		err = generators.GeneratePipelineYaml()
 
-	project_url := registerProjectOnSemaphore(name, host, repo_url)
+		utils.Check(err)
+	} else {
+		fmt.Printf("[info] skipping .semaphore/semaphore.yml generation. It is already present in the repository.\n\n")
+	}
 
-	createInitialSemaphoreYaml()
-
-	fmt.Printf("Project is created. You can find it at %s.\n", project_url)
+	fmt.Printf("Project is created. You can find it at https://%s/projects/%s.\n", config.GetHost(), project.Metadata.Name)
 	fmt.Println("")
 	fmt.Printf("To run your first pipeline execute:\n")
 	fmt.Println("")
@@ -151,42 +108,14 @@ func ConstructProjectName(repo_url string) (string, error) {
 	return "", errors.New(fmt.Sprintf(errTemplate, repo_url))
 }
 
-func createInitialSemaphoreYaml() {
-	if _, err := os.Stat(".semaphore"); err != nil {
-		err := os.Mkdir(".semaphore", 0755)
+func getGitOriginUrl() (string, error) {
+	if flag.Lookup("test.v") == nil {
+		if _, err := os.Stat(".git"); os.IsNotExist(err) {
+			return "", errors.New("not a git repository")
+		}
 
-		utils.Check(err)
+		return gitconfig.OriginURL()
+	} else {
+		return "git@github.com:/renderedtext/something.git", nil
 	}
-
-	err := ioutil.WriteFile(".semaphore/semaphore.yml", []byte(semaphore_yaml_template), 0644)
-
-	utils.CheckWithMessage(err, "failed to create .semaphore/semaphore.yml")
-}
-
-const project_template = `
-apiVersion: v1alpha
-kind: Project
-metadata:
-  name: %s
-spec:
-  repository:
-    url: "%s"
-`
-
-func registerProjectOnSemaphore(name string, host string, repo_url string) string {
-	c := client.FromConfig()
-
-	project, err := yaml.YAMLToJSON([]byte(fmt.Sprintf(project_template, name, repo_url)))
-
-	utils.CheckWithMessage(err, "connecting project to Semaphore failed")
-
-	body, status, err := c.Post("projects", project)
-
-	utils.CheckWithMessage(err, "connecting project to Semaphore failed")
-
-	if status != 200 {
-		utils.Fail(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
-	}
-
-	return fmt.Sprintf("https://%s/projects/%s", host, name)
 }
