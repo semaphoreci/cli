@@ -1,24 +1,24 @@
 package client
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
 	"github.com/ghodss/yaml"
-	"github.com/renderedtext/sem/config"
 )
 
 type Project struct {
 	Metadata struct {
-		Name string
-		Id   string
-	}
+		Name string `json:"name,omitempty"`
+		Id   string `json:"id,omitempty"`
+	} `json:"metadata,omitempty"`
 
 	Spec struct {
 		Repository struct {
-			Url string
-		}
-	}
+			Url string `json:"url,omitempty"`
+		} `json:"repository,omitempty"`
+	} `json:"spec,omitempty"`
 }
 
 func InitProject(name string, repo_url string) Project {
@@ -42,20 +42,28 @@ func InitProjectFromYaml(data []byte) (Project, error) {
 	return p, nil
 }
 
-func (*Project) Create() {
-	c := client.FromConfig()
+func (p *Project) ToJson() ([]byte, error) {
+	return json.Marshal(p)
+}
 
-	body, status, err := c.Post("projects", project_yaml)
+func (p *Project) Create() error {
+	c := FromConfig()
+
+	json_body, err := p.ToJson()
 
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("connecting project to Semaphore failed '%s'", err))
+		return errors.New(fmt.Sprintf("failed to serialize project object '%s'", err))
+	}
+
+	body, status, err := c.Post("projects", json_body)
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("creating project to Semaphore failed '%s'", err))
 	}
 
 	if status != 200 {
-		return "", errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+		return errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
 	}
 
-	project_url := fmt.Sprintf(, host, name)
-
-	return project_url, nil
+	return nil
 }
