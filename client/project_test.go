@@ -1,6 +1,11 @@
 package client
 
-import "testing"
+import (
+	"net/http"
+	"testing"
+
+	httpmock "gopkg.in/jarcoal/httpmock.v1"
+)
 
 func TestInitProjectFromYaml(t *testing.T) {
 	yaml := `apiVersion: v1alpha
@@ -22,7 +27,7 @@ spec:
 	}
 }
 
-func TestToYaml(t *testing.T) {
+func TestProjectToYaml(t *testing.T) {
 	project := InitProject("test", "github.com:/renderedtext/sem.git")
 
 	json_body, _ := project.ToJson()
@@ -31,5 +36,47 @@ func TestToYaml(t *testing.T) {
 
 	if string(json_body) != expected_json_body {
 		t.Errorf("JSON body is incorrect, got: %s, want: %s.", json_body, expected_json_body)
+	}
+}
+
+func TestProjectCreate__Success(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	project := InitProject("test", "github.com:/renderedtext/sem.git")
+
+	httpmock.RegisterResponder("POST", "https://org.semaphoretext.xyz/api/v1alpha/projects",
+		func(req *http.Request) (*http.Response, error) {
+			jsonbody, _ := project.ToJson()
+
+			return httpmock.NewStringResponse(200, string(jsonbody)), nil
+		},
+	)
+
+	err := project.Create()
+
+	if err != nil {
+		t.Errorf("Expected no errors, got: %s.", err.Error())
+	}
+}
+
+func TestProjectCreate__ValidationError(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("POST", "https://org.semaphoretext.xyz/api/v1alpha/projects",
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(422, "Name already taken"), nil
+		},
+	)
+
+	project := InitProject("test", "github.com:/renderedtext/sem.git")
+
+	err := project.Create()
+
+	expected := `http status 422 with message "Name already taken" received from upstream`
+
+	if err.Error() != expected {
+		t.Errorf("Expected an error, got: %s, want: %s.", err, expected)
 	}
 }

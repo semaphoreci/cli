@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"errors"
+	"flag"
 	"fmt"
 	"os"
+	"regexp"
 
 	"github.com/renderedtext/sem/client"
 	"github.com/renderedtext/sem/cmd/utils"
@@ -13,7 +16,7 @@ import (
 	"github.com/tcnksm/go-gitconfig"
 )
 
-var initCmd = &cobra.Command{
+var InitCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize a project",
 	Long:  ``,
@@ -24,33 +27,30 @@ var initCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(InitCmd)
 }
 
 func RunInit(cmd *cobra.Command, args []string) {
-	if _, err := os.Stat(".git"); os.IsNotExist(err) {
-		utils.Fail("not a git repository")
+	repo_url, err := getGitOriginUrl()
+
+	utils.Check(err)
+
+	name, err := ConstructProjectName(repo_url)
+
+	utils.Check(err)
+
+	project := client.InitProject(name, repo_url)
+	err = project.Create()
+
+	utils.Check(err)
+
+	if generators.PipelineFileExists() {
+		err = generators.GeneratePipelineYaml()
+
+		utils.Check(err)
+	} else {
+		fmt.Printf("[info] skipping .semaphore/semaphore.yml generation. It is already present in the repository.")
 	}
-
-	if _, err := os.Stat(".semaphore/semaphore.yml"); err == nil {
-		utils.Fail(".semaphore/semaphore.yml is already present in the repository")
-	}
-
-	repo_url, err := gitconfig.OriginURL()
-
-	utils.CheckWithMessage(err, "failed to extract remote from git configuration")
-
-	project_yaml, err := generators.GenerateProjectYamlFromRepoUrl(repo_url)
-
-	utils.Check(err)
-
-	project, err := client.InitProjectFromYaml(project_yaml)
-
-	utils.Check(err)
-
-	err = generators.GeneratePipelineYaml()
-
-	utils.Check(err)
 
 	fmt.Printf("Project is created. You can find it at https://%s/projects/%s.\n", config.GetHost(), project.Metadata.Name)
 	fmt.Println("")
@@ -60,6 +60,38 @@ func RunInit(cmd *cobra.Command, args []string) {
 	fmt.Println("")
 }
 
-func registerProjectOnSemaphore(project_yaml []byte) (string, error) {
+func ConstructProjectName(repo_url string) (string, error) {
+	formats := []*regexp.Regexp{
+		regexp.MustCompile(`git\@github\.com:.*\/(.*).git`),
+		regexp.MustCompile(`git\@github\.com:.*\/(.*)`),
+		regexp.MustCompile(`git\@github\.com:.*\/(.*)`),
+	}
 
+	for _, r := range formats {
+		match := r.FindStringSubmatch(repo_url)
+
+		if len(match) >= 2 {
+			return match[1], nil
+		}
+	}
+
+	errTemplate := "unknown git remote format '%s'.\n"
+	errTemplate += "\n"
+	errTemplate += "Format must be one of the following:\n"
+	errTemplate += "  - git@github.com:/<owner>/<repo_name>.git\n"
+	errTemplate += "  - git@github.com:/<owner>/<repo_name>\n"
+
+	return "", errors.New(fmt.Sprintf(errTemplate, repo_url))
+}
+
+func getGitOriginUrl() (string, error) {
+	if flag.Lookup("test.v") == nil {
+		if _, err := os.Stat(".git"); os.IsNotExist(err) {
+			return "", errors.New("not a git repository")
+		}
+
+		return gitconfig.OriginURL()
+	} else {
+		return "git@github.com:/renderedtext/something.git", nil
+	}
 }

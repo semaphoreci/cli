@@ -1,6 +1,7 @@
 package config
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/spf13/viper"
@@ -29,14 +30,22 @@ func SetActiveContext(name string) {
 }
 
 func GetActiveContext() string {
-	return viper.GetString("active-context")
+	if flag.Lookup("test.v") == nil {
+		return viper.GetString("active-context")
+	} else {
+		return "org-semaphoretext-xyz"
+	}
 }
 
 func GetAuth() string {
-	context := GetActiveContext()
-	key_path := fmt.Sprintf("contexts.%s.auth.token", context)
+	if flag.Lookup("test.v") == nil {
+		context := GetActiveContext()
+		key_path := fmt.Sprintf("contexts.%s.auth.token", context)
 
-	return Get(key_path)
+		return Get(key_path)
+	} else {
+		return "123456789"
+	}
 }
 
 func SetAuth(token string) {
@@ -47,10 +56,14 @@ func SetAuth(token string) {
 }
 
 func GetHost() string {
-	context := GetActiveContext()
-	key_path := fmt.Sprintf("contexts.%s.host", context)
+	if flag.Lookup("test.v") == nil {
+		context := GetActiveContext()
+		key_path := fmt.Sprintf("contexts.%s.host", context)
 
-	return Get(key_path)
+		return Get(key_path)
+	} else {
+		return "org.semaphoretext.xyz"
+	}
 }
 
 func SetHost(token string) {

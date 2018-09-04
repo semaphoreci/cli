@@ -89,3 +89,9 @@ func GeneratePipelineYaml() error {
 		return errors.New(fmt.Sprintf("failed to create %s file '%s'", path, err))
 	}
 }
+
+func PipelineFileExists() bool {
+	_, err := os.Stat(".semaphore/semaphore.yml")
+
+	return err == nil
+}
