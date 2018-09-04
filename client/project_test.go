@@ -44,7 +44,6 @@ func TestProjectCreate__Success(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	project := InitProject("test", "github.com:/renderedtext/sem.git")
-
 	httpmock.RegisterResponder("POST", "https://org.semaphoretext.xyz/api/v1alpha/projects",
 		func(req *http.Request) (*http.Response, error) {
 			jsonbody, _ := project.ToJson()

@@ -16,30 +16,54 @@ import (
 	"github.com/tcnksm/go-gitconfig"
 )
 
-var InitCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize a project",
-	Long:  ``,
+var flagProjectName string
+var flagRepoUrl string
 
-	Run: func(cmd *cobra.Command, args []string) {
-		RunInit(cmd, args)
-	},
+func InitCmd() cobra.Command {
+	cmd := cobra.Command{
+		Use:   "init",
+		Short: "Initialize a project",
+		Long:  ``,
+
+		Run: func(cmd *cobra.Command, args []string) {
+			RunInit(cmd, args)
+		},
+	}
+
+	cmd.Flags().StringVar(&flagRepoUrl, "repo-url", "", "explicitly set the repository url, if not set it is extracted from local git repository")
+	cmd.Flags().StringVar(&flagProjectName, "project-name", "", "explicitly set the project name, if not set it is extracted from the repo-url")
+
+	return cmd
 }
 
 func init() {
-	rootCmd.AddCommand(InitCmd)
+	cmd := InitCmd()
+
+	rootCmd.AddCommand(&cmd)
 }
 
 func RunInit(cmd *cobra.Command, args []string) {
-	repo_url, err := getGitOriginUrl()
+	var err error
+	var name string
+	var repoUrl string
 
-	utils.Check(err)
+	if flagRepoUrl != "" {
+		repoUrl = flagRepoUrl
+	} else {
+		repoUrl, err = getGitOriginUrl()
 
-	name, err := ConstructProjectName(repo_url)
+		utils.Check(err)
+	}
 
-	utils.Check(err)
+	if flagProjectName != "" {
+		name = flagProjectName
+	} else {
+		name, err = ConstructProjectName(repoUrl)
 
-	project := client.InitProject(name, repo_url)
+		utils.Check(err)
+	}
+
+	project := client.InitProject(name, repoUrl)
 	err = project.Create()
 
 	utils.Check(err)
@@ -49,7 +73,7 @@ func RunInit(cmd *cobra.Command, args []string) {
 
 		utils.Check(err)
 	} else {
-		fmt.Printf("[info] skipping .semaphore/semaphore.yml generation. It is already present in the repository.")
+		fmt.Printf("[info] skipping .semaphore/semaphore.yml generation. It is already present in the repository.\n\n")
 	}
 
 	fmt.Printf("Project is created. You can find it at https://%s/projects/%s.\n", config.GetHost(), project.Metadata.Name)
