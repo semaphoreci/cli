@@ -67,6 +67,10 @@ func (h *ProjectHandler) Create(params CreateParams) {
 	fmt.Println(string(j))
 }
 
+func (h *ProjectHandler) Edit(params EditParams) {
+	fmt.Printf("Unsupported Action")
+}
+
 func (h *ProjectHandler) Delete(params DeleteParams) {
 	c := client.FromConfig()
 
