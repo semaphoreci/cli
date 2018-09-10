@@ -9,8 +9,8 @@ import (
 )
 
 type Project struct {
-	ApiVersion string
-	Kind       string
+	ApiVersion string `json:"apiVersion,omitempty"`
+	Kind       string `json:"kind,omitempty"`
 	Metadata   struct {
 		Name string `json:"name,omitempty"`
 		Id   string `json:"id,omitempty"`

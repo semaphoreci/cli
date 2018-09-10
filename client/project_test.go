@@ -32,7 +32,7 @@ func TestProjectToYaml(t *testing.T) {
 
 	json_body, _ := project.ToJson()
 
-	expected_json_body := `{"metadata":{"name":"test"},"spec":{"repository":{"url":"github.com:/renderedtext/sem.git"}}}`
+	expected_json_body := `{"apiVersion":"v1alpha","kind":"Project","metadata":{"name":"test"},"spec":{"repository":{"url":"github.com:/renderedtext/sem.git"}}}`
 
 	if string(json_body) != expected_json_body {
 		t.Errorf("JSON body is incorrect, got: %s, want: %s.", json_body, expected_json_body)
