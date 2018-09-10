@@ -1,5 +1,18 @@
 # Changelog
 
+### v0.5.0-preview1
+
+- Ability to pass `--project-name` and `--repo-url` to `sem init`
+- Secrets are using the `v1beta` API
+- Files in Secrets
+- Edit a secret with `sem edit secret <name>`
+- Update a secret with `sem apply -f <file-path>`
+- Secrets YAML validation in the CLI
+- Display age of secrets when listing with `sem get secrets`
+- ApiVersion and Kind always present in Yaml format of Secrets
+- Get one resource with `sem get project <name>`, `sem get secret <name>`
+- Create an empty secret with `sem create secret <name>`
+
 ### v0.4.2
 
 - Verbose sem init git repository erorrs
