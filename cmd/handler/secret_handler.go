@@ -19,7 +19,7 @@ func (h *SecretHandler) Get(params GetParams) {
 	fmt.Println("NAME AGE")
 
 	for _, secret := range secretList.Secrets {
-		fmt.Printf("%s %d\n", secret.Metadata.Name, secret.Metadata.UpdateTime)
+		fmt.Printf("%s %s\n", secret.Metadata.Name, RelativeAgeForHumans(secret.Metadata.UpdateTime))
 	}
 }
 
