@@ -5,33 +5,38 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ghodss/yaml"
+	"gopkg.in/yaml.v2"
 )
 
 type Secret struct {
+	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion,omitempty"`
+	Kind       string `json:"kind,omitempty yaml:"kind,omitempty""`
+
 	Metadata struct {
-		Name       string `json:"name,omitempty"`
-		Id         string `json:"id,omitempty"`
-		CreateTime string `json:"create_time,omitempty"`
-		UpdateTime string `json:"update_time,omitempty"`
-	} `json:"metadata"`
+		Name       string `json:"name,omitempty" yaml:"name,omitempty"`
+		Id         string `json:"id,omitempty" yaml:"id,omitempty"`
+		CreateTime string `json:"create_time,omitempty" yaml:"create_time,omitempty"`
+		UpdateTime string `json:"update_time,omitempty" yaml:"update_time,omitempty"`
+	} `json:"metadata" yaml:"metadata"`
 
 	Data struct {
 		EnvVars []struct {
-			Name  string `json:"name"`
-			Value string `json:"value"`
-		} `json:"env_vars"`
+			Name  string `json:"name" yaml:"name"`
+			Value string `json:"value" yaml:"value"`
+		} `json:"env_vars" yaml:"env_vars"`
 
 		Files []struct {
-			Path    string `json:"path"`
-			Content string `json:"content"`
-		} `json:"files"`
-	} `json:"data"`
+			Path    string `json:"path" yaml:"path"`
+			Content string `json:"content" yaml:"content"`
+		} `json:"files" yaml: "files"`
+	} `json:"data" yaml: "data"`
 }
 
 func InitSecret(name string) Secret {
 	s := Secret{}
 
+	s.ApiVersion = "v1beta"
+	s.Kind = "Secret"
 	s.Metadata.Name = name
 
 	return s
@@ -64,7 +69,7 @@ func GetSecret(name string) (*Secret, error) {
 func InitSecretFromYaml(data []byte) (Secret, error) {
 	s := Secret{}
 
-	err := yaml.Unmarshal(data, &s)
+	err := yaml.UnmarshalStrict(data, &s)
 
 	if err != nil {
 		return s, err
