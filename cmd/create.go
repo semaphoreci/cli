@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var createCmd = &cobra.Command{
+var CreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a resource from a file.",
 	Long:  ``,
@@ -21,10 +21,10 @@ var createCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(createCmd)
+	rootCmd.AddCommand(CreateCmd)
 
 	desc := "Filename, directory, or URL to files to use to create the resource"
-	createCmd.PersistentFlags().StringP("file", "f", "", desc)
+	CreateCmd.PersistentFlags().StringP("file", "f", "", desc)
 }
 
 func RunCreate(cmd *cobra.Command, args []string) {

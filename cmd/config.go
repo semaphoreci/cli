@@ -47,7 +47,6 @@ var configSetCmd = &cobra.Command{
 	},
 }
 
-
 func init() {
 	rootCmd.AddCommand(configCmd)
 
