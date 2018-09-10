@@ -49,7 +49,13 @@ func GetAuth() string {
 }
 
 func GetEditor() string {
-	return viper.GetString("editor")
+	editor := viper.GetString("editor")
+
+	if editor == "" {
+		return "vim"
+	} else {
+		return editor
+	}
 }
 
 func SetAuth(token string) {

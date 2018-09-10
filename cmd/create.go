@@ -3,6 +3,7 @@ package cmd
 import (
 	"io/ioutil"
 
+	"github.com/renderedtext/sem/cmd/create"
 	"github.com/renderedtext/sem/cmd/handler"
 	"github.com/renderedtext/sem/cmd/utils"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var CreateCmd = &cobra.Command{
+var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a resource from a file.",
 	Long:  ``,
@@ -21,10 +22,11 @@ var CreateCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(CreateCmd)
+	rootCmd.AddCommand(createCmd)
+	createCmd.AddCommand(cmd_create.CreateSecretCmd)
 
 	desc := "Filename, directory, or URL to files to use to create the resource"
-	CreateCmd.PersistentFlags().StringP("file", "f", "", desc)
+	createCmd.Flags().StringP("file", "f", "", desc)
 }
 
 func RunCreate(cmd *cobra.Command, args []string) {

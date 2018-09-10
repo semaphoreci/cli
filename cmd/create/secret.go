@@ -4,14 +4,13 @@ import (
 	"fmt"
 
 	"github.com/renderedtext/sem/client"
-	"github.com/renderedtext/sem/cmd"
 	"github.com/renderedtext/sem/cmd/utils"
 
 	"github.com/spf13/cobra"
 )
 
-var createSecretCmd = &cobra.Command{
-	Use:   "create secret [NAME]",
+var CreateSecretCmd = &cobra.Command{
+	Use:   "secret [NAME]",
 	Short: "Create a secret.",
 	Long:  ``,
 	Args:  cobra.ExactArgs(1),
@@ -19,10 +18,6 @@ var createSecretCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		RunCreateSecret(cmd, args)
 	},
-}
-
-func init() {
-	cmd.CreateCmd.AddCommand(createSecretCmd)
 }
 
 func RunCreateSecret(cmd *cobra.Command, args []string) {
@@ -33,5 +28,5 @@ func RunCreateSecret(cmd *cobra.Command, args []string) {
 
 	utils.Check(err)
 
-	fmt.Printf("Secret '%s' created.", secret.Metadata.Name)
+	fmt.Printf("Secret '%s' created.\n", secret.Metadata.Name)
 }

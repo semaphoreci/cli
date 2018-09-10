@@ -14,19 +14,19 @@ type Secret struct {
 		Id         string `json:"id,omitempty"`
 		CreateTime int    `json:"create_time,omitempty"`
 		UpdateTime int    `json:"update_time,omitempty"`
-	} `json:"metadata,omitempty"`
+	} `json:"metadata"`
 
 	Data struct {
 		EnvVars []struct {
-			Name  string `json:"name,omitempty"`
-			Value string `json:"name,omitempty"`
-		} `json:"env_vars,omitempty"`
+			Name  string `json:"name"`
+			Value string `json:"name"`
+		} `json:"env_vars"`
 
 		Files []struct {
-			Path    string `json:"path,omitempty"`
-			Content string `json:"content,omitempty"`
-		} `json:"files,omitempty"`
-	} `json:"data,omitempty"`
+			Path    string `json:"path"`
+			Content string `json:"content"`
+		} `json:"files"`
+	} `json:"data"`
 }
 
 func InitSecret(name string) Secret {
