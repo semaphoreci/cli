@@ -58,7 +58,7 @@ func (p *Project) Create() error {
 	body, status, err := c.Post("projects", json_body)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("creating project to Semaphore failed '%s'", err))
+		return errors.New(fmt.Sprintf("creating project on Semaphore failed '%s'", err))
 	}
 
 	if status != 200 {

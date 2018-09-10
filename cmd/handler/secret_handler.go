@@ -3,14 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"os/exec"
 
 	"github.com/ghodss/yaml"
 	"github.com/renderedtext/sem/client"
 	"github.com/renderedtext/sem/cmd/utils"
-	"github.com/renderedtext/sem/config"
 )
 
 type SecretHandler struct {
@@ -72,46 +68,11 @@ func (h *SecretHandler) Create(params CreateParams) {
 }
 
 func (h *SecretHandler) Edit(params EditParams) {
-	c := client.FromConfig()
-
-	body, status, err := c.Get("secrets", params.Name)
+	secret, err := client.GetSecret(params.Name)
 
 	utils.Check(err)
 
-	if status != 200 {
-		utils.Fail(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
-	}
-
-	j, _ := yaml.JSONToYAML(body)
-
-	content := fmt.Sprintf("# Editing Secrets/%s.\n# When you close the editor, the content will be updated on %s.\n\n%s", params.Name, config.GetHost(), j)
-
-	tmpfile, err := ioutil.TempFile("", "sem-cli-edit-session")
-
-	utils.Check(err)
-
-	defer os.Remove(tmpfile.Name()) // clean up
-
-	if _, err := tmpfile.Write([]byte(content)); err != nil {
-		utils.Check(err)
-	}
-
-	if err := tmpfile.Close(); err != nil {
-		utils.Check(err)
-	}
-
-	editor_path, err := exec.LookPath("vim")
-
-	utils.Check(err)
-
-	cmd := exec.Command(editor_path, tmpfile.Name())
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	err = cmd.Start()
-
-	utils.Check(err)
-
-	err = cmd.Wait()
+	content, err = EditYamlInEditor(content)
 
 	utils.Check(err)
 

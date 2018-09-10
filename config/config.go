@@ -48,6 +48,10 @@ func GetAuth() string {
 	}
 }
 
+func GetEditor() string {
+	return viper.GetString("editor")
+}
+
 func SetAuth(token string) {
 	context := GetActiveContext()
 	key_path := fmt.Sprintf("contexts.%s.auth.token", context)
