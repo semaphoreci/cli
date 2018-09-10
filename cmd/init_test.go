@@ -28,7 +28,7 @@ func TestRunInit__NoParams(t *testing.T) {
 	cmd := InitCmd()
 	cmd.Execute()
 
-	expected := `{"metadata":{"name":"something"},"spec":{"repository":{"url":"git@github.com:/renderedtext/something.git"}}}`
+	expected := `{"apiVersion":"v1alpha","kind":"Project","metadata":{"name":"something"},"spec":{"repository":{"url":"git@github.com:/renderedtext/something.git"}}}`
 
 	if received != expected {
 		t.Errorf("Expected the API to receive project create req with '%s' instead '%s'.", expected, received)
@@ -59,7 +59,7 @@ func TestRunInit__NameParamPassed(t *testing.T) {
 
 	cmd.Execute()
 
-	expected := `{"metadata":{"name":"another-name"},"spec":{"repository":{"url":"git@github.com:/renderedtext/something.git"}}}`
+	expected := `{"apiVersion":"v1alpha","kind":"Project","metadata":{"name":"another-name"},"spec":{"repository":{"url":"git@github.com:/renderedtext/something.git"}}}`
 
 	fmt.Print(expected)
 	fmt.Print(received)
@@ -93,7 +93,7 @@ func TestRunInit__RepoUrlParamPassed(t *testing.T) {
 
 	cmd.Execute()
 
-	expected := `{"metadata":{"name":"a"},"spec":{"repository":{"url":"git@github.com:/renderedtext/a.git"}}}`
+	expected := `{"apiVersion":"v1alpha","kind":"Project","metadata":{"name":"a"},"spec":{"repository":{"url":"git@github.com:/renderedtext/a.git"}}}`
 
 	fmt.Print(expected)
 	fmt.Print(received)

@@ -9,7 +9,9 @@ import (
 )
 
 type Project struct {
-	Metadata struct {
+	ApiVersion string `json:"apiVersion,omitempty"`
+	Kind       string `json:"kind,omitempty"`
+	Metadata   struct {
 		Name string `json:"name,omitempty"`
 		Id   string `json:"id,omitempty"`
 	} `json:"metadata,omitempty"`
@@ -27,6 +29,14 @@ func InitProject(name string, repo_url string) Project {
 	p.Metadata.Name = name
 	p.Spec.Repository.Url = repo_url
 
+	if p.ApiVersion == "" {
+		p.ApiVersion = "v1alpha"
+	}
+
+	if p.Kind == "" {
+		p.Kind = "Project"
+	}
+
 	return p
 }
 
@@ -37,6 +47,14 @@ func InitProjectFromYaml(data []byte) (Project, error) {
 
 	if err != nil {
 		return p, err
+	}
+
+	if p.ApiVersion == "" {
+		p.ApiVersion = "v1alpha"
+	}
+
+	if p.Kind == "" {
+		p.Kind = "Project"
 	}
 
 	return p, nil
@@ -58,7 +76,7 @@ func (p *Project) Create() error {
 	body, status, err := c.Post("projects", json_body)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("creating project to Semaphore failed '%s'", err))
+		return errors.New(fmt.Sprintf("creating project on Semaphore failed '%s'", err))
 	}
 
 	if status != 200 {
