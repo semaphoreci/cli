@@ -2,6 +2,8 @@ package handler
 
 import (
 	"fmt"
+	"os"
+	"text/tabwriter"
 
 	"github.com/ghodss/yaml"
 	"github.com/renderedtext/sem/client"
@@ -16,11 +18,16 @@ func (h *SecretHandler) Get(params GetParams) {
 
 	utils.Check(err)
 
-	fmt.Println("NAME AGE")
+	const padding = 3
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
+
+	fmt.Fprintln(w, "NAME\tAGE")
 
 	for _, secret := range secretList.Secrets {
-		fmt.Printf("%s %s\n", secret.Metadata.Name, RelativeAgeForHumans(secret.Metadata.UpdateTime))
+		fmt.Fprintf(w, "%s\t%s\n", secret.Metadata.Name, RelativeAgeForHumans(secret.Metadata.UpdateTime))
 	}
+
+	w.Flush()
 }
 
 func (h *SecretHandler) Describe(params DescribeParams) {
