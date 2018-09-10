@@ -12,7 +12,7 @@ var getCmd = &cobra.Command{
 	Use:   "get [KIND]",
 	Short: "List of resources.",
 	Long:  ``,
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
 		RunGet(cmd, args)
 	},
@@ -25,10 +25,22 @@ func init() {
 func RunGet(cmd *cobra.Command, args []string) {
 	kind := args[0]
 
-	params := handler.GetParams{}
-	handler, err := handler.FindHandler(kind)
+	if len(args) == 1 {
+		params := handler.GetParams{}
+		handler, err := handler.FindHandler(kind)
 
-	utils.Check(err)
+		utils.Check(err)
 
-	handler.Get(params)
+		handler.Get(params)
+	} else {
+		name := args[1]
+
+		params := handler.DescribeParams{Name: name}
+		handler, err := handler.FindHandler(kind)
+
+		utils.Check(err)
+
+		handler.Describe(params)
+	}
+
 }
