@@ -14,6 +14,7 @@ type SecretHandler struct {
 
 func (h *SecretHandler) Get(params GetParams) {
 	c := client.FromConfig()
+	c.SetApiVersion("v1beta")
 
 	body, status, err := c.List("secrets")
 
@@ -53,19 +54,17 @@ func (h *SecretHandler) Describe(params DescribeParams) {
 
 func (h *SecretHandler) Create(params CreateParams) {
 	c := client.FromConfig()
-	c.SetApiVersion(params.ApiVersion)
+	c.SetApiVersion("v1beta")
 
-	body, status, err := c.Post("secrets", params.Resource)
+	s, err := client.InitSecretFromYaml(params.Resource)
 
 	utils.Check(err)
 
-	if status != 200 {
-		utils.Fail(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
-	}
+	err = s.Create()
 
-	j, _ := yaml.JSONToYAML(body)
+	utils.Check(err)
 
-	fmt.Println(string(j))
+	fmt.Printf("Secret '%s' updated.\n", s.Metadata.Name)
 }
 
 func (h *SecretHandler) Edit(params EditParams) {
@@ -93,15 +92,9 @@ func (h *SecretHandler) Edit(params EditParams) {
 }
 
 func (h *SecretHandler) Delete(params DeleteParams) {
-	c := client.FromConfig()
-
-	body, status, err := c.Delete("secrets", params.Name)
+	err := client.DeleteSecret(params.Name)
 
 	utils.Check(err)
-
-	if status != 200 {
-		utils.Fail(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
-	}
 
 	fmt.Printf("secret \"%s\" deleted\n", params.Name)
 }

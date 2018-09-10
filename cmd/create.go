@@ -45,11 +45,7 @@ func RunCreate(cmd *cobra.Command, args []string) {
 	apiVersion := resource["apiVersion"].(string)
 	kind := resource["kind"].(string)
 
-	json_resource, err := yaml.YAMLToJSON(data)
-
-	utils.CheckWithMessage(err, "Failed to parse resource file.")
-
-	params := handler.CreateParams{ApiVersion: apiVersion, Resource: json_resource}
+	params := handler.CreateParams{ApiVersion: apiVersion, Resource: data}
 	handler, err := handler.FindHandler(kind)
 
 	utils.Check(err)
@@ -59,8 +55,6 @@ func RunCreate(cmd *cobra.Command, args []string) {
 
 func parse(data []byte) (map[string]interface{}, error) {
 	m := make(map[string]interface{})
-
-	// fmt.Print(string(data))
 
 	err := yaml.Unmarshal(data, &m)
 

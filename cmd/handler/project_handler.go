@@ -51,24 +51,19 @@ func (h *ProjectHandler) Describe(params DescribeParams) {
 }
 
 func (h *ProjectHandler) Create(params CreateParams) {
-	c := client.FromConfig()
-	c.SetApiVersion(params.ApiVersion)
-
-	body, status, err := c.Post("projects", params.Resource)
+	p, err := client.InitProjectFromYaml(params.Resource)
 
 	utils.Check(err)
 
-	if status != 200 {
-		utils.Fail(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
-	}
+	err = p.Create()
 
-	j, _ := yaml.JSONToYAML(body)
+	utils.Check(err)
 
-	fmt.Println(string(j))
+	fmt.Printf("project \"%s\" created\n", p.Metadata.Name)
 }
 
 func (h *ProjectHandler) Edit(params EditParams) {
-	fmt.Printf("Unsupported Action")
+	fmt.Printf("error: Unsupported Action\n")
 }
 
 func (h *ProjectHandler) Delete(params DeleteParams) {

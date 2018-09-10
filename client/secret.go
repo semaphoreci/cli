@@ -101,6 +101,23 @@ func GetSecret(name string) (*Secret, error) {
 	return &s, nil
 }
 
+func DeleteSecret(name string) error {
+	c := FromConfig()
+	c.SetApiVersion("v1beta")
+
+	body, status, err := c.Delete("secrets", name)
+
+	if err != nil {
+		return err
+	}
+
+	if status != 200 {
+		return fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
+	}
+
+	return nil
+}
+
 func (s *Secret) ToJson() ([]byte, error) {
 	return json.Marshal(s)
 }
