@@ -47,7 +47,7 @@ func (h *ProjectHandler) Describe(params DescribeParams) {
 
 	j, _ := yaml.JSONToYAML(body)
 
-	fmt.Println(string(j))
+	fmt.Print(string(j))
 }
 
 func (h *ProjectHandler) Create(params CreateParams) {
@@ -60,6 +60,10 @@ func (h *ProjectHandler) Create(params CreateParams) {
 	utils.Check(err)
 
 	fmt.Printf("project \"%s\" created\n", p.Metadata.Name)
+}
+
+func (h *ProjectHandler) Apply(params ApplyParams) {
+	fmt.Printf("error: Unsupported Action\n")
 }
 
 func (h *ProjectHandler) Edit(params EditParams) {

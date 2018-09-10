@@ -5,7 +5,6 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/ghodss/yaml"
 	"github.com/renderedtext/sem/client"
 	"github.com/renderedtext/sem/cmd/utils"
 )
@@ -31,20 +30,13 @@ func (h *SecretHandler) Get(params GetParams) {
 }
 
 func (h *SecretHandler) Describe(params DescribeParams) {
-	c := client.FromConfig()
-	c.SetApiVersion("v1beta")
-
-	body, status, err := c.Get("secrets", params.Name)
+	s, err := client.GetSecret(params.Name)
 
 	utils.Check(err)
 
-	if status != 200 {
-		utils.Fail(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
-	}
+	body, err := s.ToYaml()
 
-	j, _ := yaml.JSONToYAML(body)
-
-	fmt.Println(string(j))
+	fmt.Print(string(body))
 }
 
 func (h *SecretHandler) Create(params CreateParams) {
@@ -56,6 +48,21 @@ func (h *SecretHandler) Create(params CreateParams) {
 	utils.Check(err)
 
 	err = s.Create()
+
+	utils.Check(err)
+
+	fmt.Printf("Secret '%s' updated.\n", s.Metadata.Name)
+}
+
+func (h *SecretHandler) Apply(params ApplyParams) {
+	c := client.FromConfig()
+	c.SetApiVersion("v1beta")
+
+	s, err := client.InitSecretFromYaml(params.Resource)
+
+	utils.Check(err)
+
+	err = s.Update()
 
 	utils.Check(err)
 

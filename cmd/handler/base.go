@@ -26,11 +26,17 @@ type CreateParams struct {
 	Resource   []byte
 }
 
+type ApplyParams struct {
+	ApiVersion string
+	Resource   []byte
+}
+
 type Handler interface {
 	Get(GetParams)
 	Describe(DescribeParams)
 	Create(CreateParams)
 	Edit(EditParams)
+	Apply(ApplyParams)
 	Delete(DeleteParams)
 }
 

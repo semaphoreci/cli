@@ -15,8 +15,8 @@ type Secret struct {
 	Metadata struct {
 		Name       string `json:"name,omitempty" yaml:"name,omitempty"`
 		Id         string `json:"id,omitempty" yaml:"id,omitempty"`
-		CreateTime int64  `json:"create_time,omitempty,string" yaml:"create_time,omitempty,string"`
-		UpdateTime int64  `json:"update_time,omitempty,string" yaml:"update_time,omitempty,string"`
+		CreateTime int64  `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
+		UpdateTime int64  `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
 	} `json:"metadata" yaml:"metadata"`
 
 	Data struct {
@@ -216,7 +216,15 @@ func (s *Secret) Update() error {
 		return errors.New(fmt.Sprintf("failed to serialize secret object '%s'", err))
 	}
 
-	body, status, err := c.Patch("secrets", s.Metadata.Name, json_body)
+	identifier := ""
+
+	if s.Metadata.Id != "" {
+		identifier = s.Metadata.Id
+	} else {
+		identifier = s.Metadata.Name
+	}
+
+	body, status, err := c.Patch("secrets", identifier, json_body)
 
 	if err != nil {
 		return errors.New(fmt.Sprintf("updating secret on Semaphore failed '%s'", err))
