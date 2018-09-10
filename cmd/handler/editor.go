@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 
 	"github.com/renderedtext/sem/config"
 )
@@ -22,17 +24,21 @@ func EditYamlInEditor(objectName string, content string) (string, error) {
 		config.GetHost(),
 		content)
 
-	//
-	// The * in the filename is replaced by a random string
-	// https://golang.org/pkg/io/ioutil/#TempFile
-	//
-	tmpfile, err := ioutil.TempFile("", "sem-cli-edit-session.*.yml")
+	dir, err := ioutil.TempDir("", "sem-cli-session")
 
 	if err != nil {
 		return "", fmt.Errorf("Failed to open local temp file for editing '%s'", err)
 	}
 
-	defer os.Remove(tmpfile.Name()) // clean up
+	defer os.RemoveAll(dir) // clean up
+
+	// remove '/' from filename
+	filename := strings.Replace(fmt.Sprintf("%s.yml", objectName), "/", "-", -1)
+	tmpfile, err := os.Create(filepath.Join(dir, filename))
+
+	if err != nil {
+		return "", fmt.Errorf("Failed to open local temp file for editing '%s'", err)
+	}
 
 	if _, err := tmpfile.Write([]byte(content_with_comment)); err != nil {
 		return "", fmt.Errorf("Failed to open local temp file for editing '%s'", err)

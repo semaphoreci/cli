@@ -9,8 +9,8 @@ import (
 )
 
 type Secret struct {
-	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion,omitempty"`
-	Kind       string `json:"kind,omitempty yaml:"kind,omitempty""`
+	ApiVersion string `json:"apiVersion" yaml:"apiVersion"`
+	Kind       string `json:"kind" yaml:"kind"`
 
 	Metadata struct {
 		Name       string `json:"name,omitempty" yaml:"name,omitempty"`
@@ -42,6 +42,42 @@ func InitSecret(name string) Secret {
 	return s
 }
 
+func InitSecretFromYaml(data []byte) (Secret, error) {
+	s := Secret{}
+
+	err := yaml.UnmarshalStrict(data, &s)
+
+	if err != nil {
+		return s, err
+	}
+
+	if s.ApiVersion == "" {
+		s.ApiVersion = "v1beta"
+	}
+
+	if s.Kind == "" {
+		s.Kind = "Secret"
+	}
+
+	return s, nil
+}
+
+func InitSecretFromJson(data []byte) (Secret, error) {
+	s := Secret{}
+
+	err := json.Unmarshal(data, &s)
+
+	if s.ApiVersion == "" {
+		s.ApiVersion = "v1beta"
+	}
+
+	if s.Kind == "" {
+		s.Kind = "Secret"
+	}
+
+	return s, err
+}
+
 func GetSecret(name string) (*Secret, error) {
 	c := FromConfig()
 	c.SetApiVersion("v1beta")
@@ -56,26 +92,13 @@ func GetSecret(name string) (*Secret, error) {
 		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
 	}
 
-	s := Secret{}
-	err = json.Unmarshal(body, &s)
+	s, err := InitSecretFromJson(body)
 
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("failed to deserialize secret object '%s'", err))
 	}
 
 	return &s, nil
-}
-
-func InitSecretFromYaml(data []byte) (Secret, error) {
-	s := Secret{}
-
-	err := yaml.UnmarshalStrict(data, &s)
-
-	if err != nil {
-		return s, err
-	}
-
-	return s, nil
 }
 
 func (s *Secret) ToJson() ([]byte, error) {
