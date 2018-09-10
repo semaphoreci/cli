@@ -12,14 +12,14 @@ type Secret struct {
 	Metadata struct {
 		Name       string `json:"name,omitempty"`
 		Id         string `json:"id,omitempty"`
-		CreateTime int    `json:"create_time,omitempty"`
-		UpdateTime int    `json:"update_time,omitempty"`
+		CreateTime string `json:"create_time,omitempty"`
+		UpdateTime string `json:"update_time,omitempty"`
 	} `json:"metadata"`
 
 	Data struct {
 		EnvVars []struct {
 			Name  string `json:"name"`
-			Value string `json:"name"`
+			Value string `json:"value"`
 		} `json:"env_vars"`
 
 		Files []struct {

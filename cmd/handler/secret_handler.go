@@ -36,6 +36,7 @@ func (h *SecretHandler) Get(params GetParams) {
 
 func (h *SecretHandler) Describe(params DescribeParams) {
 	c := client.FromConfig()
+	c.SetApiVersion("v1beta")
 
 	body, status, err := c.Get("secrets", params.Name)
 
