@@ -15,8 +15,8 @@ type Secret struct {
 	Metadata struct {
 		Name       string `json:"name,omitempty" yaml:"name,omitempty"`
 		Id         string `json:"id,omitempty" yaml:"id,omitempty"`
-		CreateTime string `json:"create_time,omitempty" yaml:"create_time,omitempty"`
-		UpdateTime string `json:"update_time,omitempty" yaml:"update_time,omitempty"`
+		CreateTime int64  `json:"create_time,omitempty,string" yaml:"create_time,omitempty,string"`
+		UpdateTime int64  `json:"update_time,omitempty,string" yaml:"update_time,omitempty,string"`
 	} `json:"metadata" yaml:"metadata"`
 
 	Data struct {
@@ -30,6 +30,10 @@ type Secret struct {
 			Content string `json:"content" yaml:"content"`
 		} `json:"files" yaml: "files"`
 	} `json:"data" yaml: "data"`
+}
+
+type SecretList struct {
+	Secrets []Secret `json:"secrets" yaml:"secrets"`
 }
 
 func InitSecret(name string) Secret {
@@ -67,6 +71,10 @@ func InitSecretFromJson(data []byte) (Secret, error) {
 
 	err := json.Unmarshal(data, &s)
 
+	if err != nil {
+		return s, err
+	}
+
 	if s.ApiVersion == "" {
 		s.ApiVersion = "v1beta"
 	}
@@ -76,6 +84,51 @@ func InitSecretFromJson(data []byte) (Secret, error) {
 	}
 
 	return s, err
+}
+
+func InitSecretsFromJson(data []byte) (SecretList, error) {
+	secretList := SecretList{}
+
+	err := json.Unmarshal(data, &secretList)
+
+	if err != nil {
+		return secretList, err
+	}
+
+	for _, s := range secretList.Secrets {
+		if s.ApiVersion == "" {
+			s.ApiVersion = "v1beta"
+		}
+
+		if s.Kind == "" {
+			s.Kind = "Secret"
+		}
+	}
+
+	return secretList, nil
+}
+
+func ListSecrets() (*SecretList, error) {
+	c := FromConfig()
+	c.SetApiVersion("v1beta")
+
+	body, status, err := c.List("secrets")
+
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+	}
+
+	if status != 200 {
+		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
+
+	secretList, err := InitSecretsFromJson(body)
+
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("failed to deserialize secret list object '%s'", err))
+	}
+
+	return &secretList, nil
 }
 
 func GetSecret(name string) (*Secret, error) {

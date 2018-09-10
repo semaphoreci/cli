@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/ghodss/yaml"
@@ -13,25 +12,14 @@ type SecretHandler struct {
 }
 
 func (h *SecretHandler) Get(params GetParams) {
-	c := client.FromConfig()
-	c.SetApiVersion("v1beta")
-
-	body, status, err := c.List("secrets")
+	secretList, err := client.ListSecrets()
 
 	utils.Check(err)
 
-	if status != 200 {
-		utils.Fail(fmt.Sprintf("http status %d received from upstream", status))
-	}
+	fmt.Println("NAME AGE")
 
-	var secrets []map[string]interface{}
-
-	json.Unmarshal([]byte(body), &secrets)
-
-	fmt.Println("NAME")
-
-	for _, secret := range secrets {
-		fmt.Println(secret["metadata"].(map[string]interface{})["name"])
+	for _, secret := range secretList.Secrets {
+		fmt.Printf("%s %d\n", secret.Metadata.Name, secret.Metadata.UpdateTime)
 	}
 }
 
