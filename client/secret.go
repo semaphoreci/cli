@@ -77,6 +77,14 @@ func (s *Secret) ToJson() ([]byte, error) {
 	return json.Marshal(s)
 }
 
+func (s *Secret) ToYaml() ([]byte, error) {
+	return yaml.Marshal(s)
+}
+
+func (s *Secret) ObjectName() string {
+	return fmt.Sprintf("Secrets/%s", s.Metadata.Name)
+}
+
 func (s *Secret) Create() error {
 	c := FromConfig()
 	c.SetApiVersion("v1beta")
@@ -91,6 +99,29 @@ func (s *Secret) Create() error {
 
 	if err != nil {
 		return errors.New(fmt.Sprintf("creating secret on Semaphore failed '%s'", err))
+	}
+
+	if status != 200 {
+		return errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
+
+	return nil
+}
+
+func (s *Secret) Update() error {
+	c := FromConfig()
+	c.SetApiVersion("v1beta")
+
+	json_body, err := s.ToJson()
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to serialize secret object '%s'", err))
+	}
+
+	body, status, err := c.Patch("secrets", s.Metadata.Name, json_body)
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("updating secret on Semaphore failed '%s'", err))
 	}
 
 	if status != 200 {

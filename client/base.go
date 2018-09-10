@@ -160,3 +160,32 @@ func (c *Client) Post(kind string, resource []byte) ([]byte, int, error) {
 
 	return body, resp.StatusCode, err
 }
+
+func (c *Client) Patch(kind string, name string, resource []byte) ([]byte, int, error) {
+	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
+
+	log.Println(url)
+
+	req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(resource))
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return []byte(""), 0, err
+	}
+
+	defer resp.Body.Close()
+
+	log.Println("response Status:", resp.Status)
+	log.Println("response Headers:", resp.Header)
+
+	body, err := ioutil.ReadAll(resp.Body)
+
+	log.Println(string(body))
+
+	return body, resp.StatusCode, err
+}
