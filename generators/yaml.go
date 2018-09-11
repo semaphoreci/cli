@@ -78,7 +78,9 @@ func GeneratePipelineYaml() error {
 	if _, err := os.Stat(".semaphore"); err != nil {
 		err := os.Mkdir(".semaphore", 0755)
 
-		return errors.New(fmt.Sprintf("failed to create .semaphore directory '%s'", err))
+		if err != nil {
+			return errors.New(fmt.Sprintf("failed to create .semaphore directory '%s'", err))
+		}
 	}
 
 	err := ioutil.WriteFile(".semaphore/semaphore.yml", []byte(semaphore_yaml_template), 0644)
