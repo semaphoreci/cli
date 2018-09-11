@@ -66,10 +66,6 @@ func (h *ProjectHandler) Apply(params ApplyParams) {
 	fmt.Printf("error: Unsupported Action\n")
 }
 
-func (h *ProjectHandler) Edit(params EditParams) {
-	fmt.Printf("error: Unsupported Action\n")
-}
-
 func (h *ProjectHandler) Delete(params DeleteParams) {
 	c := client.FromConfig()
 
