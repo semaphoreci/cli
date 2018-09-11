@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+
+	"github.com/renderedtext/sem/cmd/edit"
 )
 
 var editCmd = &cobra.Command{

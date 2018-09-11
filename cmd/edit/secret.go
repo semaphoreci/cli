@@ -9,14 +9,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var EditSecretCmd = &cobra.command{
-	use:     "secret [name]",
-	short:   "Edit a secret.",
-	long:    ``,
-	aliases: []string{"secrets"},
-	args:    cobra.ExactArgs(1),
+var EditSecretCmd = &cobra.Command{
+	Use:     "secret [name]",
+	Short:   "Edit a secret.",
+	Long:    ``,
+	Aliases: []string{"secrets"},
+	Args:    cobra.ExactArgs(1),
 
-	run: func(cmd *cobra.command, args []string) {
+	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
 		secret, err := client.GetSecret(name)
