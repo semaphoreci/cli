@@ -2,6 +2,7 @@ package generators
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -73,6 +74,10 @@ blocks:
 `
 
 func GeneratePipelineYaml() error {
+	if flag.Lookup("test.v") != nil {
+		return nil // skip generation in tests
+	}
+
 	path := ".semaphore/semaphore.yml"
 
 	if _, err := os.Stat(".semaphore"); err != nil {
