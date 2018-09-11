@@ -10,10 +10,11 @@ import (
 )
 
 var CreateSecretCmd = &cobra.Command{
-	Use:   "secret [NAME]",
-	Short: "Create a secret.",
-	Long:  ``,
-	Args:  cobra.ExactArgs(1),
+	Use:     "secret [NAME]",
+	Short:   "Create a secret.",
+	Long:    ``,
+	Aliases: []string{"secrets"},
+	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
 		RunCreateSecret(cmd, args)

@@ -13,10 +13,6 @@ type DescribeParams struct {
 	Name string
 }
 
-type EditParams struct {
-	Name string
-}
-
 type DeleteParams struct {
 	Name string
 }
@@ -35,7 +31,6 @@ type Handler interface {
 	Get(GetParams)
 	Describe(DescribeParams)
 	Create(CreateParams)
-	Edit(EditParams)
 	Apply(ApplyParams)
 	Delete(DeleteParams)
 }

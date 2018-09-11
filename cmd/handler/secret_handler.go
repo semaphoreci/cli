@@ -69,30 +69,6 @@ func (h *SecretHandler) Apply(params ApplyParams) {
 	fmt.Printf("Secret '%s' updated.\n", s.Metadata.Name)
 }
 
-func (h *SecretHandler) Edit(params EditParams) {
-	secret, err := client.GetSecret(params.Name)
-
-	utils.Check(err)
-
-	content, err := secret.ToYaml()
-
-	utils.Check(err)
-
-	new_content, err := EditYamlInEditor(secret.ObjectName(), string(content))
-
-	utils.Check(err)
-
-	updated_secret, err := client.InitSecretFromYaml([]byte(new_content))
-
-	utils.Check(err)
-
-	err = updated_secret.Update()
-
-	utils.Check(err)
-
-	fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
-}
-
 func (h *SecretHandler) Delete(params DeleteParams) {
 	err := client.DeleteSecret(params.Name)
 

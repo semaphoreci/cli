@@ -179,6 +179,14 @@ func (s *Secret) ToYaml() ([]byte, error) {
 	return yaml.Marshal(s)
 }
 
+func (s *Secret) Validate() error {
+	if s.Metadata.Name == "" {
+		return errors.New("Secret name can't be blank")
+	}
+
+	return nil
+}
+
 func (s *Secret) ObjectName() string {
 	return fmt.Sprintf("Secrets/%s", s.Metadata.Name)
 }
@@ -186,6 +194,12 @@ func (s *Secret) ObjectName() string {
 func (s *Secret) Create() error {
 	c := FromConfig()
 	c.SetApiVersion("v1beta")
+
+	err := s.Validate()
+
+	if err != nil {
+		return err
+	}
 
 	json_body, err := s.ToJson()
 
@@ -209,6 +223,12 @@ func (s *Secret) Create() error {
 func (s *Secret) Update() error {
 	c := FromConfig()
 	c.SetApiVersion("v1beta")
+
+	err := s.Validate()
+
+	if err != nil {
+		return err
+	}
 
 	json_body, err := s.ToJson()
 

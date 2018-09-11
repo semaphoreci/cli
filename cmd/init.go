@@ -69,11 +69,11 @@ func RunInit(cmd *cobra.Command, args []string) {
 	utils.Check(err)
 
 	if generators.PipelineFileExists() {
+		fmt.Printf("[info] skipping .semaphore/semaphore.yml generation. It is already present in the repository.\n\n")
+	} else {
 		err = generators.GeneratePipelineYaml()
 
 		utils.Check(err)
-	} else {
-		fmt.Printf("[info] skipping .semaphore/semaphore.yml generation. It is already present in the repository.\n\n")
 	}
 
 	fmt.Printf("Project is created. You can find it at https://%s/projects/%s.\n", config.GetHost(), project.Metadata.Name)
