@@ -5,7 +5,8 @@ REL_BUCKET=sem-cli-releases
 
 gen.api:
 	mkdir -p api
-	swagger generate client -f ~/code/public_api/semaphore/dashboards.v1alpha.swagger.json -A semaphore_api -c client --default-scheme=https --target=api
+	swagger generate client -f ~/code/public_api/semaphore/dashboards.v1alpha.swagger.json -A semaphore_api -c dashboards_v1alpha --default-scheme=https --target=api
+	swagger generate client -f ~/code/public_api/semaphore/dashboards.v2alpha.swagger.json -A semaphore_api -c dashboards_v2alpha --default-scheme=https --target=api
 
 go.install:
 	cd /tmp
