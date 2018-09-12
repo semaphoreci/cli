@@ -3,6 +3,9 @@
 REL_VERSION=$(shell git rev-parse HEAD)
 REL_BUCKET=sem-cli-releases
 
+gen.api:
+	swagger generate client -f ~/code/public_api/semaphore/dashboards.v1alpha.swagger.json -A semaphore_api -c client --default-scheme=https --target=api
+
 go.install:
 	cd /tmp
 	sudo curl -O https://dl.google.com/go/go1.11.linux-amd64.tar.gz
