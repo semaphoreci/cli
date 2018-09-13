@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/semaphoreci/cli/cmd/handler"
-	"github.com/semaphoreci/cli/cmd/utils"
+	cmd_get "github.com/renderedtext/sem/cmd/get"
+	"github.com/renderedtext/sem/cmd/handler"
+	"github.com/renderedtext/sem/cmd/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -20,6 +21,8 @@ var getCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(getCmd)
+
+	getCmd.AddCommand(cmd_get.GetDashboardCmd)
 }
 
 func RunGet(cmd *cobra.Command, args []string) {
