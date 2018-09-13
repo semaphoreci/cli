@@ -4,9 +4,10 @@ REL_VERSION=$(shell git rev-parse HEAD)
 REL_BUCKET=sem-cli-releases
 
 gen.api:
+	rm -rf api
 	mkdir -p api
-	swagger generate client -f ~/code/public_api/semaphore/dashboards.v1alpha.swagger.json -A semaphore_api -c dashboards_v1alpha --default-scheme=https --target=api
-	swagger generate client -f ~/code/public_api/semaphore/dashboards.v2alpha.swagger.json -A semaphore_api -c dashboards_v2alpha --default-scheme=https --target=api
+	swagger mixin ~/code/public_api/semaphore/dashboards.v1alpha.swagger.json ~/code/public_api/semaphore/secrets.v1beta.swagger.json > /tmp/api.json
+	swagger generate client -f /tmp/api.json -A semaphore --default-scheme=https --target=api
 
 go.install:
 	cd /tmp
