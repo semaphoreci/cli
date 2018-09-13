@@ -16,4 +16,5 @@ func init() {
 	rootCmd.AddCommand(editCmd)
 
 	editCmd.AddCommand(cmd_edit.EditSecretCmd)
+	editCmd.AddCommand(cmd_edit.EditDashboardCmd)
 }
