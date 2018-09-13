@@ -3,9 +3,9 @@ package cmd
 import (
 	"io/ioutil"
 
-	"github.com/semaphoreci/cli/cmd/create"
-	"github.com/semaphoreci/cli/cmd/handler"
-	"github.com/semaphoreci/cli/cmd/utils"
+	cmd_create "github.com/renderedtext/sem/cmd/create"
+	"github.com/renderedtext/sem/cmd/handler"
+	"github.com/renderedtext/sem/cmd/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -23,6 +23,7 @@ var createCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(createCmd)
 	createCmd.AddCommand(cmd_create.CreateSecretCmd)
+	createCmd.AddCommand(cmd_create.CreateDashboardCmd)
 
 	desc := "Filename, directory, or URL to files to use to create the resource"
 	createCmd.Flags().StringP("file", "f", "", desc)
