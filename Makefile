@@ -4,10 +4,12 @@ REL_VERSION=$(shell git rev-parse HEAD)
 REL_BUCKET=sem-cli-releases
 
 gen.api:
-	rm -rf api
+	rm -rf api/client
+	rm -rf api/models
 	mkdir -p api
 	swagger mixin ~/code/public_api/semaphore/dashboards.v1alpha.swagger.json ~/code/public_api/semaphore/secrets.v1beta.swagger.json > /tmp/api.json
 	swagger generate client -f /tmp/api.json -A semaphore --default-scheme=https --target=api
+	ruby scripts/gen-yaml-marshalers
 
 go.install:
 	cd /tmp

@@ -5,7 +5,6 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/ghodss/yaml"
 	"github.com/renderedtext/sem/api"
 	"github.com/renderedtext/sem/api/client/semaphore_dashboards_v1alpha_dashboards_api"
 	"github.com/renderedtext/sem/cmd/utils"
@@ -47,13 +46,13 @@ var GetDashboardCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			j, err := yaml.Marshal(resp.Payload)
+			j, err := resp.Payload.MarshalYaml()
 
 			utils.Check(err)
 
 			fmt.Printf("apiVersion: v1alpha\n")
 			fmt.Printf("kind: Dashboard\n")
-			fmt.Printf("%s\n", j)
+			fmt.Printf("%s", j)
 		}
 	},
 }

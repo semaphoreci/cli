@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+
+models = Dir["api/models/*"].each { |f| p f }
+
+p models
+
+models.each do |file|
+  puts "------------------------------------------------- #{file}"
+  model = File.read(file)
+
+  # find the name of the type
+  type_name_match = /type (.*) struct/.match(model)
+
+  next if type_name_match.nil? # bail if we can't deduce type_name, hapens if the model is empty
+
+  type_name = type_name_match[1]
+
+  # load yaml parser
+  model = model.gsub("import (\n", "\timport (\nyaml \"gopkg.in/yaml.v2\"\n")
+
+  # add MarshalYaml
+  marshaler = %{
+
+  // MmarshalYaml interface implementation
+  func (m *#{type_name}) MarshalYaml() ([]byte, error) {
+    return yaml.Marshal(m)
+  }
+
+  }
+
+  unmarshaler = %{
+
+  // MmarshalYaml interface implementation
+  func (m *#{type_name}) UnmarshalYaml(b []byte) error {
+    var res #{type_name}
+
+    err := yaml.UnmarshalStrict(b, &res)
+
+    if err != nil {
+      return err
+    }
+
+    *m = res
+    return nil
+  }
+
+  }
+
+  model += marshaler
+  model += unmarshaler
+
+  File.write(file, model)
+end
