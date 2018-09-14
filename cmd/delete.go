@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	cmd_delete "github.com/semaphoreci/cli/cmd/delete"
 	"github.com/semaphoreci/cli/cmd/handler"
 	"github.com/semaphoreci/cli/cmd/utils"
 
@@ -20,6 +21,8 @@ var deleteCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(deleteCmd)
+
+	deleteCmd.AddCommand(cmd_delete.DeleteDashboardCmd)
 }
 
 func RunDelete(cmd *cobra.Command, args []string) {
