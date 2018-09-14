@@ -28,7 +28,7 @@ build:
 	tar -czvf /tmp/sem.tar.gz sem
 
 release:
-	$(MAKE) build OS=$(OS) ARCH=$(ARCH)
+	$(MAKE) build OS=$(OS) ARCH=$(ARCH) -o sem
 	gsutil cp /tmp/sem.tar.gz gs://$(REL_BUCKET)/$(REL_VERSION)-$(OS)-$(ARCH).tar.gz
 	gsutil acl -R ch -u AllUsers:R gs://$(REL_BUCKET)/$(REL_VERSION)-$(OS)-$(ARCH).tar.gz
 	gsutil setmeta -h "Cache-Control:private, max-age=0, no-transform" gs://$(REL_BUCKET)/$(REL_VERSION)-$(OS)-$(ARCH).tar.gz
