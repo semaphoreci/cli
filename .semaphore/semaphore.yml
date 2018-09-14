@@ -15,11 +15,11 @@ blocks:
       - name: "Test"
         commands:
           - echo $GCE_CREDS | base64 --decode > gce-creds.json
-          - make go.install
-          - "export PATH=/usr/local/go/bin:$PATH"
-          - "export GOPATH=~/go"
-          - "export GOROOT=/usr/local/go"
           - checkout
+          - make go.install
+          # - "export PATH=/usr/local/go/bin:$PATH"
+          # - "export GOPATH=~/go"
+          # - "export GOROOT=/usr/local/go"
           - make gsutil.configure
           - make go.get
           - make test
