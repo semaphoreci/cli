@@ -15,7 +15,7 @@ gsutil.configure:
 	gcloud config set project semaphore2-prod
 
 go.get:
-	go get -t -d ./... && go build ./...
+	go get
 
 go.fmt:
 	go fmt ./...
