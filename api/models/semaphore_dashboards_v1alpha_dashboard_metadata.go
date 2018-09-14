@@ -16,11 +16,20 @@ yaml "gopkg.in/yaml.v2"
 // swagger:model SemaphoreDashboardsV1alphaDashboardMetadata
 type SemaphoreDashboardsV1alphaDashboardMetadata struct {
 
+	// create time
+	CreateTime string `json:"create_time,omitempty"`
+
 	// id
 	ID string `json:"id,omitempty"`
 
 	// name
 	Name string `json:"name,omitempty"`
+
+	// title
+	Title string `json:"title,omitempty"`
+
+	// update time
+	UpdateTime string `json:"update_time,omitempty"`
 }
 
 // Validate validates this semaphore dashboards v1alpha dashboard metadata

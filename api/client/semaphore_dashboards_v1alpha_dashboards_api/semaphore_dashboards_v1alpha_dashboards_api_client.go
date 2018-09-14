@@ -136,6 +136,34 @@ func (a *Client) ListDashboards(params *ListDashboardsParams) (*ListDashboardsOK
 
 }
 
+/*
+UpdateDashboard update dashboard API
+*/
+func (a *Client) UpdateDashboard(params *UpdateDashboardParams) (*UpdateDashboardOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateDashboardParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "UpdateDashboard",
+		Method:             "PATCH",
+		PathPattern:        "/api/v1alpha/dashboards/{id_or_name}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateDashboardReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*UpdateDashboardOK), nil
+
+}
+
 // SetTransport changes the transport on the client
 func (a *Client) SetTransport(transport runtime.ClientTransport) {
 	a.transport = transport
