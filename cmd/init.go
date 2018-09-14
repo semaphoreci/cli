@@ -7,10 +7,10 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/renderedtext/sem/client"
-	"github.com/renderedtext/sem/cmd/utils"
-	"github.com/renderedtext/sem/config"
-	"github.com/renderedtext/sem/generators"
+	"github.com/semaphoreci/cli/client"
+	"github.com/semaphoreci/cli/cmd/utils"
+	"github.com/semaphoreci/cli/config"
+	"github.com/semaphoreci/cli/generators"
 
 	"github.com/spf13/cobra"
 	"github.com/tcnksm/go-gitconfig"

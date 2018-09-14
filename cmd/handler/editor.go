@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/renderedtext/sem/config"
+	"github.com/semaphoreci/cli/config"
 )
 
 const editedContentTemplate = `# Editing %s.

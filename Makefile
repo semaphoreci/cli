@@ -5,8 +5,8 @@ REL_BUCKET=sem-cli-releases
 
 go.install:
 	cd /tmp
-	sudo curl -O https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz
-	sudo tar -xf go1.9.1.linux-amd64.tar.gz
+	sudo curl -O https://dl.google.com/go/go1.11.linux-amd64.tar.gz
+	sudo tar -xf go1.11.linux-amd64.tar.gz
 	sudo mv go /usr/local
 	cd -
 

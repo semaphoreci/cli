@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/renderedtext/sem/cmd/utils"
+	"github.com/semaphoreci/cli/cmd/utils"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"

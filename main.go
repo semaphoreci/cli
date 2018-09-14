@@ -1,6 +1,6 @@
 package main
 
-import "github.com/renderedtext/sem/cmd"
+import "github.com/semaphoreci/cli/cmd"
 
 func main() {
 	cmd.Execute()

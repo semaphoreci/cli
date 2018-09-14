@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/renderedtext/sem/config"
+	"github.com/semaphoreci/cli/config"
 	"github.com/spf13/cobra"
 )
 
