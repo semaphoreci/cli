@@ -35,7 +35,7 @@ func (c *SecretApiV1BetaApi) ListSecrets() (*models.SecretListV1Beta, error) {
 		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
 	}
 
-	return models.NewSecretV1BetaListFromJson(body)
+	return models.NewSecretListV1BetaFromJson(body)
 }
 
 func (c *SecretApiV1BetaApi) GetSecret(name string) (*models.SecretV1Beta, error) {

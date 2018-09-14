@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	models "github.com/semaphoreci/cli/client/models"
+	models "github.com/semaphoreci/cli/api/models"
 )
 
 type DashboardApiV1AlphaApi struct {
@@ -35,7 +35,7 @@ func (c *DashboardApiV1AlphaApi) ListDashboards() (*models.DashboardListV1Alpha,
 		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
 	}
 
-	return models.NewDashboardV1AlphaListFromJson(body)
+	return models.NewDashboardListV1AlphaFromJson(body)
 }
 
 func (c *DashboardApiV1AlphaApi) GetDashboard(name string) (*models.DashboardV1Alpha, error) {

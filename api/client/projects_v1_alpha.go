@@ -35,7 +35,7 @@ func (c *ProjectApiV1AlphaApi) ListProjects() (*models.ProjectListV1Alpha, error
 		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
 	}
 
-	return models.NewProjectV1AlphaListFromJson(body)
+	return models.NewProjectListV1AlphaFromJson(body)
 }
 
 func (c *ProjectApiV1AlphaApi) GetProject(name string) (*models.ProjectV1Alpha, error) {

@@ -6,7 +6,7 @@ type DashboardListV1Alpha struct {
 	Dashboards []DashboardV1Alpha `json:"dashboards" yaml:"dashboards"`
 }
 
-func NewDashboardV1AlphaListFromJson(data []byte) (*DashboardListV1Alpha, error) {
+func NewDashboardListV1AlphaFromJson(data []byte) (*DashboardListV1Alpha, error) {
 	list := DashboardListV1Alpha{}
 
 	err := json.Unmarshal(data, &list)
