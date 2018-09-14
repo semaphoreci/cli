@@ -11,13 +11,13 @@ import (
 	"github.com/semaphoreci/cli/config"
 )
 
-type Client struct {
+type BaseClient struct {
 	authToken  string
 	host       string
 	apiVersion string
 }
 
-func FromConfig() Client {
+func NewBaseClientFromConfig() BaseClient {
 	host := config.GetHost()
 	authToken := config.GetAuth()
 	apiVersion := "v1alpha"
@@ -32,20 +32,20 @@ func FromConfig() Client {
 		os.Exit(1)
 	}
 
-	return New(authToken, host, apiVersion)
+	return NewBaseClient(authToken, host, apiVersion)
 }
 
-func New(authToken string, host string, apiVersion string) Client {
-	return Client{authToken, host, apiVersion}
+func NewBaseClient(authToken string, host string, apiVersion string) BaseClient {
+	return BaseClient{authToken, host, apiVersion}
 }
 
-func (c *Client) SetApiVersion(apiVersion string) *Client {
+func (c *BaseClient) SetApiVersion(apiVersion string) *BaseClient {
 	c.apiVersion = apiVersion
 
 	return c
 }
 
-func (c *Client) Get(kind string, name string) ([]byte, int, error) {
+func (c *BaseClient) Get(kind string, name string) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
 	log.Println(url)
@@ -74,7 +74,7 @@ func (c *Client) Get(kind string, name string) ([]byte, int, error) {
 	return body, resp.StatusCode, err
 }
 
-func (c *Client) List(kind string) ([]byte, int, error) {
+func (c *BaseClient) List(kind string) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
 	log.Println(url)
@@ -103,7 +103,7 @@ func (c *Client) List(kind string) ([]byte, int, error) {
 	return body, resp.StatusCode, err
 }
 
-func (c *Client) Delete(kind string, name string) ([]byte, int, error) {
+func (c *BaseClient) Delete(kind string, name string) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
 	log.Println(url)
@@ -132,7 +132,7 @@ func (c *Client) Delete(kind string, name string) ([]byte, int, error) {
 	return body, resp.StatusCode, err
 }
 
-func (c *Client) Post(kind string, resource []byte) ([]byte, int, error) {
+func (c *BaseClient) Post(kind string, resource []byte) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
 	log.Println(url)
@@ -161,7 +161,7 @@ func (c *Client) Post(kind string, resource []byte) ([]byte, int, error) {
 	return body, resp.StatusCode, err
 }
 
-func (c *Client) Patch(kind string, name string, resource []byte) ([]byte, int, error) {
+func (c *BaseClient) Patch(kind string, name string, resource []byte) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
 	log.Println(url)
