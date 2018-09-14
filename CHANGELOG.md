@@ -1,6 +1,6 @@
 # Changelog
 
-### v0.5.0-preview2
+### v0.5.0
 
 - Fix invalid .semaphore/semaphore.yml creation logic introduced in preview1
 - Secret name presence is validates in create and update
@@ -8,9 +8,6 @@
   for consistency with other actions
 - Prevent raising errors if `sem create invalidname` is executed. Now a list of
   subcommands is displayed.
-
-### v0.5.0-preview1
-
 - Ability to pass `--project-name` and `--repo-url` to `sem init`
 - Secrets are using the `v1beta` API
 - Files in Secrets
