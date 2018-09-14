@@ -11,6 +11,10 @@ blocks:
       secrets:
         - name: s2prod-gce
 
+      env_vars:
+        - name: GO111MODULE
+          value: "on"
+
       jobs:
       - name: "Test"
         commands:
