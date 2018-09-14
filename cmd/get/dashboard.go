@@ -3,10 +3,12 @@ package cmd_get
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"text/tabwriter"
 
 	"github.com/semaphoreci/cli/api"
 	"github.com/semaphoreci/cli/api/client/semaphore_dashboards_v1alpha_dashboards_api"
+	"github.com/semaphoreci/cli/cmd/handler"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
 )
@@ -29,10 +31,14 @@ var GetDashboardCmd = &cobra.Command{
 			const padding = 3
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
 
-			fmt.Fprintln(w, "NAME")
+			fmt.Fprintln(w, "NAME\tAGE")
 
 			for _, d := range resp.Payload.Dashboards {
-				fmt.Fprintf(w, "%s\n", d.Metadata.Name)
+				update_time, err := strconv.ParseInt(d.Metadata.UpdateTime, 10, 64)
+
+				utils.Check(err)
+
+				fmt.Fprintf(w, "%s\t%s\n", d.Metadata.Name, handler.RelativeAgeForHumans(update_time))
 			}
 
 			w.Flush()
