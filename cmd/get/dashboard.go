@@ -3,19 +3,14 @@ package cmd_get
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"text/tabwriter"
 
-	"github.com/semaphoreci/cli/api"
-	"github.com/semaphoreci/cli/api/client/semaphore_dashboards_v1alpha_dashboards_api"
 	"github.com/semaphoreci/cli/cmd/handler"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
-)
 
-type apiError interface {
-	Code() int
-}
+	client "github.com/semaphoreci/cli/api/client"
+)
 
 var GetDashboardCmd = &cobra.Command{
 	Use:     "dashboard [name]",
@@ -26,9 +21,9 @@ var GetDashboardCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			c := api.DefaultClient()
+			c := client.DashboardsV1AlphaApi()
 
-			resp, err := c.SemaphoreDashboardsV1alphaDashboardsAPI.ListDashboards(nil)
+			dashList, err := c.ListDashboards()
 
 			utils.Check(err)
 
@@ -37,19 +32,16 @@ var GetDashboardCmd = &cobra.Command{
 
 			fmt.Fprintln(w, "NAME\tAGE")
 
-			for _, d := range resp.Payload.Dashboards {
-				update_time, err := strconv.ParseInt(d.Metadata.UpdateTime, 10, 64)
-
-				utils.Check(err)
-
-				fmt.Fprintf(w, "%s\t%s\n", d.Metadata.Name, handler.RelativeAgeForHumans(update_time))
+			for _, d := range dashList {
+				fmt.Fprintf(w, "%s\t%s\n", d.Metadata.Name, handler.RelativeAgeForHumans(d.UpdateTime))
 			}
 
 			w.Flush()
 		} else {
 			name := args[0]
 
-			c := api.DefaultClient()
+			c := client.DashboardsV1AlphaApi()
+			c.GetDashboard(name)
 
 			params := semaphore_dashboards_v1alpha_dashboards_api.NewGetDashboardParams().WithIDOrName(name)
 			resp, err := c.SemaphoreDashboardsV1alphaDashboardsAPI.GetDashboard(params)
