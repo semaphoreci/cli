@@ -15,7 +15,7 @@ func DefaultClient() *apiclient.Semaphore {
 	host := config.GetHost()
 	transport := httptransport.New(host, "", []string{"https"})
 	transport.Transport = newRoundTripper()
-	transport.SetDebug(true)
+	// transport.SetDebug(true)
 
 	return apiclient.New(transport, strfmt.Default)
 }

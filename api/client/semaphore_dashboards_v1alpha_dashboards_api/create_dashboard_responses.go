@@ -33,7 +33,14 @@ func (o *CreateDashboardReader) ReadResponse(response runtime.ClientResponse, co
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewCreateDashboardDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -60,6 +67,42 @@ func (o *CreateDashboardOK) readResponse(response runtime.ClientResponse, consum
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCreateDashboardDefault creates a CreateDashboardDefault with default headers values
+func NewCreateDashboardDefault(code int) *CreateDashboardDefault {
+	return &CreateDashboardDefault{
+		_statusCode: code,
+	}
+}
+
+/*CreateDashboardDefault handles this case with default header values.
+
+error
+*/
+type CreateDashboardDefault struct {
+	_statusCode int
+
+	Payload string
+}
+
+// Code gets the status code for the create dashboard default response
+func (o *CreateDashboardDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *CreateDashboardDefault) Error() string {
+	return fmt.Sprintf("[POST /api/v1alpha/dashboards][%d] CreateDashboard default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *CreateDashboardDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

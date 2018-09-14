@@ -33,7 +33,14 @@ func (o *GetDashboardReader) ReadResponse(response runtime.ClientResponse, consu
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewGetDashboardDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -60,6 +67,42 @@ func (o *GetDashboardOK) readResponse(response runtime.ClientResponse, consumer 
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewGetDashboardDefault creates a GetDashboardDefault with default headers values
+func NewGetDashboardDefault(code int) *GetDashboardDefault {
+	return &GetDashboardDefault{
+		_statusCode: code,
+	}
+}
+
+/*GetDashboardDefault handles this case with default header values.
+
+error
+*/
+type GetDashboardDefault struct {
+	_statusCode int
+
+	Payload string
+}
+
+// Code gets the status code for the get dashboard default response
+func (o *GetDashboardDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *GetDashboardDefault) Error() string {
+	return fmt.Sprintf("[GET /api/v1alpha/dashboards/{id_or_name}][%d] GetDashboard default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetDashboardDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
