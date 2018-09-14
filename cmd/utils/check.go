@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -28,9 +27,7 @@ func Check(err error) {
 //
 func CheckWithMessage(err error, message string) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %s\n", message)
-
-		log.Fatal("error: %+v\n", err)
+		fmt.Fprintf(os.Stderr, "error: %+v\n", message)
 	}
 }
 
