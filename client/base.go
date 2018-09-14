@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/renderedtext/sem/config"
+	"github.com/semaphoreci/cli/config"
 )
 
 type Client struct {

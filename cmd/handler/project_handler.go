@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/ghodss/yaml"
-	"github.com/renderedtext/sem/client"
-	"github.com/renderedtext/sem/cmd/utils"
+	"github.com/semaphoreci/cli/client"
+	"github.com/semaphoreci/cli/cmd/utils"
 )
 
 type ProjectHandler struct {

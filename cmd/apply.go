@@ -3,8 +3,8 @@ package cmd
 import (
 	"io/ioutil"
 
-	"github.com/renderedtext/sem/cmd/handler"
-	"github.com/renderedtext/sem/cmd/utils"
+	"github.com/semaphoreci/cli/cmd/handler"
+	"github.com/semaphoreci/cli/cmd/utils"
 
 	"github.com/spf13/cobra"
 )
