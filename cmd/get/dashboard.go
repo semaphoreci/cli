@@ -5,9 +5,9 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/renderedtext/sem/api"
-	"github.com/renderedtext/sem/api/client/semaphore_dashboards_v1alpha_dashboards_api"
-	"github.com/renderedtext/sem/cmd/utils"
+	"github.com/semaphoreci/cli/api"
+	"github.com/semaphoreci/cli/api/client/semaphore_dashboards_v1alpha_dashboards_api"
+	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
 )
 

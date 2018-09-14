@@ -7,8 +7,8 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	httptransport "github.com/go-openapi/runtime/client"
-	apiclient "github.com/renderedtext/sem/api/client"
-	"github.com/renderedtext/sem/config"
+	apiclient "github.com/semaphoreci/cli/api/client"
+	"github.com/semaphoreci/cli/config"
 )
 
 func DefaultClient() *apiclient.Semaphore {

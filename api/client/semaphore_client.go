@@ -11,8 +11,8 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/renderedtext/sem/api/client/semaphore_dashboards_v1alpha_dashboards_api"
-	"github.com/renderedtext/sem/api/client/semaphore_secrets_v1beta_secrets_api"
+	"github.com/semaphoreci/cli/api/client/semaphore_dashboards_v1alpha_dashboards_api"
+	"github.com/semaphoreci/cli/api/client/semaphore_secrets_v1beta_secrets_api"
 )
 
 // Default semaphore HTTP client.

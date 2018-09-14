@@ -17,7 +17,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/renderedtext/sem/api/models"
+	models "github.com/semaphoreci/cli/api/models"
 )
 
 // NewUpdateSecretParams creates a new UpdateSecretParams object

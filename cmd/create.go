@@ -3,9 +3,9 @@ package cmd
 import (
 	"io/ioutil"
 
-	cmd_create "github.com/renderedtext/sem/cmd/create"
-	"github.com/renderedtext/sem/cmd/handler"
-	"github.com/renderedtext/sem/cmd/utils"
+	cmd_create "github.com/semaphoreci/cli/cmd/create"
+	"github.com/semaphoreci/cli/cmd/handler"
+	"github.com/semaphoreci/cli/cmd/utils"
 
 	"github.com/spf13/cobra"
 )

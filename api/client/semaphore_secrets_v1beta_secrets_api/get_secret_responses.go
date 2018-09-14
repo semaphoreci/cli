@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/renderedtext/sem/api/models"
+	models "github.com/semaphoreci/cli/api/models"
 )
 
 // GetSecretReader is a Reader for the GetSecret structure.
