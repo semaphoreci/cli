@@ -13,6 +13,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type apiError interface {
+	Code() int
+}
+
 var GetDashboardCmd = &cobra.Command{
 	Use:     "dashboard [name]",
 	Short:   "Get dashboards.",
@@ -49,6 +53,14 @@ var GetDashboardCmd = &cobra.Command{
 
 			params := semaphore_dashboards_v1alpha_dashboards_api.NewGetDashboardParams().WithIDOrName(name)
 			resp, err := c.SemaphoreDashboardsV1alphaDashboardsAPI.GetDashboard(params)
+
+			fmt.Printf("here")
+
+			if resp, ok := err.(apiError); ok {
+				fmt.Fprintf(os.Stderr, "error: (status %d) xx", resp.Code())
+
+				return
+			}
 
 			utils.Check(err)
 
