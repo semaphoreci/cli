@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/semaphoreci/cli/api"
-	"github.com/semaphoreci/cli/api/client/semaphore_dashboards_v1alpha_dashboards_api"
+	dapi "github.com/semaphoreci/cli/api/client/semaphore_dashboards_v1alpha_dashboards_api"
 	"github.com/semaphoreci/cli/cmd/handler"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
@@ -23,7 +23,7 @@ var EditDashboardCmd = &cobra.Command{
 
 		c := api.DefaultClient()
 
-		params := semaphore_dashboards_v1alpha_dashboards_api.NewGetDashboardParams().WithIDOrName(name)
+		params := dapi.NewGetDashboardParams().WithIDOrName(name)
 		resp, err := c.SemaphoreDashboardsV1alphaDashboardsAPI.GetDashboard(params)
 		dashboard := resp.Payload
 
@@ -45,6 +45,12 @@ var EditDashboardCmd = &cobra.Command{
 
 		utils.Check(err)
 
-		fmt.Printf("[error] No upstream handler\n")
+		update_params := dapi.NewUpdateDashboardParams().WithIDOrName(dashboard.Metadata.ID).WithBody(dashboard)
+
+		_, err = c.SemaphoreDashboardsV1alphaDashboardsAPI.UpdateDashboard(update_params)
+
+		utils.Check(err)
+
+		fmt.Printf("Dashboard '%s' updated.\n", name)
 	},
 }
