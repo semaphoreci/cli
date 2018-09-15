@@ -12,10 +12,10 @@ type SecretV1Beta struct {
 	Kind       string `json:"kind" yaml:"kind"`
 
 	Metadata struct {
-		Name       string `json:"name,omitempty" yaml:"name,omitempty"`
-		Id         string `json:"id,omitempty" yaml:"id,omitempty"`
-		CreateTime int64  `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
-		UpdateTime int64  `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
+		Name       string      `json:"name,omitempty" yaml:"name,omitempty"`
+		Id         string      `json:"id,omitempty" yaml:"id,omitempty"`
+		CreateTime json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
+		UpdateTime json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
 	} `json:"metadata" yaml:"metadata"`
 
 	Data struct {

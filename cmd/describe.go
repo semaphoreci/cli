@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"github.com/semaphoreci/cli/cmd/handler"
-	"github.com/semaphoreci/cli/cmd/utils"
-
 	"github.com/spf13/cobra"
 )
 
@@ -23,13 +20,13 @@ func init() {
 }
 
 func RunDescribe(cmd *cobra.Command, args []string) {
-	kind := args[0]
-	name := args[1]
+	// kind := args[0]
+	// name := args[1]
 
-	params := handler.DescribeParams{Name: name}
-	handler, err := handler.FindHandler(kind)
+	// params := handler.DescribeParams{Name: name}
+	// handler, err := handler.FindHandler(kind)
 
-	utils.Check(err)
+	// utils.Check(err)
 
-	handler.Describe(params)
+	// handler.Describe(params)
 }

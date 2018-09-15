@@ -2,8 +2,6 @@ package cmd
 
 import (
 	cmd_get "github.com/semaphoreci/cli/cmd/get"
-	"github.com/semaphoreci/cli/cmd/handler"
-	"github.com/semaphoreci/cli/cmd/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -26,24 +24,24 @@ func init() {
 }
 
 func RunGet(cmd *cobra.Command, args []string) {
-	kind := args[0]
+	// kind := args[0]
 
-	if len(args) == 1 {
-		params := handler.GetParams{}
-		handler, err := handler.FindHandler(kind)
+	// if len(args) == 1 {
+	// 	params := handler.GetParams{}
+	// 	handler, err := handler.FindHandler(kind)
 
-		utils.Check(err)
+	// 	utils.Check(err)
 
-		handler.Get(params)
-	} else {
-		name := args[1]
+	// 	handler.Get(params)
+	// } else {
+	// 	name := args[1]
 
-		params := handler.DescribeParams{Name: name}
-		handler, err := handler.FindHandler(kind)
+	// 	params := handler.DescribeParams{Name: name}
+	// 	handler, err := handler.FindHandler(kind)
 
-		utils.Check(err)
+	// 	utils.Check(err)
 
-		handler.Describe(params)
-	}
+	// 	handler.Describe(params)
+	// }
 
 }

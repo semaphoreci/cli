@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	models "github.com/semaphoreci/cli/client/models"
+	models "github.com/semaphoreci/cli/api/models"
 )
 
 type ProjectApiV1AlphaApi struct {

@@ -1,13 +1,6 @@
 package cmd_edit
 
 import (
-	"fmt"
-	"strings"
-
-	"github.com/semaphoreci/cli/api"
-	dapi "github.com/semaphoreci/cli/api/client/semaphore_dashboards_v1alpha_dashboards_api"
-	"github.com/semaphoreci/cli/cmd/handler"
-	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -19,38 +12,38 @@ var EditDashboardCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		name := args[0]
+		// name := args[0]
 
-		c := api.DefaultClient()
+		// c := api.DefaultClient()
 
-		params := dapi.NewGetDashboardParams().WithIDOrName(name)
-		resp, err := c.SemaphoreDashboardsV1alphaDashboardsAPI.GetDashboard(params)
-		dashboard := resp.Payload
+		// params := dapi.NewGetDashboardParams().WithIDOrName(name)
+		// resp, err := c.SemaphoreDashboardsV1alphaDashboardsAPI.GetDashboard(params)
+		// dashboard := resp.Payload
 
-		utils.Check(err)
+		// utils.Check(err)
 
-		y, err := dashboard.MarshalYaml()
+		// y, err := dashboard.MarshalYaml()
 
-		utils.Check(err)
+		// utils.Check(err)
 
-		objectName := fmt.Sprintf("Dashboard/%s", dashboard.Metadata.ID)
-		content := fmt.Sprintf("apiVersion: v1alpha\nkind: Dashboard\n%s", y)
+		// objectName := fmt.Sprintf("Dashboard/%s", dashboard.Metadata.ID)
+		// content := fmt.Sprintf("apiVersion: v1alpha\nkind: Dashboard\n%s", y)
 
-		new_content, err := handler.EditYamlInEditor(objectName, content)
-		new_content = strings.Replace(new_content, "apiVersion: v1alpha\nkind: Dashboard\n", "", -1)
+		// new_content, err := handler.EditYamlInEditor(objectName, content)
+		// new_content = strings.Replace(new_content, "apiVersion: v1alpha\nkind: Dashboard\n", "", -1)
 
-		utils.Check(err)
+		// utils.Check(err)
 
-		err = dashboard.UnmarshalYaml([]byte(new_content))
+		// err = dashboard.UnmarshalYaml([]byte(new_content))
 
-		utils.Check(err)
+		// utils.Check(err)
 
-		update_params := dapi.NewUpdateDashboardParams().WithIDOrName(dashboard.Metadata.ID).WithBody(dashboard)
+		// update_params := dapi.NewUpdateDashboardParams().WithIDOrName(dashboard.Metadata.ID).WithBody(dashboard)
 
-		_, err = c.SemaphoreDashboardsV1alphaDashboardsAPI.UpdateDashboard(update_params)
+		// _, err = c.SemaphoreDashboardsV1alphaDashboardsAPI.UpdateDashboard(update_params)
 
-		utils.Check(err)
+		// utils.Check(err)
 
-		fmt.Printf("Dashboard '%s' updated.\n", name)
+		// fmt.Printf("Dashboard '%s' updated.\n", name)
 	},
 }

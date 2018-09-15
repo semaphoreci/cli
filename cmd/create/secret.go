@@ -3,7 +3,9 @@ package cmd_create
 import (
 	"fmt"
 
-	"github.com/semaphoreci/cli/client"
+	client "github.com/semaphoreci/cli/api/client"
+	models "github.com/semaphoreci/cli/api/models"
+
 	"github.com/semaphoreci/cli/cmd/utils"
 
 	"github.com/spf13/cobra"
@@ -17,17 +19,15 @@ var CreateSecretCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		RunCreateSecret(cmd, args)
+		name := args[0]
+
+		c := client.NewSecretV1BetaApi()
+
+		secret := models.NewSecretV1Beta(name)
+		_, err := c.CreateSecret(&secret)
+
+		utils.Check(err)
+
+		fmt.Printf("Secret '%s' created.\n", secret.Metadata.Name)
 	},
-}
-
-func RunCreateSecret(cmd *cobra.Command, args []string) {
-	name := args[0]
-
-	secret := client.InitSecret(name)
-	err := secret.Create()
-
-	utils.Check(err)
-
-	fmt.Printf("Secret '%s' created.\n", secret.Metadata.Name)
 }

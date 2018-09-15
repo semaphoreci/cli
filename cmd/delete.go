@@ -2,8 +2,6 @@ package cmd
 
 import (
 	cmd_delete "github.com/semaphoreci/cli/cmd/delete"
-	"github.com/semaphoreci/cli/cmd/handler"
-	"github.com/semaphoreci/cli/cmd/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -26,13 +24,13 @@ func init() {
 }
 
 func RunDelete(cmd *cobra.Command, args []string) {
-	kind := args[0]
-	name := args[1]
+	// kind := args[0]
+	// name := args[1]
 
-	params := handler.DeleteParams{Name: name}
-	handler, err := handler.FindHandler(kind)
+	// params := handler.DeleteParams{Name: name}
+	// handler, err := handler.FindHandler(kind)
 
-	utils.Check(err)
+	// utils.Check(err)
 
-	handler.Delete(params)
+	// handler.Delete(params)
 }

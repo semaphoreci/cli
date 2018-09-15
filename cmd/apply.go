@@ -1,11 +1,6 @@
 package cmd
 
 import (
-	"io/ioutil"
-
-	"github.com/semaphoreci/cli/cmd/handler"
-	"github.com/semaphoreci/cli/cmd/utils"
-
 	"github.com/spf13/cobra"
 )
 
@@ -27,25 +22,25 @@ func init() {
 }
 
 func RunApply(cmd *cobra.Command, args []string) {
-	path, err := cmd.Flags().GetString("file")
+	// path, err := cmd.Flags().GetString("file")
 
-	utils.CheckWithMessage(err, "Path not provided")
+	// utils.CheckWithMessage(err, "Path not provided")
 
-	data, err := ioutil.ReadFile(path)
+	// data, err := ioutil.ReadFile(path)
 
-	utils.CheckWithMessage(err, "Failed to read from resource file.")
+	// utils.CheckWithMessage(err, "Failed to read from resource file.")
 
-	resource, err := parse_yaml_to_map(data)
+	// resource, err := parse_yaml_to_map(data)
 
-	utils.CheckWithMessage(err, "Failed to parse resource file.")
+	// utils.CheckWithMessage(err, "Failed to parse resource file.")
 
-	apiVersion := resource["apiVersion"].(string)
-	kind := resource["kind"].(string)
+	// apiVersion := resource["apiVersion"].(string)
+	// kind := resource["kind"].(string)
 
-	params := handler.ApplyParams{ApiVersion: apiVersion, Resource: data}
-	handler, err := handler.FindHandler(kind)
+	// params := handler.ApplyParams{ApiVersion: apiVersion, Resource: data}
+	// handler, err := handler.FindHandler(kind)
 
-	utils.Check(err)
+	// utils.Check(err)
 
-	handler.Apply(params)
+	// handler.Apply(params)
 }

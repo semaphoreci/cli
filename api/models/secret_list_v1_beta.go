@@ -7,7 +7,7 @@ type SecretListV1Beta struct {
 }
 
 func NewSecretListV1BetaFromJson(data []byte) (*SecretListV1Beta, error) {
-	list := SecretV1Beta{}
+	list := SecretListV1Beta{}
 
 	err := json.Unmarshal(data, &list)
 
