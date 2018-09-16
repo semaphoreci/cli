@@ -73,7 +73,7 @@ var createCmd = &cobra.Command{
 
 			fmt.Printf("Dashboard %s created.", dash.Metadata.Name)
 		default:
-			fmt.Fprintf(os.Stderr, "Unknow resource kind '%s'", kind)
+			fmt.Fprintf(os.Stderr, "Unknown resource kind '%s'", kind)
 			os.Exit(1)
 		}
 	},
