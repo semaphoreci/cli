@@ -39,7 +39,7 @@ func (c *ProjectApiV1AlphaApi) ListProjects() (*models.ProjectListV1Alpha, error
 }
 
 func (c *ProjectApiV1AlphaApi) GetProject(name string) (*models.ProjectV1Alpha, error) {
-	body, status, err := c.BaseClient.Get(c.ResourceNameSingular, name)
+	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, name)
 
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))

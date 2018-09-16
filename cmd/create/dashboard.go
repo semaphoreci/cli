@@ -1,6 +1,12 @@
 package cmd_create
 
 import (
+	"fmt"
+
+	client "github.com/semaphoreci/cli/api/client"
+	models "github.com/semaphoreci/cli/api/models"
+
+	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -12,23 +18,15 @@ var CreateDashboardCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		// name := args[0]
+		name := args[0]
 
-		// d := models.SemaphoreDashboardsV1alphaDashboard{
-		// 	Metadata: &models.SemaphoreDashboardsV1alphaDashboardMetadata{
-		// 		Name: name,
-		// 	},
-		// 	Spec: &models.SemaphoreDashboardsV1alphaDashboardSpec{},
-		// }
+		c := client.NewDashboardV1AlphaApi()
 
-		// c := api.DefaultClient()
-		// params := semaphore_dashboards_v1alpha_dashboards_api.NewCreateDashboardParams().WithBody(&d)
-		// _, err := c.SemaphoreDashboardsV1alphaDashboardsAPI.CreateDashboard(params)
+		dash := models.NewDashboardV1Alpha(name)
+		_, err := c.CreateDashboard(&dash)
 
-		// if err != nil {
-		// 	utils.Check(err)
-		// }
+		utils.Check(err)
 
-		// fmt.Printf("Dashboard '%s' created.\n", d.Metadata.Name)
+		fmt.Printf("Secret '%s' created.\n", dash.Metadata.Name)
 	},
 }

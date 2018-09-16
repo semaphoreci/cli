@@ -39,7 +39,7 @@ func (c *SecretApiV1BetaApi) ListSecrets() (*models.SecretListV1Beta, error) {
 }
 
 func (c *SecretApiV1BetaApi) GetSecret(name string) (*models.SecretV1Beta, error) {
-	body, status, err := c.BaseClient.Get(c.ResourceNameSingular, name)
+	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, name)
 
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))

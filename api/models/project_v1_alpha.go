@@ -35,7 +35,7 @@ func NewProjectV1Alpha(name string) ProjectV1Alpha {
 func NewProjectV1AlphaFromJson(data []byte) (*ProjectV1Alpha, error) {
 	d := ProjectV1Alpha{}
 
-	err := yaml.UnmarshalStrict(data, &d)
+	err := json.Unmarshal(data, &d)
 
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func NewProjectV1AlphaFromJson(data []byte) (*ProjectV1Alpha, error) {
 func NewProjectV1AlphaFromYaml(data []byte) (*ProjectV1Alpha, error) {
 	d := ProjectV1Alpha{}
 
-	err := yaml.UnmarshalStrict(data, &d)
+	err := json.Unmarshal(data, &d)
 
 	if err != nil {
 		return nil, err

@@ -1,6 +1,8 @@
 package models
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type DashboardListV1Alpha struct {
 	Dashboards []DashboardV1Alpha `json:"dashboards" yaml:"dashboards"`

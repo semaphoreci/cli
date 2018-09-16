@@ -12,18 +12,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var GetDashboardCmd = &cobra.Command{
-	Use:     "dashboards [name]",
-	Short:   "Get dashboards.",
+var GetSecretCmd = &cobra.Command{
+	Use:     "secrets [name]",
+	Short:   "Get secrets.",
 	Long:    ``,
-	Aliases: []string{"dashboard", "dash"},
+	Aliases: []string{"secret"},
 	Args:    cobra.RangeArgs(0, 1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		c := client.NewDashboardV1AlphaApi()
+		c := client.NewSecretV1BetaApi()
 
 		if len(args) == 0 {
-			dashList, err := c.ListDashboards()
+			secretList, err := c.ListSecrets()
 
 			utils.Check(err)
 
@@ -32,23 +32,23 @@ var GetDashboardCmd = &cobra.Command{
 
 			fmt.Fprintln(w, "NAME\tAGE")
 
-			for _, d := range dashList.Dashboards {
-				updateTime, err := d.Metadata.UpdateTime.Int64()
+			for _, s := range secretList.Secrets {
+				updateTime, err := s.Metadata.UpdateTime.Int64()
 
 				utils.Check(err)
 
-				fmt.Fprintf(w, "%s\t%s\n", d.Metadata.Name, handler.RelativeAgeForHumans(updateTime))
+				fmt.Fprintf(w, "%s\t%s\n", s.Metadata.Name, handler.RelativeAgeForHumans(updateTime))
 			}
 
 			w.Flush()
 		} else {
 			name := args[0]
 
-			dash, err := c.GetDashboard(name)
+			secret, err := c.GetSecret(name)
 
 			utils.Check(err)
 
-			y, err := dash.ToYaml()
+			y, err := secret.ToYaml()
 
 			utils.Check(err)
 

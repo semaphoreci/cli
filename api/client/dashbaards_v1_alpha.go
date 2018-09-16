@@ -39,7 +39,7 @@ func (c *DashboardApiV1AlphaApi) ListDashboards() (*models.DashboardListV1Alpha,
 }
 
 func (c *DashboardApiV1AlphaApi) GetDashboard(name string) (*models.DashboardV1Alpha, error) {
-	body, status, err := c.BaseClient.Get(c.ResourceNameSingular, name)
+	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, name)
 
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))

@@ -20,9 +20,9 @@ type DashboardV1Alpha struct {
 
 	Spec struct {
 		Widgets []struct {
-			Name    string              `json:"name,omitempty"`
-			Type    string              `json:"type,omitempty"`
-			Filters []map[string]string `json:"filters,omitempty"`
+			Name    string            `json:"name,omitempty"`
+			Type    string            `json:"type,omitempty"`
+			Filters map[string]string `json:"filters,omitempty"`
 		} `json:"widgets,omitempty"`
 	} `json:"spec,omitempty"`
 }
@@ -40,7 +40,7 @@ func NewDashboardV1Alpha(name string) DashboardV1Alpha {
 func NewDashboardV1AlphaFromJson(data []byte) (*DashboardV1Alpha, error) {
 	d := DashboardV1Alpha{}
 
-	err := yaml.UnmarshalStrict(data, &d)
+	err := json.Unmarshal(data, &d)
 
 	if err != nil {
 		return nil, err
