@@ -6,31 +6,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
 	Use:   "delete [KIND] [NAME]",
 	Short: "Delete a resource.",
 	Long:  ``,
 	Args:  cobra.ExactArgs(2),
-	Run: func(cmd *cobra.Command, args []string) {
-		RunDelete(cmd, args)
-	},
 }
 
 func init() {
 	rootCmd.AddCommand(deleteCmd)
 
 	deleteCmd.AddCommand(cmd_delete.DeleteDashboardCmd)
-}
-
-func RunDelete(cmd *cobra.Command, args []string) {
-	// kind := args[0]
-	// name := args[1]
-
-	// params := handler.DeleteParams{Name: name}
-	// handler, err := handler.FindHandler(kind)
-
-	// utils.Check(err)
-
-	// handler.Delete(params)
+	deleteCmd.AddCommand(cmd_delete.DeleteProjectCmd)
+	deleteCmd.AddCommand(cmd_delete.DeleteSecretCmd)
 }

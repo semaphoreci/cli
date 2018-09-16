@@ -9,22 +9,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var DeleteDashboardCmd = &cobra.Command{
-	Use:     "dashboard [NAME]",
-	Short:   "Delete a dashboard.",
+var DeleteProjectCmd = &cobra.Command{
+	Use:     "project [NAME]",
+	Short:   "Delete a project.",
 	Long:    ``,
-	Aliases: []string{"dashboards", "dash"},
+	Aliases: []string{"projects", "prj"},
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
-		c := client.NewDashboardV1AlphaApi()
+		c := client.NewProjectV1AlphaApi()
 
-		err := c.DeleteDashboard(name)
+		err := c.DeleteProject(name)
 
 		utils.Check(err)
 
-		fmt.Printf("Dashboard '%s' deleted.\n", name)
+		fmt.Printf("Project '%s' deleted.\n", name)
 	},
 }

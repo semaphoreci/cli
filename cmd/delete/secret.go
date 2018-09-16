@@ -9,22 +9,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var DeleteDashboardCmd = &cobra.Command{
-	Use:     "dashboard [NAME]",
-	Short:   "Delete a dashboard.",
+var DeleteSecretCmd = &cobra.Command{
+	Use:     "secret [NAME]",
+	Short:   "Delete a secret.",
 	Long:    ``,
-	Aliases: []string{"dashboards", "dash"},
+	Aliases: []string{"secrets"},
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
-		c := client.NewDashboardV1AlphaApi()
+		c := client.NewSecretV1BetaApi()
 
-		err := c.DeleteDashboard(name)
+		err := c.DeleteSecret(name)
 
 		utils.Check(err)
 
-		fmt.Printf("Dashboard '%s' deleted.\n", name)
+		fmt.Printf("Secret '%s' deleted.\n", name)
 	},
 }
