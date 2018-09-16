@@ -1,7 +1,13 @@
 package cmd_edit
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
+
+	client "github.com/semaphoreci/cli/api/client"
+	models "github.com/semaphoreci/cli/api/models"
+	utils "github.com/semaphoreci/cli/cmd/utils"
 )
 
 var EditDashboardCmd = &cobra.Command{
@@ -12,38 +18,30 @@ var EditDashboardCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		// name := args[0]
+		name := args[0]
 
-		// c := api.DefaultClient()
+		c := client.NewDashboardV1AlphaApi()
 
-		// params := dapi.NewGetDashboardParams().WithIDOrName(name)
-		// resp, err := c.SemaphoreDashboardsV1alphaDashboardsAPI.GetDashboard(params)
-		// dashboard := resp.Payload
+		dashboard, err := c.GetDashboard(name)
 
-		// utils.Check(err)
+		utils.Check(err)
 
-		// y, err := dashboard.MarshalYaml()
+		content, err := dashboard.ToYaml()
 
-		// utils.Check(err)
+		utils.Check(err)
 
-		// objectName := fmt.Sprintf("Dashboard/%s", dashboard.Metadata.ID)
-		// content := fmt.Sprintf("apiVersion: v1alpha\nkind: Dashboard\n%s", y)
+		new_content, err := utils.EditYamlInEditor(dashboard.ObjectName(), string(content))
 
-		// new_content, err := handler.EditYamlInEditor(objectName, content)
-		// new_content = strings.Replace(new_content, "apiVersion: v1alpha\nkind: Dashboard\n", "", -1)
+		utils.Check(err)
 
-		// utils.Check(err)
+		updated_dashboard, err := models.NewDashboardV1AlphaFromYaml([]byte(new_content))
 
-		// err = dashboard.UnmarshalYaml([]byte(new_content))
+		utils.Check(err)
 
-		// utils.Check(err)
+		dashboard, err = c.UpdateDashboard(updated_dashboard)
 
-		// update_params := dapi.NewUpdateDashboardParams().WithIDOrName(dashboard.Metadata.ID).WithBody(dashboard)
+		utils.Check(err)
 
-		// _, err = c.SemaphoreDashboardsV1alphaDashboardsAPI.UpdateDashboard(update_params)
-
-		// utils.Check(err)
-
-		// fmt.Printf("Dashboard '%s' updated.\n", name)
+		fmt.Printf("Dashboard '%s' updated.\n", dashboard.Metadata.Name)
 	},
 }

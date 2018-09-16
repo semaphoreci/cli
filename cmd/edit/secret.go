@@ -1,7 +1,13 @@
 package cmd_edit
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
+
+	client "github.com/semaphoreci/cli/api/client"
+	models "github.com/semaphoreci/cli/api/models"
+	utils "github.com/semaphoreci/cli/cmd/utils"
 )
 
 var EditSecretCmd = &cobra.Command{
@@ -12,28 +18,30 @@ var EditSecretCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		// name := args[0]
+		name := args[0]
 
-		// secret, err := client.GetSecret(name)
+		c := client.NewSecretV1BetaApi()
 
-		// utils.Check(err)
+		secret, err := c.GetSecret(name)
 
-		// content, err := secret.ToYaml()
+		utils.Check(err)
 
-		// utils.Check(err)
+		content, err := secret.ToYaml()
 
-		// new_content, err := handler.EditYamlInEditor(secret.ObjectName(), string(content))
+		utils.Check(err)
 
-		// utils.Check(err)
+		new_content, err := utils.EditYamlInEditor(secret.ObjectName(), string(content))
 
-		// updated_secret, err := client.InitSecretFromYaml([]byte(new_content))
+		utils.Check(err)
 
-		// utils.Check(err)
+		updated_secret, err := models.NewSecretV1BetaFromYaml([]byte(new_content))
 
-		// err = updated_secret.Update()
+		utils.Check(err)
 
-		// utils.Check(err)
+		secret, err = c.UpdateSecret(updated_secret)
 
-		// fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
+		utils.Check(err)
+
+		fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
 	},
 }

@@ -7,7 +7,6 @@ import (
 
 	client "github.com/semaphoreci/cli/api/client"
 
-	"github.com/semaphoreci/cli/cmd/handler"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
 )
@@ -37,7 +36,7 @@ var GetDashboardCmd = &cobra.Command{
 
 				utils.Check(err)
 
-				fmt.Fprintf(w, "%s\t%s\n", d.Metadata.Name, handler.RelativeAgeForHumans(updateTime))
+				fmt.Fprintf(w, "%s\t%s\n", d.Metadata.Name, utils.RelativeAgeForHumans(updateTime))
 			}
 
 			w.Flush()
