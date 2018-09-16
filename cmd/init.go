@@ -1,7 +1,20 @@
 package cmd
 
 import (
+	"errors"
+	"flag"
+	"fmt"
+	"os"
+	"regexp"
+
+	"github.com/semaphoreci/cli/cmd/utils"
+	"github.com/semaphoreci/cli/config"
+	"github.com/semaphoreci/cli/generators"
 	"github.com/spf13/cobra"
+
+	client "github.com/semaphoreci/cli/api/client"
+	models "github.com/semaphoreci/cli/api/models"
+	gitconfig "github.com/tcnksm/go-gitconfig"
 )
 
 var flagProjectName string
@@ -31,79 +44,82 @@ func init() {
 }
 
 func RunInit(cmd *cobra.Command, args []string) {
-	// var err error
-	// var name string
-	// var repoUrl string
+	var err error
+	var name string
+	var repoUrl string
 
-	// if flagRepoUrl != "" {
-	// 	repoUrl = flagRepoUrl
-	// } else {
-	// 	repoUrl, err = getGitOriginUrl()
+	if flagRepoUrl != "" {
+		repoUrl = flagRepoUrl
+	} else {
+		repoUrl, err = getGitOriginUrl()
 
-	// 	utils.Check(err)
-	// }
+		utils.Check(err)
+	}
 
-	// if flagProjectName != "" {
-	// 	name = flagProjectName
-	// } else {
-	// 	name, err = ConstructProjectName(repoUrl)
+	if flagProjectName != "" {
+		name = flagProjectName
+	} else {
+		name, err = ConstructProjectName(repoUrl)
 
-	// 	utils.Check(err)
-	// }
+		utils.Check(err)
+	}
 
-	// project := client.InitProject(name, repoUrl)
-	// err = project.Create()
+	c := client.NewProjectV1AlphaApi()
+	projectModel := models.NewProjectV1Alpha(name)
+	projectModel.Spec.Repository.Url = repoUrl
 
-	// utils.Check(err)
+	project, err := c.CreateProject(&projectModel)
 
-	// if generators.PipelineFileExists() {
-	// 	fmt.Printf("[info] skipping .semaphore/semaphore.yml generation. It is already present in the repository.\n\n")
-	// } else {
-	// 	err = generators.GeneratePipelineYaml()
+	utils.Check(err)
 
-	// 	utils.Check(err)
-	// }
+	if generators.PipelineFileExists() {
+		fmt.Printf("[info] skipping .semaphore/semaphore.yml generation. It is already present in the repository.\n\n")
+	} else {
+		err = generators.GeneratePipelineYaml()
 
-	// fmt.Printf("Project is created. You can find it at https://%s/projects/%s.\n", config.GetHost(), project.Metadata.Name)
-	// fmt.Println("")
-	// fmt.Printf("To run your first pipeline execute:\n")
-	// fmt.Println("")
-	// fmt.Printf("  git add .semaphore/semaphore.yml && git commit -m \"First pipeline\" && git push\n")
-	// fmt.Println("")
+		utils.Check(err)
+	}
+
+	fmt.Printf("Project is created. You can find it at https://%s/projects/%s.\n", config.GetHost(), project.Metadata.Name)
+	fmt.Println("")
+	fmt.Printf("To run your first pipeline execute:\n")
+	fmt.Println("")
+	fmt.Printf("  git add .semaphore/semaphore.yml && git commit -m \"First pipeline\" && git push\n")
+	fmt.Println("")
 }
 
-// func ConstructProjectName(repo_url string) (string, error) {
-// 	formats := []*regexp.Regexp{
-// 		regexp.MustCompile(`git\@github\.com:.*\/(.*).git`),
-// 		regexp.MustCompile(`git\@github\.com:.*\/(.*)`),
-// 		regexp.MustCompile(`git\@github\.com:.*\/(.*)`),
-// 	}
+func ConstructProjectName(repo_url string) (string, error) {
+	formats := []*regexp.Regexp{
+		regexp.MustCompile(`git\@github\.com:.*\/(.*).git`),
+		regexp.MustCompile(`git\@github\.com:.*\/(.*)`),
+		regexp.MustCompile(`git\@github\.com:.*\/(.*)`),
+	}
 
-// 	for _, r := range formats {
-// 		match := r.FindStringSubmatch(repo_url)
+	for _, r := range formats {
+		match := r.FindStringSubmatch(repo_url)
 
-// 		if len(match) >= 2 {
-// 			return match[1], nil
-// 		}
-// 	}
+		if len(match) >= 2 {
+			return match[1], nil
+		}
+	}
 
-// 	errTemplate := "unknown git remote format '%s'.\n"
-// 	errTemplate += "\n"
-// 	errTemplate += "Format must be one of the following:\n"
-// 	errTemplate += "  - git@github.com:/<owner>/<repo_name>.git\n"
-// 	errTemplate += "  - git@github.com:/<owner>/<repo_name>\n"
+	errTemplate := "unknown git remote format '%s'.\n"
+	errTemplate += "\n"
+	errTemplate += "Format must be one of the following:\n"
+	errTemplate += "  - git@github.com:/<owner>/<repo_name>.git\n"
+	errTemplate += "  - git@github.com:/<owner>/<repo_name>\n"
 
-// 	return "", errors.New(fmt.Sprintf(errTemplate, repo_url))
-// }
+	return "", errors.New(fmt.Sprintf(errTemplate, repo_url))
+}
 
-// func getGitOriginUrl() (string, error) {
-// 	if flag.Lookup("test.v") == nil {
-// 		if _, err := os.Stat(".git"); os.IsNotExist(err) {
-// 			return "", errors.New("not a git repository")
-// 		}
+func getGitOriginUrl() (string, error) {
+	if flag.Lookup("test.v") == nil {
+		if _, err := os.Stat(".git"); os.IsNotExist(err) {
+			return "", errors.New("not a git repository")
+		}
 
-// 		return gitconfig.OriginURL()
-// 	} else {
-// 		return "git@github.com:/renderedtext/something.git", nil
-// 	}
-// }
+		return gitconfig.OriginURL()
+	} else {
+		return "git@github.com:/renderedtext/something.git", nil
+	}
+}
