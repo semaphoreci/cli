@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	cmd_create "github.com/semaphoreci/cli/cmd/create"
 	"github.com/semaphoreci/cli/cmd/utils"
 
 	client "github.com/semaphoreci/cli/api/client"
@@ -79,10 +78,52 @@ var createCmd = &cobra.Command{
 	},
 }
 
+var CreateDashboardCmd = &cobra.Command{
+	Use:     "dashboard [NAME]",
+	Short:   "Create a dashboard.",
+	Long:    ``,
+	Aliases: []string{"dashboard", "dash"},
+	Args:    cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		name := args[0]
+
+		c := client.NewDashboardV1AlphaApi()
+
+		dash := models.NewDashboardV1Alpha(name)
+		_, err := c.CreateDashboard(&dash)
+
+		utils.Check(err)
+
+		fmt.Printf("Dashboard '%s' created.\n", dash.Metadata.Name)
+	},
+}
+
+var CreateSecretCmd = &cobra.Command{
+	Use:     "secret [NAME]",
+	Short:   "Create a secret.",
+	Long:    ``,
+	Aliases: []string{"secrets"},
+	Args:    cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		name := args[0]
+
+		c := client.NewSecretV1BetaApi()
+
+		secret := models.NewSecretV1Beta(name)
+		_, err := c.CreateSecret(&secret)
+
+		utils.Check(err)
+
+		fmt.Printf("Secret '%s' created.\n", secret.Metadata.Name)
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(createCmd)
-	createCmd.AddCommand(cmd_create.CreateSecretCmd)
-	createCmd.AddCommand(cmd_create.CreateDashboardCmd)
+	createCmd.AddCommand(CreateSecretCmd)
+	createCmd.AddCommand(CreateDashboardCmd)
 
 	desc := "Filename, directory, or URL to files to use to create the resource"
 	createCmd.Flags().StringP("file", "f", "", desc)

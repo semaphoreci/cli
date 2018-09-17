@@ -8,8 +8,8 @@ import (
 )
 
 type DashboardV1Alpha struct {
-	ApiVersion string `json:"apiVersion,omitempty"`
-	Kind       string `json:"kind,omitempty"`
+	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion"`
+	Kind       string `json:"kind,omitempty" yaml:"kind"`
 	Metadata   struct {
 		Name       string      `json:"name,omitempty"`
 		Title      string      `json:"title,omitempty"`

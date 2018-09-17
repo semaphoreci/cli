@@ -8,8 +8,8 @@ import (
 )
 
 type SecretV1Beta struct {
-	ApiVersion string `json:"apiVersion" yaml:"apiVersion"`
-	Kind       string `json:"kind" yaml:"kind"`
+	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion"`
+	Kind       string `json:"kind,omitempty" yaml:"kind"`
 
 	Metadata struct {
 		Name       string      `json:"name,omitempty" yaml:"name,omitempty"`
