@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.6.0
+
+- Dashboards: Get, List, Edit, Create, Update
+- Removal of `sem describe` in favor of `sem get <kind> <name>`
+- Test coverage for all commands
+
 ### v0.5.0
 
 - Fix invalid .semaphore/semaphore.yml creation logic introduced in preview1
