@@ -23,47 +23,55 @@ type ProjectV1Alpha struct {
 }
 
 func NewProjectV1Alpha(name string) ProjectV1Alpha {
-	d := ProjectV1Alpha{}
+	p := ProjectV1Alpha{}
 
-	d.ApiVersion = "v1alpha"
-	d.Kind = "Project"
-	d.Metadata.Name = name
+	p.Metadata.Name = name
+	p.setApiVersionAndKind()
 
-	return d
+	return p
 }
 
 func NewProjectV1AlphaFromJson(data []byte) (*ProjectV1Alpha, error) {
-	d := ProjectV1Alpha{}
+	p := ProjectV1Alpha{}
 
-	err := json.Unmarshal(data, &d)
+	err := json.Unmarshal(data, &p)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &d, nil
+	p.setApiVersionAndKind()
+
+	return &p, nil
 }
 
 func NewProjectV1AlphaFromYaml(data []byte) (*ProjectV1Alpha, error) {
-	d := ProjectV1Alpha{}
+	p := ProjectV1Alpha{}
 
-	err := yaml.UnmarshalStrict(data, &d)
+	err := yaml.UnmarshalStrict(data, &p)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &d, nil
+	p.setApiVersionAndKind()
+
+	return &p, nil
 }
 
-func (s *ProjectV1Alpha) ObjectName() string {
-	return fmt.Sprintf("Projects/%s", s.Metadata.Name)
+func (p *ProjectV1Alpha) setApiVersionAndKind() {
+	p.ApiVersion = "v1alpha"
+	p.Kind = "Project"
 }
 
-func (s *ProjectV1Alpha) ToJson() ([]byte, error) {
-	return json.Marshal(s)
+func (p *ProjectV1Alpha) ObjectName() string {
+	return fmt.Sprintf("Projects/%s", p.Metadata.Name)
 }
 
-func (s *ProjectV1Alpha) ToYaml() ([]byte, error) {
-	return yaml.Marshal(s)
+func (p *ProjectV1Alpha) ToJson() ([]byte, error) {
+	return json.Marshal(p)
+}
+
+func (p *ProjectV1Alpha) ToYaml() ([]byte, error) {
+	return yaml.Marshal(p)
 }

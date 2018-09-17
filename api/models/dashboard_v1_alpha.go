@@ -30,9 +30,8 @@ type DashboardV1Alpha struct {
 func NewDashboardV1Alpha(name string) DashboardV1Alpha {
 	d := DashboardV1Alpha{}
 
-	d.ApiVersion = "v1alpha"
-	d.Kind = "Dashboard"
 	d.Metadata.Name = name
+	d.setApiVersionAndKind()
 
 	return d
 }
@@ -46,6 +45,8 @@ func NewDashboardV1AlphaFromJson(data []byte) (*DashboardV1Alpha, error) {
 		return nil, err
 	}
 
+	d.setApiVersionAndKind()
+
 	return &d, nil
 }
 
@@ -58,17 +59,24 @@ func NewDashboardV1AlphaFromYaml(data []byte) (*DashboardV1Alpha, error) {
 		return nil, err
 	}
 
+	d.setApiVersionAndKind()
+
 	return &d, nil
 }
 
-func (s *DashboardV1Alpha) ObjectName() string {
-	return fmt.Sprintf("Dashboard/%s", s.Metadata.Name)
+func (d *DashboardV1Alpha) setApiVersionAndKind() {
+	d.ApiVersion = "v1alpha"
+	d.Kind = "Dashboard"
 }
 
-func (s *DashboardV1Alpha) ToJson() ([]byte, error) {
-	return json.Marshal(s)
+func (d *DashboardV1Alpha) ObjectName() string {
+	return fmt.Sprintf("Dashboards/%s", d.Metadata.Name)
 }
 
-func (s *DashboardV1Alpha) ToYaml() ([]byte, error) {
-	return yaml.Marshal(s)
+func (d *DashboardV1Alpha) ToJson() ([]byte, error) {
+	return json.Marshal(d)
+}
+
+func (d *DashboardV1Alpha) ToYaml() ([]byte, error) {
+	return yaml.Marshal(d)
 }

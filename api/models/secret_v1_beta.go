@@ -32,37 +32,45 @@ type SecretV1Beta struct {
 }
 
 func NewSecretV1Beta(name string) SecretV1Beta {
-	d := SecretV1Beta{}
+	s := SecretV1Beta{}
 
-	d.ApiVersion = "v1beta"
-	d.Kind = "Secret"
-	d.Metadata.Name = name
+	s.setApiVersionAndKind()
+	s.Metadata.Name = name
 
-	return d
+	return s
 }
 
 func NewSecretV1BetaFromJson(data []byte) (*SecretV1Beta, error) {
-	d := SecretV1Beta{}
+	s := SecretV1Beta{}
 
-	err := json.Unmarshal(data, &d)
+	err := json.Unmarshal(data, &s)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &d, nil
+	s.setApiVersionAndKind()
+
+	return &s, nil
 }
 
 func NewSecretV1BetaFromYaml(data []byte) (*SecretV1Beta, error) {
-	d := SecretV1Beta{}
+	s := SecretV1Beta{}
 
-	err := yaml.UnmarshalStrict(data, &d)
+	err := yaml.UnmarshalStrict(data, &s)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &d, nil
+	s.setApiVersionAndKind()
+
+	return &s, nil
+}
+
+func (s *SecretV1Beta) setApiVersionAndKind() {
+	s.ApiVersion = "v1beta"
+	s.Kind = "Secret"
 }
 
 func (s *SecretV1Beta) ObjectName() string {
