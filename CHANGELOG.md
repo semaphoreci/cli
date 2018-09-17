@@ -4,6 +4,7 @@
 
 - Dashboards: Get, List, Edit, Create, Update
 - Removal of `sem describe` in favor of `sem get <kind> <name>`
+- Projects are listing repository URL when `sem get projects`
 - Test coverage for all commands
 
 ### v0.5.0
