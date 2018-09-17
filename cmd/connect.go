@@ -28,5 +28,5 @@ var connectCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(connectCmd)
+	RootCmd.AddCommand(connectCmd)
 }

@@ -40,7 +40,7 @@ func InitCmd() cobra.Command {
 func init() {
 	cmd := InitCmd()
 
-	rootCmd.AddCommand(&cmd)
+	RootCmd.AddCommand(&cmd)
 }
 
 func RunInit(cmd *cobra.Command, args []string) {

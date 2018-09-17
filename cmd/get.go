@@ -14,7 +14,7 @@ var getCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(getCmd)
+	RootCmd.AddCommand(getCmd)
 
 	getCmd.AddCommand(cmd_get.GetDashboardCmd)
 	getCmd.AddCommand(cmd_get.GetSecretCmd)

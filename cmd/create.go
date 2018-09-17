@@ -32,7 +32,7 @@ var createCmd = &cobra.Command{
 
 		utils.CheckWithMessage(err, "Failed to parse resource file.")
 
-		apiVersion := resource["apiVersion"].(string)
+		// apiVersion := resource["apiVersion"].(string)
 		kind := resource["kind"].(string)
 
 		switch kind {
@@ -80,7 +80,7 @@ var createCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(createCmd)
+	RootCmd.AddCommand(createCmd)
 	createCmd.AddCommand(cmd_create.CreateSecretCmd)
 	createCmd.AddCommand(cmd_create.CreateDashboardCmd)
 

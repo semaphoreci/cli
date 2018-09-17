@@ -13,7 +13,7 @@ var editCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(editCmd)
+	RootCmd.AddCommand(editCmd)
 
 	editCmd.AddCommand(cmd_edit.EditSecretCmd)
 	editCmd.AddCommand(cmd_edit.EditDashboardCmd)

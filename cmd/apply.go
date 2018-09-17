@@ -22,7 +22,7 @@ var applyCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(applyCmd)
+	RootCmd.AddCommand(applyCmd)
 
 	desc := "Filename, directory, or URL to files to use to update the resource"
 	applyCmd.Flags().StringP("file", "f", "", desc)
@@ -41,12 +41,12 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 	utils.CheckWithMessage(err, "Failed to parse resource file.")
 
-	apiVersion := resource["apiVersion"].(string)
+	// apiVersion := resource["apiVersion"].(string)
 	kind := resource["kind"].(string)
 
 	switch kind {
 	case "Project":
-		fmt.Fprintf(os.Stderr, "Unsupported action for Projects", kind)
+		fmt.Fprintln(os.Stderr, "Unsupported action for Projects")
 		os.Exit(1)
 	case "Secret":
 		secret, err := models.NewSecretV1BetaFromYaml(data)
