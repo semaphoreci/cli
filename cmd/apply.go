@@ -59,7 +59,7 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 		utils.Check(err)
 
-		fmt.Printf("Secret %s created.", secret.Metadata.Name)
+		fmt.Printf("Secret %s updated.\n", secret.Metadata.Name)
 	case "Dashboard":
 		dash, err := models.NewDashboardV1AlphaFromYaml(data)
 
@@ -71,9 +71,8 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 		utils.Check(err)
 
-		fmt.Printf("Dashboard %s created.", dash.Metadata.Name)
+		fmt.Printf("Dashboard %s updated.\n", dash.Metadata.Name)
 	default:
-		fmt.Fprintf(os.Stderr, "Unknown resource kind '%s'", kind)
-		os.Exit(1)
+		utils.Fail(fmt.Sprintf("Unknown resource kind '%s'", kind))
 	}
 }

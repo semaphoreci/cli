@@ -32,7 +32,7 @@ func CheckWithMessage(err error, message string) {
 }
 
 func Fail(message string) {
-	fmt.Fprintf(os.Stderr, "error: %s\n", message)
+	fmt.Fprintf(os.Stderr, "error: %s\n.", message)
 
 	os.Exit(1)
 }

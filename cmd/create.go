@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 
 	"github.com/semaphoreci/cli/cmd/utils"
 
@@ -46,7 +45,7 @@ var createCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			fmt.Printf("Project %s created.", project.Metadata.Name)
+			fmt.Printf("Project %s created.\n", project.Metadata.Name)
 		case "Secret":
 			secret, err := models.NewSecretV1BetaFromYaml(data)
 
@@ -58,7 +57,7 @@ var createCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			fmt.Printf("Secret %s created.", secret.Metadata.Name)
+			fmt.Printf("Secret %s created.\n", secret.Metadata.Name)
 		case "Dashboard":
 			dash, err := models.NewDashboardV1AlphaFromYaml(data)
 
@@ -70,10 +69,9 @@ var createCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			fmt.Printf("Dashboard %s created.", dash.Metadata.Name)
+			fmt.Printf("Dashboard %s created.\n", dash.Metadata.Name)
 		default:
-			fmt.Fprintf(os.Stderr, "Unknown resource kind '%s'", kind)
-			os.Exit(1)
+			utils.Fail(fmt.Sprintf("Unknown resource kind '%s'", kind))
 		}
 	},
 }
