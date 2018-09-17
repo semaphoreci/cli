@@ -49,12 +49,16 @@ func GetAuth() string {
 }
 
 func GetEditor() string {
-	editor := viper.GetString("editor")
+	if flag.Lookup("test.v") == nil {
+		editor := viper.GetString("editor")
 
-	if editor == "" {
-		return "vim"
+		if editor == "" {
+			return "vim"
+		} else {
+			return editor
+		}
 	} else {
-		return editor
+		return "true" // Bash 'true' command, do nothing in tests
 	}
 }
 

@@ -7,13 +7,14 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/semaphoreci/cli/client"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/semaphoreci/cli/config"
 	"github.com/semaphoreci/cli/generators"
-
 	"github.com/spf13/cobra"
-	"github.com/tcnksm/go-gitconfig"
+
+	client "github.com/semaphoreci/cli/api/client"
+	models "github.com/semaphoreci/cli/api/models"
+	gitconfig "github.com/tcnksm/go-gitconfig"
 )
 
 var flagProjectName string
@@ -39,7 +40,7 @@ func InitCmd() cobra.Command {
 func init() {
 	cmd := InitCmd()
 
-	rootCmd.AddCommand(&cmd)
+	RootCmd.AddCommand(&cmd)
 }
 
 func RunInit(cmd *cobra.Command, args []string) {
@@ -63,8 +64,11 @@ func RunInit(cmd *cobra.Command, args []string) {
 		utils.Check(err)
 	}
 
-	project := client.InitProject(name, repoUrl)
-	err = project.Create()
+	c := client.NewProjectV1AlphaApi()
+	projectModel := models.NewProjectV1Alpha(name)
+	projectModel.Spec.Repository.Url = repoUrl
+
+	project, err := c.CreateProject(&projectModel)
 
 	utils.Check(err)
 

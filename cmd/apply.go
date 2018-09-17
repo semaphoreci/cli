@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"fmt"
 	"io/ioutil"
+	"os"
 
-	"github.com/semaphoreci/cli/cmd/handler"
+	client "github.com/semaphoreci/cli/api/client"
+	models "github.com/semaphoreci/cli/api/models"
 	"github.com/semaphoreci/cli/cmd/utils"
-
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +22,7 @@ var applyCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(applyCmd)
+	RootCmd.AddCommand(applyCmd)
 
 	desc := "Filename, directory, or URL to files to use to update the resource"
 	applyCmd.Flags().StringP("file", "f", "", desc)
@@ -39,13 +41,39 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 	utils.CheckWithMessage(err, "Failed to parse resource file.")
 
-	apiVersion := resource["apiVersion"].(string)
+	// apiVersion := resource["apiVersion"].(string)
 	kind := resource["kind"].(string)
 
-	params := handler.ApplyParams{ApiVersion: apiVersion, Resource: data}
-	handler, err := handler.FindHandler(kind)
+	switch kind {
+	case "Project":
+		fmt.Fprintln(os.Stderr, "Unsupported action for Projects")
+		os.Exit(1)
+	case "Secret":
+		secret, err := models.NewSecretV1BetaFromYaml(data)
 
-	utils.Check(err)
+		utils.Check(err)
 
-	handler.Apply(params)
+		c := client.NewSecretV1BetaApi()
+
+		secret, err = c.UpdateSecret(secret)
+
+		utils.Check(err)
+
+		fmt.Printf("Secret %s created.", secret.Metadata.Name)
+	case "Dashboard":
+		dash, err := models.NewDashboardV1AlphaFromYaml(data)
+
+		utils.Check(err)
+
+		c := client.NewDashboardV1AlphaApi()
+
+		dash, err = c.UpdateDashboard(dash)
+
+		utils.Check(err)
+
+		fmt.Printf("Dashboard %s created.", dash.Metadata.Name)
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown resource kind '%s'", kind)
+		os.Exit(1)
+	}
 }

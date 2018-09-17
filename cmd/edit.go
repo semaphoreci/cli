@@ -1,9 +1,12 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
+	"fmt"
 
-	"github.com/semaphoreci/cli/cmd/edit"
+	client "github.com/semaphoreci/cli/api/client"
+	models "github.com/semaphoreci/cli/api/models"
+	"github.com/semaphoreci/cli/cmd/utils"
+	"github.com/spf13/cobra"
 )
 
 var editCmd = &cobra.Command{
@@ -12,8 +15,81 @@ var editCmd = &cobra.Command{
 	Long:  ``,
 }
 
-func init() {
-	rootCmd.AddCommand(editCmd)
+var EditDashboardCmd = &cobra.Command{
+	Use:     "dashboard [name]",
+	Short:   "Edit a dashboard.",
+	Long:    ``,
+	Aliases: []string{"dashboards", "dash"},
+	Args:    cobra.ExactArgs(1),
 
-	editCmd.AddCommand(cmd_edit.EditSecretCmd)
+	Run: func(cmd *cobra.Command, args []string) {
+		name := args[0]
+
+		c := client.NewDashboardV1AlphaApi()
+
+		dashboard, err := c.GetDashboard(name)
+
+		utils.Check(err)
+
+		content, err := dashboard.ToYaml()
+
+		utils.Check(err)
+
+		new_content, err := utils.EditYamlInEditor(dashboard.ObjectName(), string(content))
+
+		utils.Check(err)
+
+		updated_dashboard, err := models.NewDashboardV1AlphaFromYaml([]byte(new_content))
+
+		utils.Check(err)
+
+		dashboard, err = c.UpdateDashboard(updated_dashboard)
+
+		utils.Check(err)
+
+		fmt.Printf("Dashboard '%s' updated.\n", dashboard.Metadata.Name)
+	},
+}
+
+var EditSecretCmd = &cobra.Command{
+	Use:     "secret [name]",
+	Short:   "Edit a secret.",
+	Long:    ``,
+	Aliases: []string{"secrets"},
+	Args:    cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		name := args[0]
+
+		c := client.NewSecretV1BetaApi()
+
+		secret, err := c.GetSecret(name)
+
+		utils.Check(err)
+
+		content, err := secret.ToYaml()
+
+		utils.Check(err)
+
+		new_content, err := utils.EditYamlInEditor(secret.ObjectName(), string(content))
+
+		utils.Check(err)
+
+		updated_secret, err := models.NewSecretV1BetaFromYaml([]byte(new_content))
+
+		utils.Check(err)
+
+		secret, err = c.UpdateSecret(updated_secret)
+
+		utils.Check(err)
+
+		fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
+	},
+}
+
+func init() {
+	RootCmd.AddCommand(editCmd)
+
+	editCmd.AddCommand(EditSecretCmd)
+	editCmd.AddCommand(EditDashboardCmd)
 }
