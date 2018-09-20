@@ -1,6 +1,6 @@
 # Changelog
 
-### v0.6.0
+### v0.6.1
 
 - Dashboards: Get, List, Edit, Create, Update
 - Removal of `sem describe` in favor of `sem get <kind> <name>`
