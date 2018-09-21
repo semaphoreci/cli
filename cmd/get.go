@@ -148,6 +148,8 @@ var GetProjectCmd = &cobra.Command{
 	},
 }
 
+var GetJobAllStates bool
+
 var GetJobCmd = &cobra.Command{
 	Use:     "jobs [name]",
 	Short:   "Get jobs.",
@@ -159,25 +161,36 @@ var GetJobCmd = &cobra.Command{
 		c := client.NewJobsV1AlphaApi()
 
 		if len(args) == 0 {
-			jobList, err := c.ListJobs([]string{
+			states := []string{
 				"PENDING",
 				"QUEUED",
 				"RUNNING",
-			})
+			}
+
+			if GetJobAllStates {
+				states = append(states, "FINISHED")
+			}
+
+			jobList, err := c.ListJobs(states)
 
 			utils.Check(err)
 
 			const padding = 3
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
 
-			fmt.Fprintln(w, "ID\tNAME\tAGE")
+			fmt.Fprintln(w, "ID\tNAME\tAGE\tSTATE\tRESULT")
 
 			for _, j := range jobList.Jobs {
 				createTime, err := j.Metadata.CreateTime.Int64()
 
 				utils.Check(err)
 
-				fmt.Fprintf(w, "%s\t%s\t%s\n", j.Metadata.Id, j.Metadata.Name, utils.RelativeAgeForHumans(createTime))
+				fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
+					j.Metadata.Id,
+					j.Metadata.Name,
+					utils.RelativeAgeForHumans(createTime),
+					j.Status.State,
+					j.Status.Result)
 			}
 
 			w.Flush()
@@ -203,5 +216,7 @@ func init() {
 	getCmd.AddCommand(GetDashboardCmd)
 	getCmd.AddCommand(GetSecretCmd)
 	getCmd.AddCommand(GetProjectCmd)
+
+	GetJobCmd.Flags().BoolVar(&GetJobAllStates, "all", false, "list all jobs including finished ones")
 	getCmd.AddCommand(GetJobCmd)
 }
