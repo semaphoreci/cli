@@ -19,8 +19,13 @@ type JobV1Alpha struct {
 		FinishTime json.Number `json:"finish_time,omitempty,string" yaml:"finish_time,omitempty"`
 	} `json:"metadata,omitempty"`
 
+	Spec struct {
+	} `json:"spec,omitempty"`
+
 	Status struct {
-	}
+		State  string `json:"state" yaml:"state"`
+		Result string `json:"result" yaml:"result"`
+	} `json:"status,omitempty"`
 }
 
 func NewJobV1Alpha(name string) JobV1Alpha {

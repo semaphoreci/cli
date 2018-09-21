@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/semaphoreci/cli/config"
@@ -76,6 +77,35 @@ func (c *BaseClient) Get(kind string, name string) ([]byte, int, error) {
 
 func (c *BaseClient) List(kind string) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
+
+	log.Println(url)
+
+	req, err := http.NewRequest("GET", url, nil)
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return []byte(""), 0, err
+	}
+
+	defer resp.Body.Close()
+
+	log.Println("response Status:", resp.Status)
+	log.Println("response Headers:", resp.Header)
+
+	body, err := ioutil.ReadAll(resp.Body)
+
+	log.Println(string(body))
+
+	return body, resp.StatusCode, err
+}
+
+func (c *BaseClient) ListWithParams(kind string, query url.Values) ([]byte, int, error) {
+	url := fmt.Sprintf("https://%s/api/%s/%s?%s", c.host, c.apiVersion, kind, query.Encode())
 
 	log.Println(url)
 
