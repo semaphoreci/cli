@@ -151,7 +151,7 @@ var GetProjectCmd = &cobra.Command{
 var GetJobAllStates bool
 
 var GetJobCmd = &cobra.Command{
-	Use:     "jobs [name]",
+	Use:     "jobs [id]",
 	Short:   "Get jobs.",
 	Long:    ``,
 	Aliases: []string{"job"},
@@ -195,9 +195,9 @@ var GetJobCmd = &cobra.Command{
 
 			w.Flush()
 		} else {
-			name := args[0]
+			id := args[0]
 
-			job, err := c.GetJob(name)
+			job, err := c.GetJob(id)
 
 			utils.Check(err)
 
