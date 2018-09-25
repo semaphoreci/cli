@@ -12,7 +12,7 @@ import (
 
 var attachCmd = &cobra.Command{
 	Use:   "attach [JOB ID]",
-	Short: "Attach to a running.",
+	Short: "Attach to a running job.",
 	Long:  ``,
 	Args:  cobra.ExactArgs(1),
 
