@@ -50,8 +50,6 @@ func sshIntoAJob(ip string, port int32, username string) {
 	noStrictFlag := "-oStrictHostKeyChecking=no"
 	userAndIp := fmt.Sprintf("%s@%s", username, ip)
 
-	fmt.Printf("%s %s %s %s", ssh_path, portFlag, noStrictFlag, userAndIp)
-
 	ssh_cmd := exec.Command(ssh_path, portFlag, noStrictFlag, userAndIp)
 
 	ssh_cmd.Stdin = os.Stdin
