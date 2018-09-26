@@ -20,31 +20,49 @@ var attachCmd = &cobra.Command{
 		id := args[0]
 
 		c := client.NewJobsV1AlphaApi()
-		_, err := c.GetJob(id)
+		job, err := c.GetJob(id)
 
 		utils.Check(err)
 
-		ssh_path, err := exec.LookPath("ssh")
+		ip := job.Status.Agent.Ip
 
-		utils.Check(err)
+		var ssh_port int32
+		ssh_port = 0
 
-		ip := "94.130.129.220"
-		username := "builder"
-		port := fmt.Sprintf("-p %d", 29920)
-		user_and_ip := fmt.Sprintf("%s@%s", username, ip)
+		for _, p := range job.Status.Agent.Ports {
+			if p.Name == "ssh" {
+				ssh_port = p.Number
+			}
+		}
 
-		ssh_cmd := exec.Command(ssh_path, port, "-o", "StrictHostKeyChecking=no", user_and_ip)
-
-		ssh_cmd.Stdin = os.Stdin
-		ssh_cmd.Stdout = os.Stdout
-		err = ssh_cmd.Start()
-
-		utils.Check(err)
-
-		err = ssh_cmd.Wait()
-
-		utils.Check(err)
+		if ip != "" && ssh_port != 0 {
+			sshIntoAJob(ip, ssh_port, "semaphore")
+		}
 	},
+}
+
+func sshIntoAJob(ip string, port int32, username string) {
+	ssh_path, err := exec.LookPath("ssh")
+
+	utils.Check(err)
+
+	portFlag := fmt.Sprintf("-p%d", port)
+	noStrictFlag := "-oStrictHostKeyChecking=no"
+	userAndIp := fmt.Sprintf("%s@%s", username, ip)
+
+	fmt.Printf("%s %s %s %s", ssh_path, portFlag, noStrictFlag, userAndIp)
+
+	ssh_cmd := exec.Command(ssh_path, portFlag, noStrictFlag, userAndIp)
+
+	ssh_cmd.Stdin = os.Stdin
+	ssh_cmd.Stdout = os.Stdout
+	err = ssh_cmd.Start()
+
+	utils.Check(err)
+
+	err = ssh_cmd.Wait()
+
+	utils.Check(err)
 }
 
 func init() {

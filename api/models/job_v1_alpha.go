@@ -25,6 +25,13 @@ type JobV1Alpha struct {
 	Status struct {
 		State  string `json:"state" yaml:"state"`
 		Result string `json:"result" yaml:"result"`
+		Agent  struct {
+			Ip    string `json:"ip" yaml:"ip"`
+			Ports []struct {
+				Name   string `json:"name" yaml:"name"`
+				Number int32  `json:"number" yaml:"number"`
+			} `json:"ports,omitempty"`
+		} `json:"agent,omitempty"`
 	} `json:"status,omitempty"`
 }
 

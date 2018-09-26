@@ -16,6 +16,9 @@ type Event struct {
 	Timestamp int32  `json:"timestamp"`
 	Type      string `json:"event"`
 	Output    string `json:"output"`
+	Directive string `json:"directive"`
+	ExitCode  int32  `json:"exit_code"`
+	JobResult string `json:"job_result"`
 }
 
 type Events struct {
@@ -58,6 +61,24 @@ var logsCmd = &cobra.Command{
 		for _, e := range events.Events {
 			if e.Type == "cmd_output" {
 				fmt.Println(e.Output)
+			}
+
+			if e.Type == "cmd_started" {
+				fmt.Printf("\n\x1b[33m✻ %s\x1b[0m\n", e.Directive)
+			}
+
+			if e.Type == "cmd_finished" {
+				fmt.Printf("\x1b[33mexit status: %d\x1b[0m\n", e.ExitCode)
+			}
+
+			if e.Type == "job_finished" {
+				if e.JobResult == "passed" {
+					fmt.Printf("\n\n\x1b[32mJob %s.\x1b[0m\n", e.JobResult)
+				}
+
+				if e.JobResult == "failed" {
+					fmt.Printf("\n\n\x1b[31mJob %s.\x1b[0m\n", e.JobResult)
+				}
 			}
 		}
 	},
