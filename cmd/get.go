@@ -148,10 +148,75 @@ var GetProjectCmd = &cobra.Command{
 	},
 }
 
+var GetJobAllStates bool
+
+var GetJobCmd = &cobra.Command{
+	Use:     "jobs [id]",
+	Short:   "Get jobs.",
+	Long:    ``,
+	Aliases: []string{"job"},
+	Args:    cobra.RangeArgs(0, 1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		c := client.NewJobsV1AlphaApi()
+
+		if len(args) == 0 {
+			states := []string{
+				"PENDING",
+				"QUEUED",
+				"RUNNING",
+			}
+
+			if GetJobAllStates {
+				states = append(states, "FINISHED")
+			}
+
+			jobList, err := c.ListJobs(states)
+
+			utils.Check(err)
+
+			const padding = 3
+			w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
+
+			fmt.Fprintln(w, "ID\tNAME\tAGE\tSTATE\tRESULT")
+
+			for _, j := range jobList.Jobs {
+				createTime, err := j.Metadata.CreateTime.Int64()
+
+				utils.Check(err)
+
+				fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
+					j.Metadata.Id,
+					j.Metadata.Name,
+					utils.RelativeAgeForHumans(createTime),
+					j.Status.State,
+					j.Status.Result)
+			}
+
+			w.Flush()
+		} else {
+			id := args[0]
+
+			job, err := c.GetJob(id)
+
+			utils.Check(err)
+
+			y, err := job.ToYaml()
+
+			utils.Check(err)
+
+			fmt.Printf("%s", y)
+		}
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(getCmd)
 
 	getCmd.AddCommand(GetDashboardCmd)
 	getCmd.AddCommand(GetSecretCmd)
 	getCmd.AddCommand(GetProjectCmd)
+
+	GetJobCmd.Flags().BoolVar(&GetJobAllStates, "all", false, "list all jobs including finished ones")
+	getCmd.AddCommand(GetJobCmd)
 }
