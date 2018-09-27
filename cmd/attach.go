@@ -24,6 +24,16 @@ var attachCmd = &cobra.Command{
 
 		utils.Check(err)
 
+		if job.Status.State == "FINISHED" {
+			fmt.Printf("Job %s has already finished.\n", job.Metadata.Id)
+			os.Exit(1)
+		}
+
+		if job.Status.State != "RUNNING" {
+			fmt.Printf("Job %s has not yet started.\n", job.Metadata.Id)
+			os.Exit(1)
+		}
+
 		ip := job.Status.Agent.Ip
 
 		var ssh_port int32
@@ -37,6 +47,9 @@ var attachCmd = &cobra.Command{
 
 		if ip != "" && ssh_port != 0 {
 			sshIntoAJob(ip, ssh_port, "semaphore")
+		} else {
+			fmt.Printf("Job %s has no exposed SSH port.\n", job.Metadata.Id)
+			os.Exit(1)
 		}
 	},
 }

@@ -26,6 +26,16 @@ var portForwardCmd = &cobra.Command{
 
 		utils.Check(err)
 
+		if job.Status.State == "FINISHED" {
+			fmt.Printf("Job %s has already finished.\n", job.Metadata.Id)
+			os.Exit(1)
+		}
+
+		if job.Status.State != "RUNNING" {
+			fmt.Printf("Job %s has not yet started.\n", job.Metadata.Id)
+			os.Exit(1)
+		}
+
 		ip := job.Status.Agent.Ip
 
 		var ssh_port int32
@@ -39,6 +49,9 @@ var portForwardCmd = &cobra.Command{
 
 		if ip != "" && ssh_port != 0 {
 			sshAndPortForward(ip, ssh_port, "semaphore", local_port, remote_port)
+		} else {
+			fmt.Printf("Port forwarding is not possible for job %s.\n", job.Metadata.Id)
+			os.Exit(1)
 		}
 	},
 }
