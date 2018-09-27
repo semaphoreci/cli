@@ -1,5 +1,13 @@
 # Changelog
 
+### v0.7.0-preview1
+
+- Listing jobs
+- Describing jobs
+- Attaching to running jobs with `sem attach`
+- Port forwarding for jobs with `sem port-forward`
+
+
 ### v0.6.1
 
 - Dashboards: Get, List, Edit, Create, Update
