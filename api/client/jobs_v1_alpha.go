@@ -58,3 +58,23 @@ func (c *JobsApiV1AlphaApi) GetJob(name string) (*models.JobV1Alpha, error) {
 
 	return models.NewJobV1AlphaFromJson(body)
 }
+
+func (c *JobsApiV1AlphaApi) CreateJob(j *models.JobV1Alpha) (*models.JobV1Alpha, error) {
+	json_body, err := j.ToJson()
+
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("failed to serialize object '%s'", err))
+	}
+
+	body, status, err := c.BaseClient.Post(c.ResourceNamePlural, json_body)
+
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("creating %s on Semaphore failed '%s'", c.ResourceNameSingular, err))
+	}
+
+	if status != 200 {
+		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
+
+	return models.NewJobV1AlphaFromJson(body)
+}
