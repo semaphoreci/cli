@@ -23,14 +23,11 @@ var debugProjectCmd = &cobra.Command{
 		pc := client.NewProjectV1AlphaApi()
 		project, err := pc.GetProject(project_name)
 
-		fmt.Println("---1")
-
 		utils.Check(err)
 
 		jobName := fmt.Sprintf("Debug Session for %s", project_name)
 		job_req := models.NewJobV1Alpha(jobName)
 
-		fmt.Println("---2")
 		job_req.Spec = &models.JobV1AlphaSpec{}
 		job_req.Spec.Agent.Machine.Type = "e2-standard-2"
 		job_req.Spec.Agent.Machine.OsImage = "ubuntu1804"
@@ -43,7 +40,6 @@ var debugProjectCmd = &cobra.Command{
 
 		c := client.NewJobsV1AlphaApi()
 
-		fmt.Println("---3")
 		job, err := c.CreateJob(&job_req)
 
 		utils.Check(err)
@@ -80,7 +76,11 @@ var debugProjectCmd = &cobra.Command{
 		}
 
 		if ip != "" && ssh_port != 0 {
-			sshIntoAJob(ip, ssh_port, "semaphore")
+			time.Sleep(1000 * time.Millisecond)
+
+			err := utils.SshIntoAJob(ip, ssh_port, "semaphore")
+
+			utils.Check(err)
 		} else {
 			fmt.Printf("Job %s has no exposed SSH port.\n", job.Metadata.Id)
 			os.Exit(1)
