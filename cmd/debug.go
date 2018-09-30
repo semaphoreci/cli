@@ -36,6 +36,11 @@ var debugProjectCmd = &cobra.Command{
 		job_req.Spec.Agent.Machine.OsImage = "ubuntu1804"
 		job_req.Spec.ProjectId = project.Metadata.Id
 
+		job_req.Spec.Commands = []string{
+			"curl https://github.com/shiroyasha.keys >> .ssh/authorized_keys",
+			"sleep infinity",
+		}
+
 		c := client.NewJobsV1AlphaApi()
 
 		fmt.Println("---3")

@@ -24,7 +24,8 @@ type JobV1AlphaSpec struct {
 		} `json:"machine,omitempty" yaml:"machine,omitempty"`
 	} `json:"agent,omitempty" yaml:"agent,omitempty"`
 
-	ProjectId string `json:"project_id,omitempty" yaml:"project_id,omitempty"`
+	Commands  []string `json:"commands,omitempty" yaml:"commands,omitempty"`
+	ProjectId string   `json:"project_id,omitempty" yaml:"project_id,omitempty"`
 }
 
 type JobV1AlphaStatus struct {
