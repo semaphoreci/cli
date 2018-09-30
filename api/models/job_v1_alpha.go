@@ -22,7 +22,7 @@ type JobV1AlphaSpec struct {
 			Type    string `json:"type,omitempty" yaml:"type,omitempty"`
 			OsImage string `json:"os_image,omitempty" yaml:"type,omitempty"`
 		}
-	} `json:"agent,omitempty"`
+	} `json:"machine,omitempty"`
 
 	ProjectId string `json:"project_id,omitempty" yaml:"project_id,omitempty"`
 }
