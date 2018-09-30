@@ -52,7 +52,7 @@ var debugProjectCmd = &cobra.Command{
 
 			if job.Status.State == "FINISHED" {
 				fmt.Printf("Job %s has already finished.\n", job.Metadata.Id)
-				os.Exit(1)
+				os.Exit(0)
 			}
 
 			if job.Status.State != "RUNNING" {
