@@ -1,12 +1,12 @@
 # Changelog
 
-### v0.7.0-preview1
+### v0.7.0
 
 - Listing jobs
 - Describing jobs
+- Displaying logs with `sem logs <job-id>`
 - Attaching to running jobs with `sem attach`
 - Port forwarding for jobs with `sem port-forward`
-
 
 ### v0.6.1
 
