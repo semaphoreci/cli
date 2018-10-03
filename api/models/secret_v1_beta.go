@@ -3,6 +3,8 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+  "encoding/base64"
+  "io/ioutil"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -11,24 +13,30 @@ type SecretV1Beta struct {
 	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion"`
 	Kind       string `json:"kind,omitempty" yaml:"kind"`
 
-	Metadata struct {
+	Metadata SecretV1BetaMetadata `json:"metadata" yaml:"metadata"`
+  Data SecretV1BetaData `json:"data" yaml: "data"`
+}
+
+type SecretV1BetaEnvVar struct {
+  Name string `json:"name" yaml:"name"`
+  Value string `json:"value" yaml:"value"`
+}
+
+type SecretV1BetaFile struct {
+	Path    string `json:"path" yaml:"path"`
+	Content string `json:"content" yaml:"content"`
+}
+
+type SecretV1BetaData struct {
+  EnvVars []SecretV1BetaEnvVar `json:"env_vars" yaml:"env_vars"`
+  Files []SecretV1BetaFile `json:"files" yaml: "files"`
+}
+
+type SecretV1BetaMetadata struct {
 		Name       string      `json:"name,omitempty" yaml:"name,omitempty"`
 		Id         string      `json:"id,omitempty" yaml:"id,omitempty"`
 		CreateTime json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
 		UpdateTime json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
-	} `json:"metadata" yaml:"metadata"`
-
-	Data struct {
-		EnvVars []struct {
-			Name  string `json:"name" yaml:"name"`
-			Value string `json:"value" yaml:"value"`
-		} `json:"env_vars" yaml:"env_vars"`
-
-		Files []struct {
-			Path    string `json:"path" yaml:"path"`
-			Content string `json:"content" yaml:"content"`
-		} `json:"files" yaml: "files"`
-	} `json:"data" yaml: "data"`
 }
 
 func NewSecretV1Beta(name string, files [][]string) SecretV1Beta {
@@ -37,12 +45,23 @@ func NewSecretV1Beta(name string, files [][]string) SecretV1Beta {
 	s.setApiVersionAndKind()
 	s.Metadata.Name = name
 
+  for i := 0; i < len(files); i++ {
+    file := SecretV1BetaFile{Path: files[i][1], Content: ""}
+    file.Content = encodeFile(files[i][0])
+    s.Data.Files = append(s.Data.Files, file)
+  }
+
 	return s
 }
 
-//func NewSecretV1BetaFromFiles(name string, files []map) {
-//  1 + 1
-//}
+func encodeFile(path string) string {
+  content, err := ioutil.ReadFile(path)
+  if err != nil {
+    panic(err)
+  }
+
+  return base64.StdEncoding.EncodeToString(content)
+}
 
 func NewSecretV1BetaFromJson(data []byte) (*SecretV1Beta, error) {
 	s := SecretV1Beta{}
