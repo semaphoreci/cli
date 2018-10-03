@@ -31,7 +31,7 @@ type SecretV1Beta struct {
 	} `json:"data" yaml: "data"`
 }
 
-func NewSecretV1Beta(name string) SecretV1Beta {
+func NewSecretV1Beta(name string, files [][]string) SecretV1Beta {
 	s := SecretV1Beta{}
 
 	s.setApiVersionAndKind()
