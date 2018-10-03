@@ -13,10 +13,11 @@ import (
 )
 
 var debugProjectCmd = &cobra.Command{
-	Use:   "project [NAME]",
-	Short: "Debug a project",
-	Long:  ``,
-	Args:  cobra.ExactArgs(1),
+	Use:     "project [NAME]",
+	Short:   "Debug a project",
+	Long:    ``,
+	Aliases: []string{"prj", "projects"},
+	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
 		project_name := args[0]
@@ -91,7 +92,7 @@ var debugProjectCmd = &cobra.Command{
 
 var debugCmd = &cobra.Command{
 	Use:   "debug",
-	Short: "Debug a resource",
+	Short: "Debug a resource.",
 	Long:  ``,
 }
 
