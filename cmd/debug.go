@@ -10,7 +10,23 @@ import (
 
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
+
+const unsetPublicSshKeyMsg = `
+Before creating a debug session job, configure the debug.PublicSshKey value.
+
+Examples:
+
+  # Configuring public ssh key with a literal
+  sem config set debug.PublicSshKey "ssh-rsa AX3....DD"
+
+  # Configuring public ssh key with a file
+  sem config set debug.PublicSshKey "$(cat ~/.ssh/id_rsa.pub)"
+
+  # Configuring public ssh key with your GitHub keys
+  sem config set debug.PublicSshKey "$(curl -s https://github.com/<username>.keys)"
+`
 
 var debugProjectCmd = &cobra.Command{
 	Use:     "project [NAME]",
@@ -20,6 +36,15 @@ var debugProjectCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
+		publicKey := viper.GetString("debug.PublicSshKey")
+
+		if publicKey == "" {
+			fmt.Println("[ERROR] Public SSH key for debugging is not configured.")
+			fmt.Println(unsetPublicSshKeyMsg)
+
+			os.Exit(1)
+		}
+
 		project_name := args[0]
 		pc := client.NewProjectV1AlphaApi()
 		project, err := pc.GetProject(project_name)
@@ -35,7 +60,7 @@ var debugProjectCmd = &cobra.Command{
 		job_req.Spec.ProjectId = project.Metadata.Id
 
 		job_req.Spec.Commands = []string{
-			"curl https://github.com/shiroyasha.keys >> .ssh/authorized_keys",
+			fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
 			"sleep infinity",
 		}
 
