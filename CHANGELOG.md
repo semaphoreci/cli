@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.7.1
+
+- SSH command error message is displayed if `sem attach` fails. Example: `permission deinied`.
+- Debugging a project with `sem debug project <project-name>`
+
 ### v0.7.0
 
 - Listing jobs
