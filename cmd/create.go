@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
+  "strings"
 
 	"github.com/semaphoreci/cli/cmd/utils"
 
@@ -107,22 +108,35 @@ var CreateSecretCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
-		c := client.NewSecretV1BetaApi()
-
-		secret := models.NewSecretV1Beta(name)
-		_, err := c.CreateSecret(&secret)
-
+		files, err := cmd.Flags().GetStringArray("file")
 		utils.Check(err)
 
-		fmt.Printf("Secret '%s' created.\n", secret.Metadata.Name)
-	},
+    fileSlices := make([][]string, len(files))
+
+    for i := 0; i < len(files); i++ {
+      fileSlices[i] = strings.Split(files[i], ":")
+    }
+
+    secret := models.NewSecretV1Beta(name, fileSlices)
+
+		c := client.NewSecretV1BetaApi()
+
+    _, err = c.CreateSecret(&secret)
+
+    utils.Check(err)
+
+    fmt.Printf("Secret '%s' created.\n", secret.Metadata.Name)
+  },
 }
 
 func init() {
-	RootCmd.AddCommand(createCmd)
-	createCmd.AddCommand(CreateSecretCmd)
-	createCmd.AddCommand(CreateDashboardCmd)
+  RootCmd.AddCommand(createCmd)
+  createCmd.AddCommand(CreateSecretCmd)
+  createCmd.AddCommand(CreateDashboardCmd)
 
-	desc := "Filename, directory, or URL to files to use to create the resource"
-	createCmd.Flags().StringP("file", "f", "", desc)
+  desc := "Filename, directory, or URL to files to use to create the resource"
+  createCmd.Flags().StringP("file", "f", "", desc)
+
+  desc = "File to add to secret <path>:<local-path>"
+  CreateSecretCmd.Flags().StringArrayP("file", "f", []string{}, desc)
 }

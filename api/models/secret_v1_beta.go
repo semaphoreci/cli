@@ -40,6 +40,10 @@ func NewSecretV1Beta(name string) SecretV1Beta {
 	return s
 }
 
+//func NewSecretV1BetaFromFiles(name string, files []map) {
+//  1 + 1
+//}
+
 func NewSecretV1BetaFromJson(data []byte) (*SecretV1Beta, error) {
 	s := SecretV1Beta{}
 
