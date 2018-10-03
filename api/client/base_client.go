@@ -49,7 +49,7 @@ func (c *BaseClient) SetApiVersion(apiVersion string) *BaseClient {
 func (c *BaseClient) Get(kind string, name string) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
-	log.Println(url)
+	log.Printf("GET %s\n", url)
 
 	req, err := http.NewRequest("GET", url, nil)
 
@@ -78,7 +78,7 @@ func (c *BaseClient) Get(kind string, name string) ([]byte, int, error) {
 func (c *BaseClient) List(kind string) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
-	log.Println(url)
+	log.Printf("GET %s\n", url)
 
 	req, err := http.NewRequest("GET", url, nil)
 
@@ -107,7 +107,7 @@ func (c *BaseClient) List(kind string) ([]byte, int, error) {
 func (c *BaseClient) ListWithParams(kind string, query url.Values) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s?%s", c.host, c.apiVersion, kind, query.Encode())
 
-	log.Println(url)
+	log.Printf("GET %s\n", url)
 
 	req, err := http.NewRequest("GET", url, nil)
 
@@ -136,7 +136,7 @@ func (c *BaseClient) ListWithParams(kind string, query url.Values) ([]byte, int,
 func (c *BaseClient) Delete(kind string, name string) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
-	log.Println(url)
+	log.Printf("DELETE %s\n", url)
 
 	req, err := http.NewRequest("DELETE", url, nil)
 
@@ -165,7 +165,8 @@ func (c *BaseClient) Delete(kind string, name string) ([]byte, int, error) {
 func (c *BaseClient) Post(kind string, resource []byte) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
-	log.Println(url)
+	log.Printf("POST %s\n", url)
+	log.Println(string(resource))
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(resource))
 
@@ -194,7 +195,7 @@ func (c *BaseClient) Post(kind string, resource []byte) ([]byte, int, error) {
 func (c *BaseClient) Patch(kind string, name string, resource []byte) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
-	log.Println(url)
+	log.Printf("PATCH %s\n", url)
 
 	req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(resource))
 

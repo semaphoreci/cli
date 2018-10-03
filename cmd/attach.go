@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"os/exec"
 
 	client "github.com/semaphoreci/cli/api/client"
 	"github.com/semaphoreci/cli/cmd/utils"
@@ -46,34 +45,12 @@ var attachCmd = &cobra.Command{
 		}
 
 		if ip != "" && ssh_port != 0 {
-			sshIntoAJob(ip, ssh_port, "semaphore")
+			utils.SshIntoAJob(ip, ssh_port, "semaphore")
 		} else {
 			fmt.Printf("Job %s has no exposed SSH port.\n", job.Metadata.Id)
 			os.Exit(1)
 		}
 	},
-}
-
-func sshIntoAJob(ip string, port int32, username string) {
-	ssh_path, err := exec.LookPath("ssh")
-
-	utils.Check(err)
-
-	portFlag := fmt.Sprintf("-p%d", port)
-	noStrictFlag := "-oStrictHostKeyChecking=no"
-	userAndIp := fmt.Sprintf("%s@%s", username, ip)
-
-	ssh_cmd := exec.Command(ssh_path, portFlag, noStrictFlag, userAndIp)
-
-	ssh_cmd.Stdin = os.Stdin
-	ssh_cmd.Stdout = os.Stdout
-	err = ssh_cmd.Start()
-
-	utils.Check(err)
-
-	err = ssh_cmd.Wait()
-
-	utils.Check(err)
 }
 
 func init() {
