@@ -11,31 +11,38 @@ type SecretV1Beta struct {
 	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion"`
 	Kind       string `json:"kind,omitempty" yaml:"kind"`
 
-	Metadata struct {
-		Name       string      `json:"name,omitempty" yaml:"name,omitempty"`
-		Id         string      `json:"id,omitempty" yaml:"id,omitempty"`
-		CreateTime json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
-		UpdateTime json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
-	} `json:"metadata" yaml:"metadata"`
-
-	Data struct {
-		EnvVars []struct {
-			Name  string `json:"name" yaml:"name"`
-			Value string `json:"value" yaml:"value"`
-		} `json:"env_vars" yaml:"env_vars"`
-
-		Files []struct {
-			Path    string `json:"path" yaml:"path"`
-			Content string `json:"content" yaml:"content"`
-		} `json:"files" yaml: "files"`
-	} `json:"data" yaml: "data"`
+	Metadata SecretV1BetaMetadata `json:"metadata" yaml:"metadata"`
+	Data     SecretV1BetaData     `json:"data" yaml: "data"`
 }
 
-func NewSecretV1Beta(name string) SecretV1Beta {
+type SecretV1BetaEnvVar struct {
+	Name  string `json:"name" yaml:"name"`
+	Value string `json:"value" yaml:"value"`
+}
+
+type SecretV1BetaFile struct {
+	Path    string `json:"path" yaml:"path"`
+	Content string `json:"content" yaml:"content"`
+}
+
+type SecretV1BetaData struct {
+	EnvVars []SecretV1BetaEnvVar `json:"env_vars" yaml:"env_vars"`
+	Files   []SecretV1BetaFile   `json:"files" yaml: "files"`
+}
+
+type SecretV1BetaMetadata struct {
+	Name       string      `json:"name,omitempty" yaml:"name,omitempty"`
+	Id         string      `json:"id,omitempty" yaml:"id,omitempty"`
+	CreateTime json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
+	UpdateTime json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
+}
+
+func NewSecretV1Beta(name string, files []SecretV1BetaFile) SecretV1Beta {
 	s := SecretV1Beta{}
 
 	s.setApiVersionAndKind()
 	s.Metadata.Name = name
+	s.Data.Files = files
 
 	return s
 }
