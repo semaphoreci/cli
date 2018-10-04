@@ -12,7 +12,7 @@ var connectCmd = &cobra.Command{
 	Use:   "connect",
 	Short: "Connect to a Semaphore endpoint",
 	Args:  cobra.ExactArgs(2),
-	Long: ``,
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		host := args[0]
 		token := args[1]
