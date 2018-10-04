@@ -1,10 +1,8 @@
 package models
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -39,28 +37,14 @@ type SecretV1BetaMetadata struct {
 	UpdateTime json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
 }
 
-func NewSecretV1Beta(name string, files [][]string) SecretV1Beta {
+func NewSecretV1Beta(name string, files []SecretV1BetaFile) SecretV1Beta {
 	s := SecretV1Beta{}
 
 	s.setApiVersionAndKind()
 	s.Metadata.Name = name
-
-	for i := 0; i < len(files); i++ {
-		file := SecretV1BetaFile{Path: files[i][1], Content: ""}
-		file.Content = encodeFile(files[i][0])
-		s.Data.Files = append(s.Data.Files, file)
-	}
+	s.Data.Files = files
 
 	return s
-}
-
-func encodeFile(path string) string {
-	content, err := ioutil.ReadFile(path)
-	if err != nil {
-		panic(err)
-	}
-
-	return base64.StdEncoding.EncodeToString(content)
 }
 
 func NewSecretV1BetaFromJson(data []byte) (*SecretV1Beta, error) {

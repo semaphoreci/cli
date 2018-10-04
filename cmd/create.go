@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"regexp"
 	"strings"
 
 	"github.com/semaphoreci/cli/cmd/utils"
@@ -108,16 +110,27 @@ var CreateSecretCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
-		files, err := cmd.Flags().GetStringArray("file")
+		fileFlags, err := cmd.Flags().GetStringArray("file")
 		utils.Check(err)
 
-		fileSlices := make([][]string, len(files))
+		var files []models.SecretV1BetaFile
+		for _, fileFlag := range fileFlags {
+			matchFormat, err := regexp.MatchString(`^[^: ]+:[^: ]+$`, fileFlag)
+			utils.Check(err)
 
-		for i := 0; i < len(files); i++ {
-			fileSlices[i] = strings.Split(files[i], ":")
+			if matchFormat == true {
+				flagPaths := strings.Split(fileFlag, ":")
+
+				file := models.SecretV1BetaFile{}
+				file.Path = flagPaths[1]
+				file.Content = encodeFromFileAt(flagPaths[0])
+				files = append(files, file)
+			} else {
+				utils.Fail("The format of --file flag must be: <local-path>:<semaphore-path>")
+			}
 		}
 
-		secret := models.NewSecretV1Beta(name, fileSlices)
+		secret := models.NewSecretV1Beta(name, files)
 
 		c := client.NewSecretV1BetaApi()
 
@@ -127,6 +140,13 @@ var CreateSecretCmd = &cobra.Command{
 
 		fmt.Printf("Secret '%s' created.\n", secret.Metadata.Name)
 	},
+}
+
+func encodeFromFileAt(path string) string {
+	content, err := ioutil.ReadFile(path)
+	utils.Check(err)
+
+	return base64.StdEncoding.EncodeToString(content)
 }
 
 func init() {
