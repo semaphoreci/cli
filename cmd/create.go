@@ -137,6 +137,6 @@ func init() {
 	desc := "Filename, directory, or URL to files to use to create the resource"
 	createCmd.Flags().StringP("file", "f", "", desc)
 
-	desc = "File to add to secret <path>:<local-path>"
+	desc = "File mapping <local-path>:<mount-path>, used to create a secret with file"
 	CreateSecretCmd.Flags().StringArrayP("file", "f", []string{}, desc)
 }
