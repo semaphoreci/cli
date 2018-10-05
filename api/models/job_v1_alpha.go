@@ -16,6 +16,10 @@ type JobV1AlphaMetadata struct {
 	FinishTime json.Number `json:"finish_time,omitempty,string" yaml:"finish_time,omitempty"`
 }
 
+type JobV1AlphaSpecSecret struct {
+	Name string `json:"name,omitempty" yaml: "name,omitempty"`
+}
+
 type JobV1AlphaSpec struct {
 	Agent struct {
 		Machine struct {
@@ -24,8 +28,9 @@ type JobV1AlphaSpec struct {
 		} `json:"machine,omitempty" yaml:"machine,omitempty"`
 	} `json:"agent,omitempty" yaml:"agent,omitempty"`
 
-	Commands  []string `json:"commands,omitempty" yaml:"commands,omitempty"`
-	ProjectId string   `json:"project_id,omitempty" yaml:"project_id,omitempty"`
+	Secrets   []JobV1AlphaSpecSecret `json:"secrets,omitempty" yaml: "secrets,omitempty"`
+	Commands  []string               `json:"commands,omitempty" yaml:"commands,omitempty"`
+	ProjectId string                 `json:"project_id,omitempty" yaml:"project_id,omitempty"`
 }
 
 type JobV1AlphaStatus struct {
