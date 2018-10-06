@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.7.2
+
+- Secrets creation from files. Example: `sem create secret aws-secrets -f /home/vagrant/.aws/credentials:/home/semaphore/.aws/credentials`
+- On demand job creation. Example: `sem create job hello-world --project cli --command 'echo "Hello World"'`
+
 ### v0.7.1
 
 - SSH command error message is displayed if `sem attach` fails. Example: `permission deinied`.
