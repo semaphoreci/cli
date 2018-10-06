@@ -150,7 +150,7 @@ func encodeFromFileAt(path string) string {
 }
 
 func init() {
-	createJobCmd := NewCreateJobCmd()
+	createJobCmd := NewCreateJobCmd().Cmd
 
 	RootCmd.AddCommand(createCmd)
 	createCmd.AddCommand(CreateSecretCmd)
