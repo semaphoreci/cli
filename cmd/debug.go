@@ -52,21 +52,21 @@ var debugProjectCmd = &cobra.Command{
 		utils.Check(err)
 
 		jobName := fmt.Sprintf("Debug Session for %s", project_name)
-		job_req := models.NewJobV1Alpha(jobName)
+		job := models.NewJobV1Alpha(jobName)
 
-		job_req.Spec = &models.JobV1AlphaSpec{}
-		job_req.Spec.Agent.Machine.Type = "e2-standard-2"
-		job_req.Spec.Agent.Machine.OsImage = "ubuntu1804"
-		job_req.Spec.ProjectId = project.Metadata.Id
+		job.Spec = &models.JobV1AlphaSpec{}
+		job.Spec.Agent.Machine.Type = "e2-standard-2"
+		job.Spec.Agent.Machine.OsImage = "ubuntu1804"
+		job.Spec.ProjectId = project.Metadata.Id
 
-		job_req.Spec.Commands = []string{
+		job.Spec.Commands = []string{
 			fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
 			"sleep infinity",
 		}
 
 		c := client.NewJobsV1AlphaApi()
 
-		job, err := c.CreateJob(&job_req)
+		job, err = c.CreateJob(job)
 
 		utils.Check(err)
 

@@ -150,12 +150,19 @@ func encodeFromFileAt(path string) string {
 }
 
 func init() {
+	createJobCmd := NewCreateJobCmd()
+
 	RootCmd.AddCommand(createCmd)
 	createCmd.AddCommand(CreateSecretCmd)
 	createCmd.AddCommand(CreateDashboardCmd)
+	createCmd.AddCommand(createJobCmd)
+
+	// Create Flags
 
 	desc := "Filename, directory, or URL to files to use to create the resource"
 	createCmd.Flags().StringP("file", "f", "", desc)
+
+	// Secret Create Flags
 
 	desc = "File mapping <local-path>:<mount-path>, used to create a secret with file"
 	CreateSecretCmd.Flags().StringArrayP("file", "f", []string{}, desc)
