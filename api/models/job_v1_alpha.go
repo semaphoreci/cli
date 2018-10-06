@@ -20,6 +20,11 @@ type JobV1AlphaSpecSecret struct {
 	Name string `json:"name,omitempty" yaml: "name,omitempty"`
 }
 
+type JobV1AlphaSpecFile struct {
+	Path    string `json:"path,omitempty" yaml: "path,omitempty"`
+	Content string `json:"content,omitempty" yaml: "content,omitempty"`
+}
+
 type JobV1AlphaSpec struct {
 	Agent struct {
 		Machine struct {
@@ -28,6 +33,7 @@ type JobV1AlphaSpec struct {
 		} `json:"machine,omitempty" yaml:"machine,omitempty"`
 	} `json:"agent,omitempty" yaml:"agent,omitempty"`
 
+	Files     []JobV1AlphaSpecFile   `json:"files,omitempty" yaml: "files,omitempty"`
 	Secrets   []JobV1AlphaSpecSecret `json:"secrets,omitempty" yaml: "secrets,omitempty"`
 	Commands  []string               `json:"commands,omitempty" yaml:"commands,omitempty"`
 	ProjectId string                 `json:"project_id,omitempty" yaml:"project_id,omitempty"`
@@ -54,14 +60,14 @@ type JobV1Alpha struct {
 	Status   *JobV1AlphaStatus   `json:"status,omitempty"`
 }
 
-func NewJobV1Alpha(name string) JobV1Alpha {
+func NewJobV1Alpha(name string) *JobV1Alpha {
 	j := JobV1Alpha{}
 
 	j.Metadata = &JobV1AlphaMetadata{}
 	j.Metadata.Name = name
 	j.setApiVersionAndKind()
 
-	return j
+	return &j
 }
 
 func NewJobV1AlphaFromJson(data []byte) (*JobV1Alpha, error) {
