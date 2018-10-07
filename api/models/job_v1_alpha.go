@@ -29,7 +29,7 @@ type JobV1AlphaSpec struct {
 	Agent struct {
 		Machine struct {
 			Type    string `json:"type,omitempty" yaml:"type,omitempty"`
-			OsImage string `json:"os_image,omitempty" yaml:"type,omitempty"`
+			OsImage string `json:"os_image,omitempty" yaml:"os_image,omitempty"`
 		} `json:"machine,omitempty" yaml:"machine,omitempty"`
 	} `json:"agent,omitempty" yaml:"agent,omitempty"`
 
