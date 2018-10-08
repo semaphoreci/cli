@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.7.4
+
+- Create a job from a YAML file.
+
 ### v0.7.3
 
 - Debug a job. Example: `sem debug job <existing-job-id>`
