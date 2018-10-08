@@ -33,10 +33,11 @@ type JobV1AlphaSpec struct {
 		} `json:"machine,omitempty" yaml:"machine,omitempty"`
 	} `json:"agent,omitempty" yaml:"agent,omitempty"`
 
-	Files     []JobV1AlphaSpecFile   `json:"files,omitempty" yaml: "files,omitempty"`
-	Secrets   []JobV1AlphaSpecSecret `json:"secrets,omitempty" yaml: "secrets,omitempty"`
-	Commands  []string               `json:"commands,omitempty" yaml:"commands,omitempty"`
-	ProjectId string                 `json:"project_id,omitempty" yaml:"project_id,omitempty"`
+	Files            []JobV1AlphaSpecFile   `json:"files,omitempty" yaml: "files,omitempty"`
+	Secrets          []JobV1AlphaSpecSecret `json:"secrets,omitempty" yaml: "secrets,omitempty"`
+	Commands         []string               `json:"commands,omitempty" yaml:"commands,omitempty"`
+	EpilogueCommands []string               `json:"epilogue_commands,omitempty" yaml:"epilogue_commands,omitempty"`
+	ProjectId        string                 `json:"project_id,omitempty" yaml:"project_id,omitempty"`
 }
 
 type JobV1AlphaStatus struct {
