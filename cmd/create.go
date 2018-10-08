@@ -73,6 +73,18 @@ var createCmd = &cobra.Command{
 			utils.Check(err)
 
 			fmt.Printf("Dashboard %s created.\n", dash.Metadata.Name)
+		case "Job":
+			job, err := models.NewJobV1AlphaFromYaml(data)
+
+			utils.Check(err)
+
+			c := client.NewJobsV1AlphaApi()
+
+			_, err = c.CreateJob(job)
+
+			utils.Check(err)
+
+			fmt.Printf("Job %s created.\n", job.Metadata.Id)
 		default:
 			utils.Fail(fmt.Sprintf("Unknown resource kind '%s'", kind))
 		}
