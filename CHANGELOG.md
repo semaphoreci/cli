@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.7.3
+
+- Debug a job. Example: `sem debug job <existing-job-id>`
+
 ### v0.7.2
 
 - Secrets creation from files. Example: `sem create secret aws-secrets -f /home/vagrant/.aws/credentials:/home/semaphore/.aws/credentials`
