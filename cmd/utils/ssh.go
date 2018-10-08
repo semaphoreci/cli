@@ -40,10 +40,12 @@ func GetPublicSshKey() (string, error) {
 }
 
 func WaitForStartAndSsh(c *client.JobsApiV1AlphaApi, job *models.JobV1Alpha) {
+	var err error
+
 	for {
 		time.Sleep(1000 * time.Millisecond)
 
-		job, err := c.GetJob(job.Metadata.Id)
+		job, err = c.GetJob(job.Metadata.Id)
 
 		Check(err)
 
@@ -72,7 +74,7 @@ func WaitForStartAndSsh(c *client.JobsApiV1AlphaApi, job *models.JobV1Alpha) {
 	}
 
 	if ip != "" && ssh_port != 0 {
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(2000 * time.Millisecond)
 
 		err := SshIntoAJob(ip, ssh_port, "semaphore")
 

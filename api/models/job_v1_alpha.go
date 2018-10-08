@@ -25,6 +25,11 @@ type JobV1AlphaSpecFile struct {
 	Content string `json:"content,omitempty" yaml: "content,omitempty"`
 }
 
+type JobV1AlphaSpecEnvVar struct {
+	Name  string `json:"name,omitempty" yaml: "name,omitempty"`
+	Value string `json:"value,omitempty" yaml: "value,omitempty"`
+}
+
 type JobV1AlphaSpec struct {
 	Agent struct {
 		Machine struct {
@@ -34,6 +39,7 @@ type JobV1AlphaSpec struct {
 	} `json:"agent,omitempty" yaml:"agent,omitempty"`
 
 	Files            []JobV1AlphaSpecFile   `json:"files,omitempty" yaml: "files,omitempty"`
+	EnvVars          []JobV1AlphaSpecEnvVar `json:"env_vars,omitempty" yaml: "env_vars,omitempty"`
 	Secrets          []JobV1AlphaSpecSecret `json:"secrets,omitempty" yaml: "secrets,omitempty"`
 	Commands         []string               `json:"commands,omitempty" yaml:"commands,omitempty"`
 	EpilogueCommands []string               `json:"epilogue_commands,omitempty" yaml:"epilogue_commands,omitempty"`
