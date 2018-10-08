@@ -80,11 +80,11 @@ var createCmd = &cobra.Command{
 
 			c := client.NewJobsV1AlphaApi()
 
-			_, err = c.CreateJob(job)
+			job, err = c.CreateJob(job)
 
 			utils.Check(err)
 
-			fmt.Printf("Job %s created.\n", job.Metadata.Id)
+			fmt.Printf("Job '%s' created.\n", job.Metadata.Id)
 		default:
 			utils.Fail(fmt.Sprintf("Unknown resource kind '%s'", kind))
 		}

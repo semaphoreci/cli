@@ -38,11 +38,6 @@ var DebugJobCmd = &cobra.Command{
 		job.Spec = oldJob.Spec
 		job.Spec.EpilogueCommands = []string{}
 
-		job.Spec.Commands = []string{
-			fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
-			"sleep infinity",
-		}
-
 		// Construct a commands file and inject into job
 		commandsFileContent := fmt.Sprintf("%s\n%s",
 			strings.Join(oldJob.Spec.Commands, "\n"),
@@ -53,6 +48,12 @@ var DebugJobCmd = &cobra.Command{
 				Path:    "commands.sh",
 				Content: base64.StdEncoding.EncodeToString([]byte(commandsFileContent)),
 			},
+		}
+
+		// Overwrite commands with a simple SSH public key insertion and infinite sleep
+		job.Spec.Commands = []string{
+			fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
+			"sleep infinity",
 		}
 
 		job, err = c.CreateJob(job)
