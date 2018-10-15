@@ -6,6 +6,7 @@ import (
 	"text/tabwriter"
 
 	client "github.com/semaphoreci/cli/api/client"
+	"github.com/semaphoreci/cli/cmd/pipelines"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
 )
@@ -210,6 +211,24 @@ var GetJobCmd = &cobra.Command{
 	},
 }
 
+var GetPplCmd = &cobra.Command{
+	Use:     "pipelines [id]",
+	Short:   "Get pipelines.",
+	Long:    ``,
+	Aliases: []string{"pipeline", "ppl"},
+	Args:    cobra.RangeArgs(0, 1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			fmt.Printf("Not implemented\n")
+			os.Exit(2)
+		} else {
+			id := args[0]
+			pipelines.Describe(id)
+		}
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(getCmd)
 
@@ -219,4 +238,5 @@ func init() {
 
 	GetJobCmd.Flags().BoolVar(&GetJobAllStates, "all", false, "list all jobs including finished ones")
 	getCmd.AddCommand(GetJobCmd)
+	getCmd.AddCommand(GetPplCmd)
 }

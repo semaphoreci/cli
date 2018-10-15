@@ -290,3 +290,36 @@ func Test__GetSecret__Response200(t *testing.T) {
 		t.Error("Expected the API to receive GET secrets/aaaaaaa")
 	}
 }
+
+func Test__GetPipeline__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/pipelines/494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `{
+  			"pipeline": {
+					"ppl_id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+					"name": "snapshot test",
+			    "state": "done",
+			    "result": "passed",
+					"result_reason": "test",
+			    "error_description": ""
+				}
+			}`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"get", "pipelines", "494b76aa-f3f0-4ecf-b5ef-c389591a01be"})
+	RootCmd.Execute()
+
+	if received == false {
+		t.Error("Expected the API to receive GET secrets/aaaaaaa")
+	}
+}
