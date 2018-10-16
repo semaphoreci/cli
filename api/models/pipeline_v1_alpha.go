@@ -32,3 +32,7 @@ func NewPipelineV1AlphaFromJson(data []byte) (*PipelineV1Alpha, error) {
 func (j *PipelineV1Alpha) ToYaml() ([]byte, error) {
 	return yaml.Marshal(j)
 }
+
+func (j *PipelineV1Alpha) IsDone() bool {
+	return j.Pipeline.State == "done"
+}

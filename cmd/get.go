@@ -211,6 +211,8 @@ var GetJobCmd = &cobra.Command{
 	},
 }
 
+var GetPplFollow bool
+
 var GetPplCmd = &cobra.Command{
 	Use:     "pipelines [id]",
 	Short:   "Get pipelines.",
@@ -224,7 +226,7 @@ var GetPplCmd = &cobra.Command{
 			os.Exit(2)
 		} else {
 			id := args[0]
-			pipelines.Describe(id)
+			pipelines.Describe(id, GetPplFollow)
 		}
 	},
 }
@@ -238,5 +240,8 @@ func init() {
 
 	GetJobCmd.Flags().BoolVar(&GetJobAllStates, "all", false, "list all jobs including finished ones")
 	getCmd.AddCommand(GetJobCmd)
+
+	GetPplCmd.Flags().BoolVar(&GetPplFollow, "follow", false,
+		"repeat get until pipeline reaches terminal state")
 	getCmd.AddCommand(GetPplCmd)
 }
