@@ -106,11 +106,11 @@ func ConstructProjectName(repo_url string) (string, error) {
 	errTemplate := "unsupported git remote format '%s'.\n"
 	errTemplate += "\n"
 	errTemplate += "Format must be one of the following:\n"
-	errTemplate += "  - git@github.com:/<owner>/<repo_name>.git\n"
-	errTemplate += "  - git@github.com:/<owner>/<repo_name>\n"
+	errTemplate += "  - git@github.com:<owner>/<repo_name>.git\n"
+	errTemplate += "  - git@github.com:<owner>/<repo_name>\n"
 	errTemplate += "\n"
 	errTemplate += "To add a project with an alternative git url, use the --repo-url flag:\n"
-	errTemplate += "  - sem init --repo-url git@github.com:/<owner>/<repo_name>.git\n"
+	errTemplate += "  - sem init --repo-url git@github.com:<owner>/<repo_name>.git\n"
 
 	return "", errors.New(fmt.Sprintf(errTemplate, repo_url))
 }
