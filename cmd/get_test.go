@@ -323,3 +323,50 @@ func Test__GetPipeline__Response200(t *testing.T) {
 		t.Error("Expected the API to receive GET secrets/aaaaaaa")
 	}
 }
+
+func Test__GetWorkflows__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects/foo",
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `{
+				"metadata": {
+					"id": "758cb945-7495-4e40-a9a1-4b3991c6a8fe"
+				}
+			}`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/plumber-workflows?project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe",
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `[{
+				"wf_id": "b129e277-4aa5-4308-8e31-ec825815e335",
+				"requester_id": "92f81b82-3584-4852-ab28-4866624bed1e",
+				"project_id": "758cb945-7495-4e40-a9a1-4b3991c6a8fe",
+				"initial_ppl_id": "92f81b82-3584-4852-ab28-4866624bed1e",
+				"created_at": {
+				  "seconds": 1533833523,
+				  "nanos": 537460000
+				}
+			}]`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"get", "workflows", "--project-name", "foo"})
+	RootCmd.Execute()
+
+	if received == false {
+		t.Error("Expected the API to receive GET secrets/aaaaaaa")
+	}
+}

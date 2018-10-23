@@ -8,6 +8,7 @@ import (
 	client "github.com/semaphoreci/cli/api/client"
 	"github.com/semaphoreci/cli/cmd/pipelines"
 	"github.com/semaphoreci/cli/cmd/utils"
+	"github.com/semaphoreci/cli/cmd/workflows"
 	"github.com/spf13/cobra"
 )
 
@@ -231,6 +232,33 @@ var GetPplCmd = &cobra.Command{
 	},
 }
 
+var GetWfCmd = &cobra.Command{
+	Use:     "workflows [id]",
+	Short:   "Get wokflows.",
+	Long:    ``,
+	Aliases: []string{"workflow", "wf"},
+	Args:    cobra.RangeArgs(0, 1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			projectName, err := cmd.Flags().GetString("project-name")
+			utils.Check(err)
+
+			if projectName == "" {
+				fmt.Printf("Have to specify project name\n")
+				os.Exit(2)
+			} else {
+				fmt.Printf("projectName: %s\n", projectName)
+				workflows.List(projectName)
+			}
+
+		} else {
+			fmt.Printf("Not implemented\n")
+			os.Exit(2)
+		}
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(getCmd)
 
@@ -244,4 +272,7 @@ func init() {
 	GetPplCmd.Flags().BoolVar(&GetPplFollow, "follow", false,
 		"repeat get until pipeline reaches terminal state")
 	getCmd.AddCommand(GetPplCmd)
+
+	getCmd.AddCommand(GetWfCmd)
+	GetWfCmd.Flags().StringP("project-name", "p", "", "project name; if not specified will be inferred wrom git origin")
 }
