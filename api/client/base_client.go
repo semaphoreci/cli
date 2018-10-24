@@ -162,6 +162,11 @@ func (c *BaseClient) Delete(kind string, name string) ([]byte, int, error) {
 	return body, resp.StatusCode, err
 }
 
+func (c *BaseClient) PostAction(kind, item, action string, resource []byte) ([]byte, int, error) {
+	kindItemAction := fmt.Sprintf("%s/%s/%s", kind, item, action)
+	return c.Post(kindItemAction, resource)
+}
+
 func (c *BaseClient) Post(kind string, resource []byte) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
