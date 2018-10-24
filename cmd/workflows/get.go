@@ -11,14 +11,12 @@ import (
 )
 
 func List(projectName string) {
-	projectClient := client.NewProjectV1AlphaApi()
-	project, err := projectClient.GetProject(projectName)
-	utils.CheckWithMessage(err, fmt.Sprintf("project_id for project '%s' not found; '%s'", projectName, err))
+	projectID := GetProjectId(projectName)
 
-	fmt.Printf("project id: %s\n", project.Metadata.Id)
+	fmt.Printf("project id: %s\n", projectID)
 
 	wfClient := client.NewWorkflowV1AlphaApi()
-	workflows, err := wfClient.ListWorkflows(project.Metadata.Id)
+	workflows, err := wfClient.ListWorkflows(projectID)
 	utils.Check(err)
 
 	prettyPrint(workflows)
