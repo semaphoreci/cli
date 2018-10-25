@@ -4,10 +4,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"os"
 	"regexp"
 	"strings"
 
 	"github.com/semaphoreci/cli/cmd/utils"
+	"github.com/semaphoreci/cli/cmd/workflows"
 
 	client "github.com/semaphoreci/cli/api/client"
 	models "github.com/semaphoreci/cli/api/models"
@@ -154,6 +157,27 @@ var CreateSecretCmd = &cobra.Command{
 	},
 }
 
+var CreateWorkflowCmd = &cobra.Command{
+	Use:     "workflow [NAME]",
+	Short:   "Create a workflow from snapshot.",
+	Long:    ``,
+	Aliases: []string{"workflows", "wf"},
+	Args:    cobra.ExactArgs(0),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		projectName, err := cmd.Flags().GetString("project-name")
+		utils.Check(err)
+
+		if projectName == "" {
+			fmt.Printf("Have to specify project name\n")
+			os.Exit(2)
+		} else {
+			log.Printf("Project name: %s\n", projectName)
+			workflows.CreateSnapshot(projectName)
+		}
+	},
+}
+
 func encodeFromFileAt(path string) string {
 	content, err := ioutil.ReadFile(path)
 	utils.Check(err)
@@ -168,6 +192,7 @@ func init() {
 	createCmd.AddCommand(CreateSecretCmd)
 	createCmd.AddCommand(CreateDashboardCmd)
 	createCmd.AddCommand(createJobCmd)
+	createCmd.AddCommand(CreateWorkflowCmd)
 
 	// Create Flags
 
@@ -178,4 +203,7 @@ func init() {
 
 	desc = "File mapping <local-path>:<mount-path>, used to create a secret with file"
 	CreateSecretCmd.Flags().StringArrayP("file", "f", []string{}, desc)
+
+	CreateWorkflowCmd.Flags().StringP("project-name", "p", "", "project name; if not specified will be inferred wrom git origin")
+
 }

@@ -1,9 +1,11 @@
 package client
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	models "github.com/semaphoreci/cli/api/models"
 )
 
@@ -37,4 +39,31 @@ func (c *WorkflowApiV1AlphaApi) ListWorkflows(project_id string) (*models.Workfl
 	}
 
 	return models.NewWorkflowListV1AlphaFromJson(body)
+}
+
+func (c *WorkflowApiV1AlphaApi) CreateSnapshotWf(project_id string) ([]byte, error) {
+	requestToken, err := uuid.NewUUID()
+
+	req, err := models.NewWorkflowV1AlphaSnapshotRequest(project_id, "archive content", requestToken.String())
+
+	if err != nil {
+		return nil, fmt.Errorf("creating rebuild request failed '%s'", err)
+	}
+
+	requestBody, _ := json.Marshal(req)
+
+	if err != nil {
+		return nil, fmt.Errorf("request body creation failed '%s'", err)
+	}
+
+	body, status, err := c.BaseClient.Post(c.ResourceNamePlural, requestBody)
+
+	switch {
+	case err != nil:
+		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
+	case status != 200:
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
+	}
+
+	return body, nil
 }
