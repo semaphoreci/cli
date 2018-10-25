@@ -168,15 +168,23 @@ func (c *BaseClient) PostAction(kind, item, action string, resource []byte) ([]b
 }
 
 func (c *BaseClient) Post(kind string, resource []byte) ([]byte, int, error) {
+	return c.PostHeaders(kind, resource, make(map[string]string))
+}
+
+func (c *BaseClient) PostHeaders(kind string, resource []byte, headers map[string]string) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
 	log.Printf("POST %s\n", url)
-	log.Println(string(resource))
+	log.Println("Resource", string(resource))
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(resource))
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
+
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
