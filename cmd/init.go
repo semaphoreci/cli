@@ -96,6 +96,8 @@ func ConstructProjectName(repo_url string) (string, error) {
 		regexp.MustCompile(`git\@github\.com:.*\/(.*)`),
 		regexp.MustCompile(`https://github.com/.*\/(.*).git`),
 		regexp.MustCompile(`https://github.com/.*\/(.*)`),
+		regexp.MustCompile(`http://github.com/.*\/(.*).git`),
+		regexp.MustCompile(`http://github.com/.*\/(.*)`),
 	}
 
 	for _, r := range formats {
