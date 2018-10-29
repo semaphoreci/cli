@@ -17,6 +17,7 @@ require (
 	github.com/go-openapi/strfmt v0.0.0-20180910212104-776114108ccc
 	github.com/go-openapi/swag v0.0.0-20180908172849-dd0dad036e67
 	github.com/go-openapi/validate v0.0.0-20180825180342-e0648ff40507
+	github.com/google/uuid v1.0.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mailru/easyjson v0.0.0-20180823135443-60711f1a8329 // indirect
 	github.com/mitchellh/go-homedir v1.0.0

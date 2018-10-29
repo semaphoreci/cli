@@ -90,9 +90,14 @@ func RunInit(cmd *cobra.Command, args []string) {
 
 func ConstructProjectName(repo_url string) (string, error) {
 	formats := []*regexp.Regexp{
+		regexp.MustCompile(`git\@github\.com:/.*\/(.*).git`),
 		regexp.MustCompile(`git\@github\.com:.*\/(.*).git`),
+		regexp.MustCompile(`git\@github\.com:/.*\/(.*)`),
 		regexp.MustCompile(`git\@github\.com:.*\/(.*)`),
-		regexp.MustCompile(`git\@github\.com:.*\/(.*)`),
+		regexp.MustCompile(`https://github.com/.*\/(.*).git`),
+		regexp.MustCompile(`https://github.com/.*\/(.*)`),
+		regexp.MustCompile(`http://github.com/.*\/(.*).git`),
+		regexp.MustCompile(`http://github.com/.*\/(.*)`),
 	}
 
 	for _, r := range formats {
@@ -108,6 +113,8 @@ func ConstructProjectName(repo_url string) (string, error) {
 	errTemplate += "Format must be one of the following:\n"
 	errTemplate += "  - git@github.com:<owner>/<repo_name>.git\n"
 	errTemplate += "  - git@github.com:<owner>/<repo_name>\n"
+	errTemplate += "  - https://github.com/<owner>/<repo_name>\n"
+	errTemplate += "  - https://github.com/<owner>/<repo_name>.git\n"
 	errTemplate += "\n"
 	errTemplate += "To add a project with an alternative git url, use the --repo-url flag:\n"
 	errTemplate += "  - sem init --repo-url git@github.com:<owner>/<repo_name>.git\n"
