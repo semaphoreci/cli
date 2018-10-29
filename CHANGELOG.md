@@ -1,5 +1,14 @@
 # Changelog
 
+### v0.8.0
+
+- Describe a pipeline
+- Stop a pipeline
+- List workflows
+- Rebuild a pipeline
+- Snapshot based workflow
+- HTTP(s) support in sem init
+
 ### v0.7.4
 
 - Create a job from a YAML file.
