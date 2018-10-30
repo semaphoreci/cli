@@ -31,7 +31,7 @@ var DebugProjectCmd = &cobra.Command{
 		job := models.NewJobV1Alpha(jobName)
 
 		job.Spec = &models.JobV1AlphaSpec{}
-		job.Spec.Agent.Machine.Type = "e2-standard-2"
+		job.Spec.Agent.Machine.Type = "e1-standard-2"
 		job.Spec.Agent.Machine.OsImage = "ubuntu1804"
 		job.Spec.ProjectId = project.Metadata.Id
 
