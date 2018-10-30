@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.8.1
+
+- Fix debugging projects with sem CLI tool
+
 ### v0.8.0
 
 - Describe a pipeline
