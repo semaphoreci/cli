@@ -15,6 +15,21 @@ type PipelineV1Alpha struct {
 		Reason string `json:"result_reason,omitempty" yaml:"result_reason,omitempty"`
 		Error  string `json:"error_description,omitempty"  yaml:"error_description,omitempty"`
 	} `json:"pipeline,omitempty"`
+	Blocks []PipelineV1AlphaBlock `json:"blocks,omitempty"`
+}
+
+type PipelineV1AlphaBlock struct {
+	Name   string                     `json:"name"`
+	State  string                     `json:"state"`
+	Result string                     `json:"result,omitempty" yaml:"result,omitempty"`
+	Reason string                     `json:"result_reason,omitempty" yaml:"result_reason,omitempty"`
+	Error  string                     `json:"error_description,omitempty"  yaml:"error_description,omitempty"`
+	Jobs   []PipelineV1AlphaBlockJobs `json:"jobs"`
+}
+
+type PipelineV1AlphaBlockJobs struct {
+	Name  string `json:"name"`
+	JobID string `json:"job_id"`
 }
 
 func NewPipelineV1AlphaFromJson(data []byte) (*PipelineV1Alpha, error) {

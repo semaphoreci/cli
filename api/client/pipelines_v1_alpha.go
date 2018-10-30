@@ -26,7 +26,8 @@ func NewPipelinesV1AlphaApi() PipelinesApiV1AlphaApi {
 }
 
 func (c *PipelinesApiV1AlphaApi) DescribePpl(id string) (*models.PipelineV1Alpha, error) {
-	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, id)
+	detailed := fmt.Sprintf("%s?detailed=true", id)
+	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, detailed)
 
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
