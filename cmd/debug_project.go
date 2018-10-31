@@ -9,43 +9,54 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var DebugProjectCmd = &cobra.Command{
-	Use:     "project [NAME]",
-	Short:   "Debug a project",
-	Long:    ``,
-	Aliases: []string{"prj", "projects"},
-	Args:    cobra.ExactArgs(1),
+func NewDebugProjectCmd() *cobra.Command {
+	var DebugProjectCmd = &cobra.Command{
+		Use:     "project [NAME]",
+		Short:   "Debug a project",
+		Long:    ``,
+		Aliases: []string{"prj", "projects"},
+		Args:    cobra.ExactArgs(1),
+		Run:     RunDebugProjectCmd,
+	}
 
-	Run: func(cmd *cobra.Command, args []string) {
-		publicKey, err := utils.GetPublicSshKey()
+	DebugProjectCmd.Flags().String(
+		"machine-type",
+		"e1-standard-2",
+		"machine type to use for debugging; default: e1-standard-2")
 
-		utils.Check(err)
+	return DebugProjectCmd
+}
 
-		project_name := args[0]
-		pc := client.NewProjectV1AlphaApi()
-		project, err := pc.GetProject(project_name)
+func RunDebugProjectCmd(cmd *cobra.Command, args []string) {
+	publicKey, err := utils.GetPublicSshKey()
+	machineType, err := cmd.Flags().GetString("machine-type")
 
-		utils.Check(err)
+	utils.Check(err)
 
-		jobName := fmt.Sprintf("Debug Session for %s", project_name)
-		job := models.NewJobV1Alpha(jobName)
+	project_name := args[0]
+	pc := client.NewProjectV1AlphaApi()
+	project, err := pc.GetProject(project_name)
 
-		job.Spec = &models.JobV1AlphaSpec{}
-		job.Spec.Agent.Machine.Type = "e1-standard-2"
-		job.Spec.Agent.Machine.OsImage = "ubuntu1804"
-		job.Spec.ProjectId = project.Metadata.Id
+	utils.Check(err)
 
-		job.Spec.Commands = []string{
-			fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
-			"sleep infinity",
-		}
+	jobName := fmt.Sprintf("Debug Session for %s", project_name)
+	job := models.NewJobV1Alpha(jobName)
 
-		c := client.NewJobsV1AlphaApi()
+	job.Spec = &models.JobV1AlphaSpec{}
+	job.Spec.Agent.Machine.Type = machineType
+	job.Spec.Agent.Machine.OsImage = "ubuntu1804"
+	job.Spec.ProjectId = project.Metadata.Id
 
-		job, err = c.CreateJob(job)
+	job.Spec.Commands = []string{
+		fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
+		"sleep infinity",
+	}
 
-		utils.Check(err)
+	c := client.NewJobsV1AlphaApi()
 
-		utils.WaitForStartAndSsh(&c, job)
-	},
+	job, err = c.CreateJob(job)
+
+	utils.Check(err)
+
+	utils.WaitForStartAndSsh(&c, job)
 }
