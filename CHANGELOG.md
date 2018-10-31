@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.8.2
+
+- Define machine-type when starting a debug session for projects.
+  Example: `sem debug project cli --machine-type e1-standard-4`.
+
 ### v0.8.1
 
 - Fix debugging projects with sem CLI tool
