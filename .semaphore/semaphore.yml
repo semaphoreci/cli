@@ -38,3 +38,10 @@ promotions:
 
   - name: Release Stable
     pipeline_file: "stable.yml"
+
+  - name: chmrelease
+    pipeline_file: brewrelease.yml
+    auto_promote_on:
+      - result: passed
+        branch:
+          - "^refs/tags/v*"
