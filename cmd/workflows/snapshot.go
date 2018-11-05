@@ -11,15 +11,16 @@ import (
 	"github.com/semaphoreci/cli/cmd/utils"
 )
 
-func CreateSnapshot(projectName string) {
+func CreateSnapshot(projectName, label string) {
 	archiveContent, err := createArchive()
 	utils.Check(err)
 
 	projectID := GetProjectId(projectName)
 	log.Printf("Project ID: %s\n", projectID)
+	log.Printf("Label: %s\n", label)
 
 	c := client.NewWorkflowV1AlphaApi()
-	body, err := c.CreateSnapshotWf(projectID, archiveContent)
+	body, err := c.CreateSnapshotWf(projectID, label, archiveContent)
 	utils.Check(err)
 
 	fmt.Printf("PPL_ID: %s\n", string(body))

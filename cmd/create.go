@@ -168,12 +168,15 @@ var CreateWorkflowCmd = &cobra.Command{
 		projectName, err := cmd.Flags().GetString("project-name")
 		utils.Check(err)
 
+		label, err := cmd.Flags().GetString("label")
+		utils.Check(err)
+
 		if projectName == "" {
 			fmt.Printf("Have to specify project name\n")
 			os.Exit(2)
 		} else {
 			log.Printf("Project name: %s\n", projectName)
-			workflows.CreateSnapshot(projectName)
+			workflows.CreateSnapshot(projectName, label)
 		}
 	},
 }
@@ -205,5 +208,6 @@ func init() {
 	CreateSecretCmd.Flags().StringArrayP("file", "f", []string{}, desc)
 
 	CreateWorkflowCmd.Flags().StringP("project-name", "p", "", "project name; if not specified will be inferred wrom git origin")
+	CreateWorkflowCmd.Flags().StringP("label", "l", "", "workflow label")
 
 }
