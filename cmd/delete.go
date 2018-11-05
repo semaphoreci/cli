@@ -75,10 +75,31 @@ var DeleteProjectCmd = &cobra.Command{
 	},
 }
 
+var DeleteNotificationCmd = &cobra.Command{
+	Use:     "notification [NAME]",
+	Short:   "Delete a notification.",
+	Long:    ``,
+	Aliases: []string{"notifications", "notif", "notifs"},
+	Args:    cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		name := args[0]
+
+		c := client.NewNotificationsV1AlphaApi()
+
+		err := c.DeleteNotification(name)
+
+		utils.Check(err)
+
+		fmt.Printf("Notification '%s' deleted.\n", name)
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(deleteCmd)
 
 	deleteCmd.AddCommand(DeleteDashboardCmd)
 	deleteCmd.AddCommand(DeleteProjectCmd)
 	deleteCmd.AddCommand(DeleteSecretCmd)
+	deleteCmd.AddCommand(DeleteNotificationCmd)
 }

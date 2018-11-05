@@ -56,7 +56,7 @@ func RunListNotifications(cmd *cobra.Command, args []string) {
 	const padding = 3
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
 
-	fmt.Fprintln(w, "NAME")
+	fmt.Fprintln(w, "NAME\tAGE")
 
 	for _, n := range notifList.Notifications {
 		updateTime, err := n.Metadata.UpdateTime.Int64()
