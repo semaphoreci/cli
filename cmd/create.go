@@ -187,12 +187,14 @@ func encodeFromFileAt(path string) string {
 
 func init() {
 	createJobCmd := NewCreateJobCmd().Cmd
+	createNotificationCmd := NewCreateNotificationCmd()
 
 	RootCmd.AddCommand(createCmd)
 	createCmd.AddCommand(CreateSecretCmd)
 	createCmd.AddCommand(CreateDashboardCmd)
 	createCmd.AddCommand(createJobCmd)
 	createCmd.AddCommand(CreateWorkflowCmd)
+	createCmd.AddCommand(createNotificationCmd)
 
 	// Create Flags
 
