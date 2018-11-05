@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.8.3
+
+- Get, List, Create and Delete notifications
+- Extend pipeline describe with block/job info
+- Put archive in snapshot create request
+
 ### v0.8.2
 
 - Define machine-type when starting a debug session for projects.
