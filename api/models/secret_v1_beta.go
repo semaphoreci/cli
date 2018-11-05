@@ -12,7 +12,7 @@ type SecretV1Beta struct {
 	Kind       string `json:"kind,omitempty" yaml:"kind"`
 
 	Metadata SecretV1BetaMetadata `json:"metadata" yaml:"metadata"`
-	Data     SecretV1BetaData     `json:"data" yaml: "data"`
+	Data     SecretV1BetaData     `json:"data" yaml:"data"`
 }
 
 type SecretV1BetaEnvVar struct {
