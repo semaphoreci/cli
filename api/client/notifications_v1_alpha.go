@@ -24,7 +24,7 @@ func NewNotificationsV1AlphaApi() NotificationsV1AlphaApi {
 	}
 }
 
-func (c *NotificationsV1AlphaApi) ListNotifications() (*models.DashboardListV1Alpha, error) {
+func (c *NotificationsV1AlphaApi) ListNotifications() (*models.NotificationListV1Alpha, error) {
 	body, status, err := c.BaseClient.List(c.ResourceNamePlural)
 
 	if err != nil {

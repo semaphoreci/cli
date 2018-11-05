@@ -74,13 +74,13 @@ type NotificationV1Alpha struct {
 	Status   NotificationV1AlphaStatus   `json:"status" yaml:"status"`
 }
 
-func NewNotificationV1Alpha(name string) NotificationV1Alpha {
+func NewNotificationV1Alpha(name string) *NotificationV1Alpha {
 	n := NotificationV1Alpha{}
 
 	n.setApiVersionAndKind()
 	n.Metadata.Name = name
 
-	return n
+	return &n
 }
 
 func NewNotificationV1AlphaFromJson(data []byte) (*NotificationV1Alpha, error) {
