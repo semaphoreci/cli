@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.8.4
+
+- Fix creation of Slack notifications from `sem crete notification`
+
 ### v0.8.3
 
 - Get, List, Create and Delete notifications

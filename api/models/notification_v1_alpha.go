@@ -28,14 +28,14 @@ type NotificationV1AlphaSpecRuleNotify struct {
 		Endpoint string   `json:"endpoint,omitempty" yaml:"endpoint,omitempty"`
 		Channels []string `json:"channels,omitempty" yaml:"channels,omitempty"`
 		Message  string   `json:"message,omitempty" yaml:"message,omitempty"`
-	}
+	} `json:"slack,omitempty" yaml:"slack,omitempty"`
 
 	Email struct {
 		Subject string   `json:"subject,omitempty" yaml:"subject,omitempty"`
 		CC      []string `json:"cc,omitempty" yaml:"cc,omitempty"`
 		BCC     []string `json:"bcc,omitempty" yaml:"bcc,omitempty"`
 		Content string   `json:"content,omitempty" yaml:"content,omitempty"`
-	}
+	} `json:"email,omitempty" yaml:"email,omitempty"`
 
 	Webhook struct {
 		Endpoints []string `json:"endpoints,omitempty" yaml:"endpoints,omitempty"`
@@ -43,7 +43,7 @@ type NotificationV1AlphaSpecRuleNotify struct {
 		Timeout   int32    `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 		Action    int32    `json:"action,omitempty" yaml:"action,omitempty"`
 		Retries   int32    `json:"retries,omitempty" yaml:"retries,omitempty"`
-	}
+	} `json:"webhook,omitempty" yaml:"webook,omitempty"`
 }
 
 type NotificationV1AlphaSpecRule struct {
