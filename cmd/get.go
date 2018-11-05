@@ -262,7 +262,10 @@ var GetWfCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(getCmd)
 
+	getNotificationCmd := NewGetNotificationCmd()
+
 	getCmd.AddCommand(GetDashboardCmd)
+	getCmd.AddCommand(getNotificationCmd)
 	getCmd.AddCommand(GetSecretCmd)
 	getCmd.AddCommand(GetProjectCmd)
 
