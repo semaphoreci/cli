@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.8.6
+
+- Apply changes to a notification with sem apply -f [notification-file]
+
 ### v0.8.5
 
 - Create workflow from label
