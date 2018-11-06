@@ -1,0 +1,18 @@
+apiVersion: v1alpha
+kind: Notification
+metadata:
+  name: Test
+spec:
+  rules:
+    - name: "Rule #1"
+      filter:
+        projects:
+          - cli
+        branches:
+          - master
+        pipelines:
+          - semaphore.yml
+      notify:
+        slack:
+          endpoint: "https://hooks.slack.com/asdasdasd/sada/sdas/da"
+

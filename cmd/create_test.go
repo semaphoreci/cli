@@ -7,7 +7,10 @@ import (
 	"net/http"
 	"testing"
 
+	assert "github.com/stretchr/testify/assert"
 	httpmock "gopkg.in/jarcoal/httpmock.v1"
+
+	models "github.com/semaphoreci/cli/api/models"
 )
 
 func Test__CreateProject__FromYaml__Response200(t *testing.T) {
@@ -48,6 +51,39 @@ spec:
 	if received != expected {
 		t.Errorf("Expected the API to receive POST projects with: %s, got: %s", expected, received)
 	}
+}
+
+func Test__CreateNotification__FromYaml__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	var received *models.NotificationV1Alpha
+
+	endpoint := "https://org.semaphoretext.xyz/api/v1alpha/notifications"
+
+	httpmock.RegisterResponder("POST", endpoint,
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+
+			received, _ = models.NewNotificationV1AlphaFromJson(body)
+
+			return httpmock.NewStringResponse(200, "{}"), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"create", "-f", "../fixtures/notification.yml"})
+	RootCmd.Execute()
+
+	assert.Equal(t, received.Metadata.Name, "Test")
+
+	rule := received.Spec.Rules[0]
+
+	assert.Equal(t, rule.Name, "Rule #1")
+	assert.Equal(t, rule.Filter.Projects, []string{"cli"})
+	assert.Equal(t, rule.Filter.Branches, []string{"master"})
+	assert.Equal(t, rule.Filter.Pipelines, []string{"semaphore.yml"})
+
+	assert.Equal(t, rule.Notify.Slack.Endpoint, "https://hooks.slack.com/asdasdasd/sada/sdas/da")
 }
 
 func Test__CreateSecret__FromYaml__Response200(t *testing.T) {
