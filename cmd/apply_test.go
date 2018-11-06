@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"testing"
 
+	models "github.com/semaphoreci/cli/api/models"
+	assert "github.com/stretchr/testify/assert"
 	httpmock "gopkg.in/jarcoal/httpmock.v1"
 )
 
@@ -51,6 +53,36 @@ data:
 	if received != expected {
 		t.Errorf("Expected the API to receive PATCH secret with: %s, got: %s", expected, received)
 	}
+}
+
+func Test__ApplyNotification__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	var received *models.NotificationV1Alpha
+
+	endpoint := "https://org.semaphoretext.xyz/api/v1alpha/notifications/test"
+
+	httpmock.RegisterResponder("PATCH", endpoint,
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			received, _ = models.NewNotificationV1AlphaFromJson(body)
+
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"apply", "-f", "../fixtures/notification.yml"})
+	RootCmd.Execute()
+
+	assert.Equal(t, received.Metadata.Name, "test")
+
+	rule := received.Spec.Rules[0]
+
+	assert.Equal(t, rule.Name, "Rule #1")
+	assert.Equal(t, rule.Filter.Projects, []string{"cli"})
+	assert.Equal(t, rule.Filter.Branches, []string{"master"})
+	assert.Equal(t, rule.Filter.Pipelines, []string{"semaphore.yml"})
 }
 
 func Test__ApplyDashboard__Response200(t *testing.T) {
