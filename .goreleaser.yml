@@ -1,0 +1,39 @@
+project_name: cli
+before:
+  hooks:
+  - go get ./...
+builds:
+- env:
+  - CGO_ENABLED=0
+  goos:
+    - linux
+    - darwin
+  goarch:
+    - 386
+    - amd64
+archive:
+  name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+  replacements:
+    darwin: Darwin
+    linux: Linux
+    386: i386
+    amd64: x86_64
+checksum:
+  name_template: '{{ .ProjectName }}_checksums.txt'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+    - Merge pull request
+    - Merge branch
+brew:
+  github:
+    owner: semaphoreci
+    name: homebrew-tap
+  folder: Formula
+  homepage:  https://semaphoreci.com
+  description: Semaphore 2.0 command line interface.
+  test: |
+    system "#{bin}/sem version"
