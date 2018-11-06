@@ -13,6 +13,10 @@ func CSVFlag(cmd *cobra.Command, flag string) ([]string, error) {
 		return []string{}, err
 	}
 
+	if f == "" {
+		return []string{}, nil
+	}
+
 	resultsWithWhiteSpace := strings.Split(f, ",")
 	results := []string{}
 

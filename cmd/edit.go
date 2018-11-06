@@ -51,6 +51,42 @@ var EditDashboardCmd = &cobra.Command{
 	},
 }
 
+var EditNotificationCmd = &cobra.Command{
+	Use:     "notification [name]",
+	Short:   "Edit a notification.",
+	Long:    ``,
+	Aliases: []string{"notifications", "notifs", "notif"},
+	Args:    cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		name := args[0]
+
+		c := client.NewNotificationsV1AlphaApi()
+
+		notif, err := c.GetNotification(name)
+
+		utils.Check(err)
+
+		content, err := notif.ToYaml()
+
+		utils.Check(err)
+
+		newContent, err := utils.EditYamlInEditor(notif.ObjectName(), string(content))
+
+		utils.Check(err)
+
+		updatedNotif, err := models.NewNotificationV1AlphaFromYaml([]byte(newContent))
+
+		utils.Check(err)
+
+		notif, err = c.UpdateNotification(updatedNotif)
+
+		utils.Check(err)
+
+		fmt.Printf("Notification '%s' updated.\n", notif.Metadata.Name)
+	},
+}
+
 var EditSecretCmd = &cobra.Command{
 	Use:     "secret [name]",
 	Short:   "Edit a secret.",
@@ -92,4 +128,5 @@ func init() {
 
 	editCmd.AddCommand(EditSecretCmd)
 	editCmd.AddCommand(EditDashboardCmd)
+	editCmd.AddCommand(EditNotificationCmd)
 }

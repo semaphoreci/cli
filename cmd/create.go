@@ -52,6 +52,18 @@ var createCmd = &cobra.Command{
 			utils.Check(err)
 
 			fmt.Printf("Project %s created.\n", project.Metadata.Name)
+		case "Notification":
+			notif, err := models.NewNotificationV1AlphaFromYaml(data)
+
+			utils.Check(err)
+
+			c := client.NewNotificationsV1AlphaApi()
+
+			notif, err = c.CreateNotification(notif)
+
+			utils.Check(err)
+
+			fmt.Printf("Notification %s created.\n", notif.Metadata.Name)
 		case "Secret":
 			secret, err := models.NewSecretV1BetaFromYaml(data)
 
