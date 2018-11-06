@@ -72,6 +72,18 @@ func RunApply(cmd *cobra.Command, args []string) {
 		utils.Check(err)
 
 		fmt.Printf("Dashboard %s updated.\n", dash.Metadata.Name)
+	case "Notification":
+		notif, err := models.NewNotificationV1AlphaFromYaml(data)
+
+		utils.Check(err)
+
+		c := client.NewNotificationsV1AlphaApi()
+
+		notif, err = c.UpdateNotification(notif)
+
+		utils.Check(err)
+
+		fmt.Printf("Notificaiton %s updated.\n", notif.Metadata.Name)
 	default:
 		utils.Fail(fmt.Sprintf("Unknown resource kind '%s'", kind))
 	}
