@@ -1,8 +1,15 @@
 # Changelog
 
+### v0.8.5
+
+- Create workflow from label
+- Create notification from YAML file
+- Edit notification
+- Fix notification creation with no branch rule
+
 ### v0.8.4
 
-- Fix creation of Slack notifications from `sem crete notification`
+- Fix creation of Slack notifications from `sem create notification`
 
 ### v0.8.3
 
