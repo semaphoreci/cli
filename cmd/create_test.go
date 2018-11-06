@@ -74,7 +74,7 @@ func Test__CreateNotification__FromYaml__Response200(t *testing.T) {
 	RootCmd.SetArgs([]string{"create", "-f", "../fixtures/notification.yml"})
 	RootCmd.Execute()
 
-	assert.Equal(t, received.Metadata.Name, "Test")
+	assert.Equal(t, received.Metadata.Name, "test")
 
 	rule := received.Spec.Rules[0]
 

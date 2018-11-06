@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"io/ioutil"
 	"net/http"
 	"testing"
 
+	models "github.com/semaphoreci/cli/api/models"
+	assert "github.com/stretchr/testify/assert"
 	httpmock "gopkg.in/jarcoal/httpmock.v1"
 )
 
@@ -52,6 +55,46 @@ func Test__EditDashboard__Response200(t *testing.T) {
 	if received == false {
 		t.Error("Expected the API to receive GET and PATCH dashboard")
 	}
+}
+
+func Test__EditNotification__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	var received *models.NotificationV1Alpha
+
+	endpoint := "https://org.semaphoretext.xyz/api/v1alpha/notifications/test"
+
+	httpmock.RegisterResponder("GET", endpoint,
+		func(req *http.Request) (*http.Response, error) {
+			data, _ := ioutil.ReadFile("../fixtures/notification.yml")
+			notif, _ := models.NewNotificationV1AlphaFromYaml(data)
+			json, _ := notif.ToJson()
+
+			return httpmock.NewStringResponse(200, string(json)), nil
+		},
+	)
+
+	httpmock.RegisterResponder("PATCH", endpoint,
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			received, _ = models.NewNotificationV1AlphaFromJson(body)
+
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"edit", "notification", "test"})
+	RootCmd.Execute()
+
+	assert.Equal(t, received.Metadata.Name, "test")
+
+	rule := received.Spec.Rules[0]
+
+	assert.Equal(t, rule.Name, "Rule #1")
+	assert.Equal(t, rule.Filter.Projects, []string{"cli"})
+	assert.Equal(t, rule.Filter.Branches, []string{"master"})
+	assert.Equal(t, rule.Filter.Pipelines, []string{"semaphore.yml"})
 }
 
 func Test__EditSecret__Response200(t *testing.T) {
