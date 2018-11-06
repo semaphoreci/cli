@@ -33,11 +33,15 @@ blocks:
           - make release
 
 promotions:
-  - name: Release Edge
-    pipeline_file: "edge.yml"
-
   - name: Release Stable
     pipeline_file: "stable.yml"
+
+  - name: Release Edge
+    pipeline_file: "edge.yml"
+    auto_promote_on:
+      - result: passed
+        branch:
+          - "^refs/tags/v*"
 
   - name: Release Homebrew
     pipeline_file: brewrelease.yml

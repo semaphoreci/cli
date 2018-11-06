@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.8.7
+
+- Goreleaser and Homebrew
+
 ### v0.8.6
 
 - Apply changes to a notification with sem apply -f [notification-file]
