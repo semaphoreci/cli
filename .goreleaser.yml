@@ -1,4 +1,4 @@
-project_name: cli
+project_name: sem
 before:
   hooks:
   - go get ./...
