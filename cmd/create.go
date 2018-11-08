@@ -32,12 +32,9 @@ var createCmd = &cobra.Command{
 
 		utils.CheckWithMessage(err, "Failed to read from resource file.")
 
-		resource, err := parse_yaml_to_map(data)
+		_, kind, err := utils.ParseYamlResourceHeaders(data)
 
-		utils.CheckWithMessage(err, "Failed to parse resource file.")
-
-		// apiVersion := resource["apiVersion"].(string)
-		kind := resource["kind"].(string)
+		utils.Check(err)
 
 		switch kind {
 		case "Project":
@@ -51,7 +48,7 @@ var createCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			fmt.Printf("Project %s created.\n", project.Metadata.Name)
+			fmt.Printf("Project '%s' created.\n", project.Metadata.Name)
 		case "Notification":
 			notif, err := models.NewNotificationV1AlphaFromYaml(data)
 
@@ -63,7 +60,7 @@ var createCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			fmt.Printf("Notification %s created.\n", notif.Metadata.Name)
+			fmt.Printf("Notification '%s' created.\n", notif.Metadata.Name)
 		case "Secret":
 			secret, err := models.NewSecretV1BetaFromYaml(data)
 
@@ -75,7 +72,7 @@ var createCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			fmt.Printf("Secret %s created.\n", secret.Metadata.Name)
+			fmt.Printf("Secret '%s' created.\n", secret.Metadata.Name)
 		case "Dashboard":
 			dash, err := models.NewDashboardV1AlphaFromYaml(data)
 
@@ -87,7 +84,7 @@ var createCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			fmt.Printf("Dashboard %s created.\n", dash.Metadata.Name)
+			fmt.Printf("Dashboard '%s' created.\n", dash.Metadata.Name)
 		case "Job":
 			job, err := models.NewJobV1AlphaFromYaml(data)
 
@@ -101,7 +98,7 @@ var createCmd = &cobra.Command{
 
 			fmt.Printf("Job '%s' created.\n", job.Metadata.Id)
 		default:
-			utils.Fail(fmt.Sprintf("Unknown resource kind '%s'", kind))
+			utils.Fail(fmt.Sprintf("Unsupported resource kind '%s'", kind))
 		}
 	},
 }

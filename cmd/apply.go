@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 
 	client "github.com/semaphoreci/cli/api/client"
 	models "github.com/semaphoreci/cli/api/models"
@@ -37,17 +36,11 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 	utils.CheckWithMessage(err, "Failed to read from resource file.")
 
-	resource, err := parse_yaml_to_map(data)
+	_, kind, err := utils.ParseYamlResourceHeaders(data)
 
-	utils.CheckWithMessage(err, "Failed to parse resource file.")
-
-	// apiVersion := resource["apiVersion"].(string)
-	kind := resource["kind"].(string)
+	utils.Check(err)
 
 	switch kind {
-	case "Project":
-		fmt.Fprintln(os.Stderr, "Unsupported action for Projects")
-		os.Exit(1)
 	case "Secret":
 		secret, err := models.NewSecretV1BetaFromYaml(data)
 
@@ -59,7 +52,7 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 		utils.Check(err)
 
-		fmt.Printf("Secret %s updated.\n", secret.Metadata.Name)
+		fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
 	case "Dashboard":
 		dash, err := models.NewDashboardV1AlphaFromYaml(data)
 
@@ -71,7 +64,7 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 		utils.Check(err)
 
-		fmt.Printf("Dashboard %s updated.\n", dash.Metadata.Name)
+		fmt.Printf("Dashboard '%s' updated.\n", dash.Metadata.Name)
 	case "Notification":
 		notif, err := models.NewNotificationV1AlphaFromYaml(data)
 
@@ -83,8 +76,8 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 		utils.Check(err)
 
-		fmt.Printf("Notificaiton %s updated.\n", notif.Metadata.Name)
+		fmt.Printf("Notificaiton '%s' updated.\n", notif.Metadata.Name)
 	default:
-		utils.Fail(fmt.Sprintf("Unknown resource kind '%s'", kind))
+		utils.Fail(fmt.Sprintf("Unsuported resource kind '%s'", kind))
 	}
 }
