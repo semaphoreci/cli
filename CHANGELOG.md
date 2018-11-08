@@ -1,5 +1,13 @@
 # Changelog
 
+### v0.8.9
+
+- Fix bug when sem CLI panics in case of erroneous YAML file
+
+### v0.8.8
+
+- Fix osX binary release name from 'cli' -> 'sem'
+
 ### v0.8.7
 
 - Goreleaser and Homebrew
