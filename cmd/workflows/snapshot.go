@@ -17,6 +17,10 @@ func CreateSnapshot(projectName, label string) {
 
 	projectID := GetProjectId(projectName)
 	log.Printf("Project ID: %s\n", projectID)
+
+	if label == "" {
+		label = "snapshot"
+	}
 	log.Printf("Label: %s\n", label)
 
 	c := client.NewWorkflowV1AlphaApi()
