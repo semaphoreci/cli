@@ -35,12 +35,13 @@ func createArchive() ([]byte, error) {
 		return nil, fmt.Errorf("removing old archive file failed '%s'", err)
 	}
 
-	files, err := filepath.Glob(".*")
+	files, err := filepath.Glob("*")
 	if err != nil {
-		return nil, fmt.Errorf("removing old archive file failed '%s'", err)
+		return nil, fmt.Errorf("finding files to archive failed '%s'", err)
 	}
 
 	args := append([]string{"czf", archiveFileName}, files...)
+
 	cmd = exec.Command("/bin/tar", args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
