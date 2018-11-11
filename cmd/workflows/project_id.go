@@ -16,12 +16,26 @@ func GetProjectId(name string) string {
 	return project.Metadata.Id
 }
 
-func GetProjectIdFromUrl(url string) string {
+func GetProjectIdFromUrl(url string) (string, error) {
 	projectClient := client.NewProjectV1AlphaApi()
-	project, err := projectClient.ListProjects()
+	projects, err := projectClient.ListProjects()
 
-	utils.CheckWithMessage(err, fmt.Sprintf("project_id for project  not found; '%s'",  err))
+	if err != nil {
+		return "", fmt.Errorf("getting project list failed '%s'", err)
+	}
 
-	fmt.Print(project)
-	return "as"
+	projectName := ""
+	for _, p := range projects.Projects {
+		if p.Spec.Repository.Url == url {
+			projectName = p.Metadata.Name
+			break
+		}
+	}
+
+	if projectName == "" {
+		return "", fmt.Errorf("project with url '%s' not found in this org", url)
+	}
+
+
+	return projectName, nil
 }
