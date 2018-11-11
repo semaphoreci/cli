@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"regexp"
 	"strings"
 
@@ -181,13 +180,20 @@ var CreateWorkflowCmd = &cobra.Command{
 		utils.Check(err)
 
 		if projectName == "" {
-			fmt.Printf("Have to specify project name\n")
-			os.Exit(2)
+			url := "git@github.com:semaphoreci/cli.git2"
+			projectName, err := workflows.GetProjectIdFromUrl(url)
+			utils.Check(err)
+
+			createSnapshot(projectName, label)
 		} else {
-			log.Printf("Project name: %s\n", projectName)
-			workflows.CreateSnapshot(projectName, label)
+			createSnapshot(projectName, label)
 		}
 	},
+}
+
+func createSnapshot(projectName, label string)  {
+	log.Printf("Project name: %s\n", projectName)
+	workflows.CreateSnapshot(projectName, label)
 }
 
 func encodeFromFileAt(path string) string {
