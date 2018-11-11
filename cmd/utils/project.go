@@ -1,11 +1,11 @@
-package workflows
+package utils
 
 import (
 	"fmt"
 
 	"github.com/semaphoreci/cli/api/client"
-	"github.com/semaphoreci/cli/cmd/utils"
 
+	"log"
 	"os/exec"
 	"strings"
 )
@@ -14,12 +14,28 @@ func GetProjectId(name string) string {
 	projectClient := client.NewProjectV1AlphaApi()
 	project, err := projectClient.GetProject(name)
 
-	utils.CheckWithMessage(err, fmt.Sprintf("project_id for project '%s' not found; '%s'", name, err))
+	CheckWithMessage(err, fmt.Sprintf("project_id for project '%s' not found; '%s'", name, err))
 
 	return project.Metadata.Id
 }
 
-func GetProjectIdFromUrl(url string) (string, error) {
+func InferProjectName() (string, error) {
+	originUrl, err := getGitOriginUrl()
+	if err != nil {
+		return "", err
+	}
+
+	log.Printf("Origin url: '%s'\n", originUrl)
+
+	projectName, err := getProjectIdFromUrl(originUrl)
+	if err != nil {
+		return "", err
+	}
+
+	return projectName, nil
+}
+
+func getProjectIdFromUrl(url string) (string, error) {
 	projectClient := client.NewProjectV1AlphaApi()
 	projects, err := projectClient.ListProjects()
 
@@ -39,11 +55,10 @@ func GetProjectIdFromUrl(url string) (string, error) {
 		return "", fmt.Errorf("project with url '%s' not found in this org", url)
 	}
 
-
 	return projectName, nil
 }
 
-func GetGitOriginUrl() (string, error) {
+func getGitOriginUrl() (string, error) {
 	args := []string{"config", "remote.origin.url"}
 
 	cmd := exec.Command("git", args...)

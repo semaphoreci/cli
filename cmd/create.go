@@ -177,7 +177,7 @@ var CreateWorkflowCmd = &cobra.Command{
 		utils.Check(err)
 
 		if projectName == "" {
-			projectName, err = inferProjectName()
+			projectName, err = utils.InferProjectName()
 			utils.Check(err)
 		}
 
@@ -186,22 +186,6 @@ var CreateWorkflowCmd = &cobra.Command{
 
 		createSnapshot(projectName, label)
 	},
-}
-
-func inferProjectName() (string, error) {
-	originUrl, err := workflows.GetGitOriginUrl()
-	if err != nil {
-		return "", err
-	}
-
-	log.Printf("Origin url: '%s'\n", originUrl)
-
-	projectName, err := workflows.GetProjectIdFromUrl(originUrl)
-	if err != nil {
-		return "", err
-	}
-
-	return projectName, nil
 }
 
 func createSnapshot(projectName, label string)  {
