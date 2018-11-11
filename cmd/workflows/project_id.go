@@ -5,6 +5,9 @@ import (
 
 	"github.com/semaphoreci/cli/api/client"
 	"github.com/semaphoreci/cli/cmd/utils"
+
+	"os/exec"
+	"strings"
 )
 
 func GetProjectId(name string) string {
@@ -38,4 +41,16 @@ func GetProjectIdFromUrl(url string) (string, error) {
 
 
 	return projectName, nil
+}
+
+func GetGitOriginUrl() (string, error) {
+	args := []string{"config", "remote.origin.url"}
+
+	cmd := exec.Command("git", args...)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("'git config remote.origin.url' failed with message: '%s'", err)
+	}
+
+	return strings.TrimSpace(string(out)), nil
 }
