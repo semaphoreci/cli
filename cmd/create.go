@@ -176,19 +176,32 @@ var CreateWorkflowCmd = &cobra.Command{
 		projectName, err := cmd.Flags().GetString("project-name")
 		utils.Check(err)
 
+		if projectName == "" {
+			projectName, err = inferProjectName()
+			utils.Check(err)
+		}
+
 		label, err := cmd.Flags().GetString("label")
 		utils.Check(err)
 
-		if projectName == "" {
-			url := "git@github.com:semaphoreci/cli.git2"
-			projectName, err := workflows.GetProjectIdFromUrl(url)
-			utils.Check(err)
-
-			createSnapshot(projectName, label)
-		} else {
-			createSnapshot(projectName, label)
-		}
+		createSnapshot(projectName, label)
 	},
+}
+
+func inferProjectName() (string, error) {
+	originUrl, err := workflows.GetGitOriginUrl()
+	if err != nil {
+		return "", err
+	}
+
+	log.Printf("Origin url: '%s'\n", originUrl)
+
+	projectName, err := workflows.GetProjectIdFromUrl(originUrl)
+	if err != nil {
+		return "", err
+	}
+
+	return projectName, nil
 }
 
 func createSnapshot(projectName, label string)  {
