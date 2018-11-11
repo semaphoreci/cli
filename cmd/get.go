@@ -245,12 +245,12 @@ var GetWfCmd = &cobra.Command{
 			utils.Check(err)
 
 			if projectName == "" {
-				fmt.Printf("Have to specify project name\n")
-				os.Exit(2)
-			} else {
-				fmt.Printf("projectName: %s\n", projectName)
-				workflows.List(projectName)
+				projectName, err = utils.InferProjectName()
+				utils.Check(err)
 			}
+
+			fmt.Printf("projectName: %s\n", projectName)
+			workflows.List(projectName)
 
 		} else {
 			fmt.Printf("Not implemented\n")

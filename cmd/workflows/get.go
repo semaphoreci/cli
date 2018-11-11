@@ -12,7 +12,7 @@ import (
 )
 
 func List(projectName string) {
-	projectID := GetProjectId(projectName)
+	projectID := utils.GetProjectId(projectName)
 
 	fmt.Printf("project id: %s\n", projectID)
 

@@ -15,7 +15,7 @@ func CreateSnapshot(projectName, label string) {
 	archiveContent, err := createArchive()
 	utils.Check(err)
 
-	projectID := GetProjectId(projectName)
+	projectID := utils.GetProjectId(projectName)
 	log.Printf("Project ID: %s\n", projectID)
 
 	if label == "" {
