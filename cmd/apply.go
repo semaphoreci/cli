@@ -76,7 +76,7 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 		utils.Check(err)
 
-		fmt.Printf("Notificaiton '%s' updated.\n", notif.Metadata.Name)
+		fmt.Printf("Notification '%s' updated.\n", notif.Metadata.Name)
 	default:
 		utils.Fail(fmt.Sprintf("Unsuported resource kind '%s'", kind))
 	}
