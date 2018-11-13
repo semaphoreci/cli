@@ -1,5 +1,13 @@
 # Changelog
 
+### v0.8.10
+
+- Fix bug with missing verification of the SSH key while starting debugging
+- Create workflow with all files in current directory
+- Create default label for snapshot
+- Display creation time in get workflow
+- Resolve project name based on git URL
+
 ### v0.8.9
 
 - Fix bug when sem CLI panics in case of erroneous YAML file
