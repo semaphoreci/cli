@@ -29,6 +29,9 @@ func NewDebugProjectCmd() *cobra.Command {
 
 func RunDebugProjectCmd(cmd *cobra.Command, args []string) {
 	publicKey, err := utils.GetPublicSshKey()
+
+	utils.Check(err)
+
 	machineType, err := cmd.Flags().GetString("machine-type")
 
 	utils.Check(err)
