@@ -12,8 +12,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const unsetPublicSshKeyMsg = `
-Before creating a debug session job, configure the debug.PublicSshKey value.
+const unsetPublicSshKeyMsg = `Before creating a debug session job, configure the debug.PublicSshKey value.
 
 Examples:
 
