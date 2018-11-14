@@ -234,7 +234,7 @@ var GetPplCmd = &cobra.Command{
 
 var GetWfCmd = &cobra.Command{
 	Use:     "workflows [id]",
-	Short:   "Get wokflows.",
+	Short:   "Get workflows.",
 	Long:    ``,
 	Aliases: []string{"workflow", "wf"},
 	Args:    cobra.RangeArgs(0, 1),
