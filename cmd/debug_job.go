@@ -12,54 +12,66 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var DebugJobCmd = &cobra.Command{
-	Use:     "job [NAME]",
-	Short:   "Debug a job",
-	Long:    ``,
-	Aliases: []string{"job", "jobs"},
-	Args:    cobra.ExactArgs(1),
+func NewDebugJobCmd() *cobra.Command {
+	var DebugJobCmd = &cobra.Command{
+		Use:     "job [ID]",
+		Short:   "Debug a job",
+		Long:    ``,
+		Aliases: []string{"job", "jobs"},
+		Args:    cobra.ExactArgs(1),
+		Run:     RunDebugJobCmd,
+	}
 
-	Run: func(cmd *cobra.Command, args []string) {
-		publicKey, err := utils.GetPublicSshKey()
+	DebugJobCmd.Flags().Int(
+		"duration",
+		3600,
+		"duration of the debug session in seconds")
 
-		utils.Check(err)
+	return DebugJobCmd
+}
 
-		jobId := args[0]
+func RunDebugJobCmd(cmd *cobra.Command, args []string) {
+	publicKey, err := utils.GetPublicSshKey()
+	utils.Check(err)
 
-		c := client.NewJobsV1AlphaApi()
-		oldJob, err := c.GetJob(jobId)
+	duration, err := cmd.Flags().GetInt("duration")
+	utils.Check(err)
 
-		utils.Check(err)
+	jobId := args[0]
 
-		jobName := fmt.Sprintf("Debug Session for Job %s", jobId)
-		job := models.NewJobV1Alpha(jobName)
+	c := client.NewJobsV1AlphaApi()
+	oldJob, err := c.GetJob(jobId)
 
-		// Copy everything to new job, except commands
-		job.Spec = oldJob.Spec
-		job.Spec.EpilogueCommands = []string{}
+	utils.Check(err)
 
-		// Construct a commands file and inject into job
-		commandsFileContent := fmt.Sprintf("%s\n%s",
-			strings.Join(oldJob.Spec.Commands, "\n"),
-			strings.Join(oldJob.Spec.EpilogueCommands, "\n"))
+	jobName := fmt.Sprintf("Debug Session for Job %s", jobId)
+	job := models.NewJobV1Alpha(jobName)
 
-		job.Spec.Files = []models.JobV1AlphaSpecFile{
-			models.JobV1AlphaSpecFile{
-				Path:    "commands.sh",
-				Content: base64.StdEncoding.EncodeToString([]byte(commandsFileContent)),
-			},
-		}
+	// Copy everything to new job, except commands
+	job.Spec = oldJob.Spec
+	job.Spec.EpilogueCommands = []string{}
 
-		// Overwrite commands with a simple SSH public key insertion and infinite sleep
-		job.Spec.Commands = []string{
-			fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
-			"sleep infinity",
-		}
+	// Construct a commands file and inject into job
+	commandsFileContent := fmt.Sprintf("%s\n%s",
+		strings.Join(oldJob.Spec.Commands, "\n"),
+		strings.Join(oldJob.Spec.EpilogueCommands, "\n"))
 
-		job, err = c.CreateJob(job)
+	job.Spec.Files = []models.JobV1AlphaSpecFile{
+		models.JobV1AlphaSpecFile{
+			Path:    "commands.sh",
+			Content: base64.StdEncoding.EncodeToString([]byte(commandsFileContent)),
+		},
+	}
 
-		utils.Check(err)
+	// Overwrite commands with a simple SSH public key insertion and infinite sleep
+	job.Spec.Commands = []string{
+		fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
+		fmt.Sprintf("sleep %d", duration),
+	}
 
-		utils.WaitForStartAndSsh(&c, job)
-	},
+	job, err = c.CreateJob(job)
+
+	utils.Check(err)
+
+	utils.WaitForStartAndSsh(&c, job)
 }

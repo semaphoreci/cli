@@ -19,6 +19,11 @@ func NewDebugProjectCmd() *cobra.Command {
 		Run:     RunDebugProjectCmd,
 	}
 
+	DebugProjectCmd.Flags().Int(
+		"duration",
+		3600,
+		"duration of the debug session in seconds")
+
 	DebugProjectCmd.Flags().String(
 		"machine-type",
 		"e1-standard-2",
@@ -29,10 +34,12 @@ func NewDebugProjectCmd() *cobra.Command {
 
 func RunDebugProjectCmd(cmd *cobra.Command, args []string) {
 	publicKey, err := utils.GetPublicSshKey()
-
 	utils.Check(err)
 
 	machineType, err := cmd.Flags().GetString("machine-type")
+	utils.Check(err)
+
+	duration, err := cmd.Flags().GetInt("duration")
 
 	utils.Check(err)
 
@@ -52,7 +59,7 @@ func RunDebugProjectCmd(cmd *cobra.Command, args []string) {
 
 	job.Spec.Commands = []string{
 		fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
-		"sleep infinity",
+		fmt.Sprintf("sleep %d", duration),
 	}
 
 	c := client.NewJobsV1AlphaApi()

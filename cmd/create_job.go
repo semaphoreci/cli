@@ -35,6 +35,7 @@ func NewCreateJobCmd() *CreateJobCmd {
 		Short:   "Create a job.",
 		Long:    ``,
 		Aliases: []string{"jobs"},
+		Args:    cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			c.Run(args)
 		},
