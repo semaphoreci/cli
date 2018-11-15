@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"strings"
+	"time"
 
 	client "github.com/semaphoreci/cli/api/client"
 	models "github.com/semaphoreci/cli/api/models"
@@ -22,9 +23,9 @@ func NewDebugJobCmd() *cobra.Command {
 		Run:     RunDebugJobCmd,
 	}
 
-	DebugJobCmd.Flags().Int(
+	DebugJobCmd.Flags().Duration(
 		"duration",
-		3600,
+		60*time.Minute,
 		"duration of the debug session in seconds")
 
 	return DebugJobCmd
@@ -34,7 +35,7 @@ func RunDebugJobCmd(cmd *cobra.Command, args []string) {
 	publicKey, err := utils.GetPublicSshKey()
 	utils.Check(err)
 
-	duration, err := cmd.Flags().GetInt("duration")
+	duration, err := cmd.Flags().GetDuration("duration")
 	utils.Check(err)
 
 	jobId := args[0]
@@ -66,7 +67,7 @@ func RunDebugJobCmd(cmd *cobra.Command, args []string) {
 	// Overwrite commands with a simple SSH public key insertion and infinite sleep
 	job.Spec.Commands = []string{
 		fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
-		fmt.Sprintf("sleep %d", duration),
+		fmt.Sprintf("sleep %d", int(duration.Seconds())),
 	}
 
 	job, err = c.CreateJob(job)

@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.8.11
+
+- Default duration of Debug session is 60minutes and can be extended on demand
+  with `sem debug project <name> --duration 30m`.
+- Require at least one argument in create commands
+
 ### v0.8.10
 
 - Fix bug with missing verification of the SSH key while starting debugging

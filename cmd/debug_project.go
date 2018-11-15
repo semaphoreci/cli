@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
 	client "github.com/semaphoreci/cli/api/client"
 	models "github.com/semaphoreci/cli/api/models"
@@ -19,9 +20,9 @@ func NewDebugProjectCmd() *cobra.Command {
 		Run:     RunDebugProjectCmd,
 	}
 
-	DebugProjectCmd.Flags().Int(
+	DebugProjectCmd.Flags().Duration(
 		"duration",
-		3600,
+		60*time.Minute,
 		"duration of the debug session in seconds")
 
 	DebugProjectCmd.Flags().String(
@@ -39,7 +40,7 @@ func RunDebugProjectCmd(cmd *cobra.Command, args []string) {
 	machineType, err := cmd.Flags().GetString("machine-type")
 	utils.Check(err)
 
-	duration, err := cmd.Flags().GetInt("duration")
+	duration, err := cmd.Flags().GetDuration("duration")
 
 	utils.Check(err)
 
@@ -59,7 +60,7 @@ func RunDebugProjectCmd(cmd *cobra.Command, args []string) {
 
 	job.Spec.Commands = []string{
 		fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
-		fmt.Sprintf("sleep %d", duration),
+		fmt.Sprintf("sleep %d", int(duration.Seconds())),
 	}
 
 	c := client.NewJobsV1AlphaApi()
