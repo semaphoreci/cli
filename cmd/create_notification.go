@@ -17,7 +17,8 @@ func NewCreateNotificationCmd() *cobra.Command {
 	cmd.Use = "notification [NAME]"
 	cmd.Short = "Create a notification."
 	cmd.Long = ``
-	cmd.Aliases = []string{"notification", "notifs", "notif"}
+	cmd.Aliases = []string{"notifications", "notifs", "notif"}
+	cmd.Args = cobra.ExactArgs(1)
 	cmd.Run = RunCreateNotification
 
 	cmd.Flags().String("projects", "", "Filter for project names")
