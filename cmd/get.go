@@ -240,21 +240,23 @@ var GetWfCmd = &cobra.Command{
 	Args:    cobra.RangeArgs(0, 1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			projectName, err := cmd.Flags().GetString("project-name")
+		projectName, err := cmd.Flags().GetString("project-name")
+		utils.Check(err)
+
+		if projectName == "" {
+			projectName, err = utils.InferProjectName()
 			utils.Check(err)
+		}
+		fmt.Printf("projectName: %s\n", projectName)
 
-			if projectName == "" {
-				projectName, err = utils.InferProjectName()
-				utils.Check(err)
-			}
+		projectID := utils.GetProjectId(projectName)
+		fmt.Printf("project id: %s\n", projectID)
 
-			fmt.Printf("projectName: %s\n", projectName)
-			workflows.List(projectName)
-
+		if len(args) == 0 {
+			workflows.List(projectID)
 		} else {
-			fmt.Printf("Not implemented\n")
-			os.Exit(2)
+			wfID := args[0]
+			workflows.Describe(projectID, wfID)
 		}
 	},
 }
