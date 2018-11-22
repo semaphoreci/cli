@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.8.12
+
+- Describe workflow and extended describe for workflow
+- Stop running job with `sem stop job <id>`
+
 ### v0.8.11
 
 - Default duration of Debug session is 60minutes and can be extended on demand
