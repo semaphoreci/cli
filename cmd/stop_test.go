@@ -41,7 +41,7 @@ func Test__StopJob__Response200(t *testing.T) {
 
 	received := false
 
-	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/jobs/494b76aa-f3f0-4ecf-b5ef-c389591a01be/stop",
+	httpmock.RegisterResponder("POST", "https://org.semaphoretext.xyz/api/v1alpha/jobs/494b76aa-f3f0-4ecf-b5ef-c389591a01be/stop",
 		func(req *http.Request) (*http.Response, error) {
 			received = true
 
