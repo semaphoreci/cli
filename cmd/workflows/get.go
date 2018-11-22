@@ -11,11 +11,7 @@ import (
 	"github.com/semaphoreci/cli/cmd/utils"
 )
 
-func List(projectName string) {
-	projectID := utils.GetProjectId(projectName)
-
-	fmt.Printf("project id: %s\n", projectID)
-
+func List(projectID string) {
 	wfClient := client.NewWorkflowV1AlphaApi()
 	workflows, err := wfClient.ListWorkflows(projectID)
 	utils.Check(err)
