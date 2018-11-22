@@ -78,3 +78,18 @@ func (c *JobsApiV1AlphaApi) CreateJob(j *models.JobV1Alpha) (*models.JobV1Alpha,
 
 	return models.NewJobV1AlphaFromJson(body)
 }
+
+func (c *JobsApiV1AlphaApi) StopJob(id string) error {
+	path := fmt.Sprintf("%s/%s/%s", c.ResourceNamePlural, id, "stop")
+	body, status, err := c.BaseClient.Post(path, []byte{})
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("stopping %s on Semaphore failed '%s'", c.ResourceNameSingular, err))
+	}
+
+	if status != 200 {
+		return errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
+
+	return nil
+}
