@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/semaphoreci/cli/cmd/pipelines"
+	"github.com/semaphoreci/cli/cmd/workflows"
 	"github.com/spf13/cobra"
 )
 
@@ -25,8 +26,22 @@ var rebuildPplCmd = &cobra.Command{
 	},
 }
 
+var rebuildWfCmd = &cobra.Command{
+	Use:     "workflow [id]",
+	Short:   "Rebuild workflow.",
+	Long:    `Create new workflow, as if new new github push arrived.`,
+	Aliases: []string{"workflows", "wf"},
+	Args:    cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		id := args[0]
+		workflows.Rebuild(id)
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(rebuildCmd)
 
 	rebuildCmd.AddCommand(rebuildPplCmd)
+	rebuildCmd.AddCommand(rebuildWfCmd)
 }
