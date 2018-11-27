@@ -91,3 +91,18 @@ func (c *PipelinesApiV1AlphaApi) ListPplByWfID(projectID, wfID string) ([]byte, 
 
 	return body, nil
 }
+
+func (c *PipelinesApiV1AlphaApi) ListPpl(projectID string) ([]byte, error) {
+  detailed := fmt.Sprintf("%s?project_id=%s", c.ResourceNamePlural, projectID)
+	body, status, err := c.BaseClient.List(detailed)
+
+  if err != nil {
+		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+	}
+
+	if status != 200 {
+		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
+
+	return body, nil
+}

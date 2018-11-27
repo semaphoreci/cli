@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"text/tabwriter"
 
@@ -223,8 +224,9 @@ var GetPplCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			fmt.Printf("Not implemented\n")
-			os.Exit(2)
+			projectID := getPrj(cmd)
+
+			pipelines.List(projectID)
 		} else {
 			id := args[0]
 			pipelines.Describe(id, GetPplFollow)
@@ -240,17 +242,7 @@ var GetWfCmd = &cobra.Command{
 	Args:    cobra.RangeArgs(0, 1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		projectName, err := cmd.Flags().GetString("project-name")
-		utils.Check(err)
-
-		if projectName == "" {
-			projectName, err = utils.InferProjectName()
-			utils.Check(err)
-		}
-		fmt.Printf("projectName: %s\n", projectName)
-
-		projectID := utils.GetProjectId(projectName)
-		fmt.Printf("project id: %s\n", projectID)
+		projectID := getPrj(cmd)
 
 		if len(args) == 0 {
 			workflows.List(projectID)
@@ -259,6 +251,27 @@ var GetWfCmd = &cobra.Command{
 			workflows.Describe(projectID, wfID)
 		}
 	},
+}
+
+func getPrj(cmd *cobra.Command) string {
+	projectID, err := cmd.Flags().GetString("project-id")
+	if projectID != "" {
+		return projectID
+	}
+
+	projectName, err := cmd.Flags().GetString("project-name")
+	utils.Check(err)
+
+	if projectName == "" {
+		projectName, err = utils.InferProjectName()
+		utils.Check(err)
+	}
+	log.Printf("Project Name: %s\n", projectName)
+
+	projectID = utils.GetProjectId(projectName)
+	log.Printf("Project ID: %s\n", projectID)
+
+	return projectID
 }
 
 func init() {
@@ -276,8 +289,15 @@ func init() {
 
 	GetPplCmd.Flags().BoolVar(&GetPplFollow, "follow", false,
 		"repeat get until pipeline reaches terminal state")
+	GetPplCmd.Flags().StringP("project-name", "p", "",
+		"project name; if not specified will be inferred from git origin")
+	GetPplCmd.Flags().StringP("project-id", "i", "",
+		"project id; if not specified will be inferred from git origin")
 	getCmd.AddCommand(GetPplCmd)
 
 	getCmd.AddCommand(GetWfCmd)
-	GetWfCmd.Flags().StringP("project-name", "p", "", "project name; if not specified will be inferred wrom git origin")
+	GetWfCmd.Flags().StringP("project-name", "p", "",
+		"project name; if not specified will be inferred from git origin")
+	GetWfCmd.Flags().StringP("project-id", "i", "",
+		"project id; if not specified will be inferred from git origin")
 }

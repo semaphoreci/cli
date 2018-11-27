@@ -5,7 +5,7 @@ import (
 	"time"
 	"os"
 	"text/tabwriter"
-  "encoding/json"
+	"encoding/json"
 
 	client "github.com/semaphoreci/cli/api/client"
 	"github.com/semaphoreci/cli/api/models"
@@ -28,6 +28,7 @@ func prettyPrintPipelineList(jsonList []byte) {
   const padding = 3
   w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
 
+  fmt.Fprintf(w, "Label: %s\n\n", j[0].Label)
   fmt.Fprintln(w, "PIPELINE ID\tPIPELINE NAME\tCREATION TIME\tSTATE")
 
   for _, p := range j {

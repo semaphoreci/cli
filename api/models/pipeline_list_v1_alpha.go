@@ -9,4 +9,5 @@ type PplListElemV1Alpha struct {
   CreatedAt struct {                                                                                                                             
                 Seconds int64 `json:"seconds"`                                                                                                         
         } `json:"created_at"`
+  Label string `json:"branch_name"`
 }
