@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	httpmock "gopkg.in/jarcoal/httpmock.v1"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test__ListProjects__Response200(t *testing.T) {
@@ -319,9 +320,7 @@ func Test__GetPipeline__Response200(t *testing.T) {
 	RootCmd.SetArgs([]string{"get", "pipelines", "494b76aa-f3f0-4ecf-b5ef-c389591a01be"})
 	RootCmd.Execute()
 
-	if received == false {
-		t.Error("Expected the API to receive GET secrets/aaaaaaa")
-	}
+	assert.True(t, received, "Expected the API to receive GET pipelines/:id")
 }
 
 func Test__GetWorkflows__Response200(t *testing.T) {
