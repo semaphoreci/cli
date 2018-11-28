@@ -69,3 +69,24 @@ func (c *WorkflowApiV1AlphaApi) CreateSnapshotWf(project_id, label string, archi
 
 	return body, nil
 }
+
+func (c *WorkflowApiV1AlphaApi) StopWf(id string) ([]byte, error) {                                                                                  
+	requestToken, err := uuid.NewUUID()
+
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("request token generation failed '%s'", err))
+	}
+
+	actionArgs := fmt.Sprintf("%s?%s=%s", "terminate", "request_token", requestToken.String())
+	body, status, err := c.BaseClient.PostAction(c.ResourceNamePlural, id, actionArgs, []byte(""))
+
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+	}
+
+	if status != 200 {
+		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
+
+	return body, nil
+}
