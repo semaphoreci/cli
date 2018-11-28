@@ -67,7 +67,7 @@ func EditYamlInEditor(objectName string, content string) (string, error) {
 	err = cmd.Wait()
 
 	if err != nil {
-		return "", fmt.Errorf("Closing the editor failed '%s'", err)
+		return "", fmt.Errorf("Editor closed with with '%s'", err)
 	}
 
 	editedContent, err := ioutil.ReadFile(tmpfile.Name())
