@@ -176,6 +176,9 @@ var CreateWorkflowCmd = &cobra.Command{
 		projectName, err := cmd.Flags().GetString("project-name")
 		utils.Check(err)
 
+		archiveName, err := cmd.Flags().GetString("archive")
+		utils.Check(err)
+
 		if projectName == "" {
 			projectName, err = utils.InferProjectName()
 			utils.Check(err)
@@ -184,13 +187,13 @@ var CreateWorkflowCmd = &cobra.Command{
 		label, err := cmd.Flags().GetString("label")
 		utils.Check(err)
 
-		createSnapshot(projectName, label)
+		createSnapshot(projectName, label, archiveName)
 	},
 }
 
-func createSnapshot(projectName, label string)  {
+func createSnapshot(projectName, label, archiveName string)  {
 	log.Printf("Project name: %s\n", projectName)
-	workflows.CreateSnapshot(projectName, label)
+	workflows.CreateSnapshot(projectName, label, archiveName)
 }
 
 func encodeFromFileAt(path string) string {
@@ -223,5 +226,6 @@ func init() {
 
 	CreateWorkflowCmd.Flags().StringP("project-name", "p", "", "project name; if not specified will be inferred wrom git origin")
 	CreateWorkflowCmd.Flags().StringP("label", "l", "", "workflow label")
+	CreateWorkflowCmd.Flags().StringP("archive", "a", "", "snapshot archive; if not specified current dir will be compressed into .tgz file")
 
 }
