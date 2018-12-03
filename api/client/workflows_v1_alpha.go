@@ -3,7 +3,6 @@ package client
 import (
 	"errors"
 	"fmt"
-	"net/url"
 
 	"github.com/google/uuid"
 	models "github.com/semaphoreci/cli/api/models"
@@ -41,24 +40,22 @@ func (c *WorkflowApiV1AlphaApi) ListWorkflows(project_id string) (*models.Workfl
 	return models.NewWorkflowListV1AlphaFromJson(body)
 }
 
-func (c *WorkflowApiV1AlphaApi) CreateSnapshotWf(project_id, label string, archiveContent []byte) ([]byte, error) {
+func (c *WorkflowApiV1AlphaApi) CreateSnapshotWf(project_id, label, archivePath string) ([]byte, error) {
 	requestToken, err := uuid.NewUUID()
 
 	if err != nil {
 		return nil, fmt.Errorf("uuid creation failed '%s'", err)
 	}
 
-	v := url.Values{}
-	v.Set("project_id", project_id)
-	v.Set("label", label)
-	v.Set("request_token", requestToken.String())
-	v.Set("snapshot_archive", string(archiveContent))
-	requestBody := v.Encode()
+	args := make(map[string]string)
+	args["project_id"] = project_id
+	args["label"] = label
+	args["request_token"] = requestToken.String()
 
 	headers := make(map[string]string)
 	headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-	body, status, err := c.BaseClient.PostHeaders(c.ResourceNamePlural, []byte(requestBody), headers)
+	body, status, err := c.BaseClient.PostMultipart(c.ResourceNamePlural, args, "snapshot_archive", archivePath)
 
 	switch {
 	case err != nil:
