@@ -2,6 +2,14 @@
 
 ### v0.8.12
 
+- List pipelines
+- Workflow stop
+- Adjust message when editor fails to edit
+- archive switch in snapshot cretate (can send arbitrary tgz file as snapshot archive)
+- Workflow rebuild
+
+### v0.8.12
+
 - Describe workflow and extended describe for workflow
 - Stop running job with `sem stop job <id>`
 
