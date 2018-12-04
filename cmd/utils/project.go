@@ -64,7 +64,9 @@ func getGitOriginUrl() (string, error) {
 	cmd := exec.Command("git", args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", fmt.Errorf("'git config remote.origin.url' failed with message: '%s'", err)
+		cmd_string := fmt.Sprintf("'%s %s'", "git", strings.Join(args, " "))
+		user_msg := "You are probably not in a git directory?"
+		return "", fmt.Errorf("%s failed with message: '%s'\n%s", cmd_string, err, user_msg)
 	}
 
 	return strings.TrimSpace(string(out)), nil
