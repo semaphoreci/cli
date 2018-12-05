@@ -11,7 +11,7 @@ import (
 	"github.com/semaphoreci/cli/cmd/utils"
 )
 
-func CreateSnapshot(projectName, label, archiveName string) {
+func CreateSnapshot(projectName, label, archiveName string) ([]byte, error) {
 	archiveContent, err := getArchiveContent(archiveName)
 	utils.Check(err)
 
@@ -24,10 +24,7 @@ func CreateSnapshot(projectName, label, archiveName string) {
 	log.Printf("Label: %s\n", label)
 
 	c := client.NewWorkflowV1AlphaApi()
-	body, err := c.CreateSnapshotWf(projectID, label, archiveContent)
-	utils.Check(err)
-
-	fmt.Printf("%s\n", string(body))
+	return c.CreateSnapshotWf(projectID, label, archiveContent)
 }
 
 func getArchiveContent(archiveName string) ([]byte, error) {

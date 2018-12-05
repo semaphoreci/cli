@@ -179,6 +179,9 @@ var CreateWorkflowCmd = &cobra.Command{
 		archiveName, err := cmd.Flags().GetString("archive")
 		utils.Check(err)
 
+		follow, err := cmd.Flags().GetBool("follow")
+		utils.Check(err)
+
 		if projectName == "" {
 			projectName, err = utils.InferProjectName()
 			utils.Check(err)
@@ -187,13 +190,25 @@ var CreateWorkflowCmd = &cobra.Command{
 		label, err := cmd.Flags().GetString("label")
 		utils.Check(err)
 
-		createSnapshot(projectName, label, archiveName)
+		createSnapshot(projectName, label, archiveName, follow)
 	},
 }
 
-func createSnapshot(projectName, label, archiveName string)  {
+func createSnapshot(projectName, label, archiveName string, follow bool) {
 	log.Printf("Project name: %s\n", projectName)
-	workflows.CreateSnapshot(projectName, label, archiveName)
+
+	body, err := workflows.CreateSnapshot(projectName, label, archiveName)
+	utils.Check(err)
+
+	if follow == false {
+		fmt.Println(string(body))
+	} else {
+		body, err := models.NewWorkflowSnapshotResponseV1AlphaFromJson(body)
+		utils.Check(err)
+
+		RootCmd.SetArgs([]string{"get", "ppl", body.PplID, "--follow"})
+		RootCmd.Execute()
+	}
 }
 
 func encodeFromFileAt(path string) string {
@@ -227,5 +242,6 @@ func init() {
 	CreateWorkflowCmd.Flags().StringP("project-name", "p", "", "project name; if not specified will be inferred wrom git origin")
 	CreateWorkflowCmd.Flags().StringP("label", "l", "", "workflow label")
 	CreateWorkflowCmd.Flags().StringP("archive", "a", "", "snapshot archive; if not specified current dir will be compressed into .tgz file")
-
+	CreateWorkflowCmd.Flags().BoolP("follow", "f", false,
+		"run 'get ppl <ppl_id>' after create repeatedly until pipeline reaches terminal state")
 }
