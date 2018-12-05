@@ -287,7 +287,7 @@ func init() {
 	GetJobCmd.Flags().BoolVar(&GetJobAllStates, "all", false, "list all jobs including finished ones")
 	getCmd.AddCommand(GetJobCmd)
 
-	GetPplCmd.Flags().BoolVar(&GetPplFollow, "follow", false,
+	GetPplCmd.Flags().BoolVarP(&GetPplFollow, "follow", "f", false,
 		"repeat get until pipeline reaches terminal state")
 	GetPplCmd.Flags().StringP("project-name", "p", "",
 		"project name; if not specified will be inferred from git origin")
