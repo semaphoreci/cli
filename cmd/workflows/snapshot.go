@@ -2,7 +2,6 @@ package workflows
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os/exec"
 	"path/filepath"
@@ -12,8 +11,11 @@ import (
 )
 
 func CreateSnapshot(projectName, label, archiveName string) ([]byte, error) {
-	archiveContent, err := getArchiveContent(archiveName)
-	utils.Check(err)
+	if archiveName == "" {
+		var err error
+		archiveName, err = createArchive()
+		utils.Check(err)
+	}
 
 	projectID := utils.GetProjectId(projectName)
 	log.Printf("Project ID: %s\n", projectID)
@@ -24,21 +26,7 @@ func CreateSnapshot(projectName, label, archiveName string) ([]byte, error) {
 	log.Printf("Label: %s\n", label)
 
 	c := client.NewWorkflowV1AlphaApi()
-	return c.CreateSnapshotWf(projectID, label, archiveContent)
-}
-
-func getArchiveContent(archiveName string) ([]byte, error) {
-	if archiveName == "" {
-		var err error
-		archiveName, err = createArchive()
-
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	archive, err := ioutil.ReadFile(archiveName)
-	return archive, err
+	return c.CreateSnapshotWf(projectID, label, archiveName)
 }
 
 // FIXME Respect .gitignore file

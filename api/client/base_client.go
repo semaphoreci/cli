@@ -3,11 +3,14 @@ package client
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 
 	"github.com/semaphoreci/cli/config"
 )
@@ -229,6 +232,61 @@ func (c *BaseClient) Patch(kind string, name string, resource []byte) ([]byte, i
 
 	body, err := ioutil.ReadAll(resp.Body)
 
+	log.Println(string(body))
+
+	return body, resp.StatusCode, err
+}
+
+func newfileUploadRequest(uri string, args map[string]string, fileArgName, path string) (*http.Request, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile(fileArgName, filepath.Base(path))
+	if err != nil {
+		return nil, err
+	}
+	_, err = io.Copy(part, file)
+
+	for key, val := range args {
+		_ = writer.WriteField(key, val)
+	}
+	err = writer.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", uri, body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	return req, err
+}
+
+func (c *BaseClient) PostMultipart(kind string, args map[string]string, fileArgName, path string) ([]byte, int, error) {
+	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
+	log.Printf("POST %s\n", url)
+
+	req, err := newfileUploadRequest(url, args, fileArgName, path)
+	if err != nil {
+		return []byte(""), 0, err
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return []byte(""), 0, err
+	}
+	defer resp.Body.Close()
+
+	log.Println("response Status:", resp.Status)
+	log.Println("response Headers:", resp.Header)
+
+	body, err := ioutil.ReadAll(resp.Body)
 	log.Println(string(body))
 
 	return body, resp.StatusCode, err
