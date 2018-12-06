@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.8.16
+
+- Issues with release machinery while releasing v0.8.15
+
 ### v0.8.15
 
 - Improve error message if project name can't be inferred from git repository
