@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.8.15
+
+- Improve error message if project name can't be inferred from git repository
+- Workflow follow switch
+- Multipart content-type for snapshots
+
 ### v0.8.14
 
 - Issues with release machinery
