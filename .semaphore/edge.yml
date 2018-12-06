@@ -10,6 +10,7 @@ blocks:
     task:
       secrets:
         - name: s2prod-gce
+        - name: sem-robot-ghtoken
 
       env_vars:
         - name: GO111MODULE
@@ -31,3 +32,4 @@ blocks:
           - make test
           - make release.edge
           - 'curl -X POST -H "Content-type: application/json" --data "{\"text\":\"Sem CLI: New edge release: $(git log -1 --pretty=%B | tr -d \"\n\")\"}" "https://hooks.slack.com/services/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"'
+          - curl -u $GITHUB_TOKEN:x-oauth-basic https://api.github.com/repos/semaphoreci/docs/issues -d "{ \"title\": \"New CLI release: $(git log -1 --pretty=%B)\" }"
