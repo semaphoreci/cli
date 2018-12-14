@@ -42,10 +42,3 @@ promotions:
       - result: passed
         branch:
           - "^refs/tags/v*"
-
-  - name: Release Homebrew
-    pipeline_file: brewrelease.yml
-    auto_promote_on:
-      - result: passed
-        branch:
-          - "^refs/tags/v*"
