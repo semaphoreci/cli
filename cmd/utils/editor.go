@@ -49,13 +49,8 @@ func EditYamlInEditor(objectName string, content string) (string, error) {
 	}
 
 	editor := config.GetEditor()
-	editor_path, err := exec.LookPath(editor)
 
-	if err != nil {
-		return "", fmt.Errorf("Failed to open editor '%s'", err)
-	}
-
-	cmd := exec.Command(editor_path, tmpfile.Name())
+	cmd := exec.Command("sh", "-c", fmt.Sprintf("%s %s", editor, tmpfile.Name()))
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	err = cmd.Start()
