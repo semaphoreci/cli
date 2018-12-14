@@ -1,5 +1,14 @@
 # Changelog
 
+### v0.9.0
+
+- SSH sessions: Shutdown machine when user leaves the session
+- SSH sessions: Display duration of SSH session
+- SSH sessions: Display how to checkout code
+- SSH sessions: Display how to run commands
+- SSH sessions: Display how to exit session
+- SSH sessions: Display link to documentation
+
 ### v0.8.17
 
 - Support for EDITOR environment var
