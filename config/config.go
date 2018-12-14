@@ -3,6 +3,7 @@ package config
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/spf13/viper"
 )
@@ -52,11 +53,17 @@ func GetEditor() string {
 	if flag.Lookup("test.v") == nil {
 		editor := viper.GetString("editor")
 
-		if editor == "" {
-			return "vim"
-		} else {
+		if editor != "" {
 			return editor
 		}
+
+		editor = os.Getenv("EDITOR")
+
+		if editor != "" {
+			return editor
+		}
+
+		return "vim"
 	} else {
 		return "true" // Bash 'true' command, do nothing in tests
 	}
