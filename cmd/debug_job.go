@@ -70,9 +70,22 @@ func RunDebugJobCmd(cmd *cobra.Command, args []string) {
 		fmt.Sprintf("sleep %d", int(duration.Seconds())),
 	}
 
+	fmt.Printf("* Creating debug session for job '%s'\n", jobId)
+	fmt.Printf("* Setting duration to %d minutes\n", int(duration.Minutes()))
+
 	job, err = c.CreateJob(job)
 
 	utils.Check(err)
 
-	utils.WaitForStartAndSsh(&c, job)
+	sshIntroMessage := `
+Semaphore CI Debug Session.
+
+  - Checkout your code with ` + "`checkout`" + `
+  - Run your CI commands with ` + "`source ~/commands.sh`" + `
+  - Leave the session with ` + "`exit`" + `
+
+Documentation: https://docs.semaphoreci.com/article/75-debugging-with-ssh-access.
+`
+
+	utils.WaitForStartAndSsh(&c, job, sshIntroMessage)
 }

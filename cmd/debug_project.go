@@ -44,13 +44,13 @@ func RunDebugProjectCmd(cmd *cobra.Command, args []string) {
 
 	utils.Check(err)
 
-	project_name := args[0]
+	projectName := args[0]
 	pc := client.NewProjectV1AlphaApi()
-	project, err := pc.GetProject(project_name)
+	project, err := pc.GetProject(projectName)
 
 	utils.Check(err)
 
-	jobName := fmt.Sprintf("Debug Session for %s", project_name)
+	jobName := fmt.Sprintf("Debug Session for %s", projectName)
 	job := models.NewJobV1Alpha(jobName)
 
 	job.Spec = &models.JobV1AlphaSpec{}
@@ -65,9 +65,21 @@ func RunDebugProjectCmd(cmd *cobra.Command, args []string) {
 
 	c := client.NewJobsV1AlphaApi()
 
+	fmt.Printf("* Creating debug session for project '%s'\n", projectName)
+	fmt.Printf("* Setting duration to %d minutes\n", int(duration.Minutes()))
+
 	job, err = c.CreateJob(job)
 
 	utils.Check(err)
 
-	utils.WaitForStartAndSsh(&c, job)
+	sshIntroMessage := `
+Semaphore CI Debug Session.
+
+  - Checkout your code with ` + "`checkout`" + `
+  - Leave the session with ` + "`exit`" + `
+
+Documentation: https://docs.semaphoreci.com/article/75-debugging-with-ssh-access.
+`
+
+	utils.WaitForStartAndSsh(&c, job, sshIntroMessage)
 }
