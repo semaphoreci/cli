@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.8.17
+
+- Support for EDITOR environment var
+- Support for custom flags in editor, example: `EDITOR="subl --wait`
+
 ### v0.8.16
 
 - Issues with release machinery while releasing v0.8.15
