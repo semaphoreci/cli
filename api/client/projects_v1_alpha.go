@@ -24,6 +24,16 @@ func NewProjectV1AlphaApi() ProjectApiV1AlphaApi {
 	}
 }
 
+func NewProjectV1AlphaApiWithCustomClient(client BaseClient) ProjectApiV1AlphaApi {
+	client.SetApiVersion("v1alpha")
+
+	return ProjectApiV1AlphaApi{
+		BaseClient:           client,
+		ResourceNamePlural:   "projects",
+		ResourceNameSingular: "project",
+	}
+}
+
 func (c *ProjectApiV1AlphaApi) ListProjects() (*models.ProjectListV1Alpha, error) {
 	body, status, err := c.BaseClient.List(c.ResourceNamePlural)
 
