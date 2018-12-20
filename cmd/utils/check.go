@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"flag"
 	"fmt"
 	"os"
 )
@@ -16,7 +17,7 @@ func Check(err error) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
 
-		os.Exit(1)
+		Exit(1)
 	}
 }
 
@@ -29,12 +30,20 @@ func CheckWithMessage(err error, message string) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %+v\n", message)
 
-		os.Exit(1)
+		Exit(1)
 	}
 }
 
 func Fail(message string) {
 	fmt.Fprintf(os.Stderr, "error: %s\n", message)
 
-	os.Exit(1)
+	Exit(1)
+}
+
+func Exit(code int) {
+	if flag.Lookup("test.v") == nil {
+		os.Exit(1)
+	} else {
+		panic(fmt.Sprintf("exit %d", code))
+	}
 }

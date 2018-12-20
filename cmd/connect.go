@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/semaphoreci/cli/config"
 	"github.com/spf13/cobra"
+
+	client "github.com/semaphoreci/cli/api/client"
 )
 
 var connectCmd = &cobra.Command{
@@ -17,13 +20,23 @@ var connectCmd = &cobra.Command{
 		host := args[0]
 		token := args[1]
 
+		baseClient := client.NewBaseClient(token, host, "")
+		client := client.NewProjectV1AlphaApiWithCustomClient(baseClient)
+
+		_, err := client.ListProjects()
+
+		if err != nil {
+			fmt.Fprintf(cmd.OutOrStderr(), "%s", err)
+			utils.Exit(1)
+		}
+
 		name := strings.Replace(host, ".", "_", -1)
 
 		config.SetActiveContext(name)
 		config.SetAuth(token)
 		config.SetHost(host)
 
-		fmt.Printf("connected to %s\n", host)
+		cmd.Printf("connected to %s\n", host)
 	},
 }
 
