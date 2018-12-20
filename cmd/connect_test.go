@@ -42,7 +42,14 @@ func Test__Connect__Response401(t *testing.T) {
 
 	RootCmd.SetArgs([]string{"connect", "org.semaphoretext.xyz", "abc"})
 	RootCmd.SetOutput(&outputBuffer)
-	RootCmd.Execute()
 
-	assert.Equal(t, outputBuffer.String(), "http status 401 with message \"Unauthorized\" received from upstream")
+	// handle exit
+	assert.Panics(t, func() {
+		RootCmd.Execute()
+	}, "exit 1")
+
+	assert.Equal(
+		t,
+		outputBuffer.String(),
+		"http status 401 with message \"Unauthorized\" received from upstream")
 }

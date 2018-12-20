@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
+	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/semaphoreci/cli/config"
 	"github.com/spf13/cobra"
 
@@ -27,7 +27,7 @@ var connectCmd = &cobra.Command{
 
 		if err != nil {
 			fmt.Fprintf(cmd.OutOrStderr(), "%s", err)
-			os.Exit(1)
+			utils.Exit(1)
 		}
 
 		name := strings.Replace(host, ".", "_", -1)
