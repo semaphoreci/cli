@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
-	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/semaphoreci/cli/config"
 	"github.com/spf13/cobra"
 
@@ -25,7 +25,10 @@ var connectCmd = &cobra.Command{
 
 		_, err := client.ListProjects()
 
-		utils.Check(err)
+		if err != nil {
+			fmt.Fprintf(cmd.OutOrStderr(), "%s", err)
+			os.Exit(1)
+		}
 
 		name := strings.Replace(host, ".", "_", -1)
 
@@ -33,7 +36,7 @@ var connectCmd = &cobra.Command{
 		config.SetAuth(token)
 		config.SetHost(host)
 
-		fmt.Printf("connected to %s\n", host)
+		cmd.Printf("connected to %s\n", host)
 	},
 }
 
