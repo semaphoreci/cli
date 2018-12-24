@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.9.1
+
+- Check if user entered the correct auth token when connecting with `sem connect <org>`
+
 ### v0.9.0
 
 - SSH sessions: Shutdown machine when user leaves the session
