@@ -1,5 +1,12 @@
 # Changelog
 
+### v0.9.2
+
+- Handle race condition when entering SSH debug session (client tries to enter
+    before the key is exported)
+- Display verbose message if the debug session gets a Permission Denied
+    response.
+
 ### v0.9.1
 
 - Check if user entered the correct auth token when connecting with `sem connect <org>`
