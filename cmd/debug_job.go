@@ -8,7 +8,9 @@ import (
 
 	client "github.com/semaphoreci/cli/api/client"
 	models "github.com/semaphoreci/cli/api/models"
+	config "github.com/semaphoreci/cli/config"
 
+	"github.com/semaphoreci/cli/cmd/ssh"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
 )
@@ -32,7 +34,7 @@ func NewDebugJobCmd() *cobra.Command {
 }
 
 func RunDebugJobCmd(cmd *cobra.Command, args []string) {
-	publicKey, err := utils.GetPublicSshKey()
+	publicKey, err := config.GetPublicSshKeyForDebugSession()
 	utils.Check(err)
 
 	duration, err := cmd.Flags().GetDuration("duration")
@@ -73,10 +75,6 @@ func RunDebugJobCmd(cmd *cobra.Command, args []string) {
 	fmt.Printf("* Creating debug session for job '%s'\n", jobId)
 	fmt.Printf("* Setting duration to %d minutes\n", int(duration.Minutes()))
 
-	job, err = c.CreateJob(job)
-
-	utils.Check(err)
-
 	sshIntroMessage := `
 Semaphore CI Debug Session.
 
@@ -87,5 +85,5 @@ Semaphore CI Debug Session.
 Documentation: https://docs.semaphoreci.com/article/75-debugging-with-ssh-access.
 `
 
-	utils.WaitForStartAndSsh(&c, job, sshIntroMessage)
+	ssh.StartDebugSession(job, sshIntroMessage)
 }

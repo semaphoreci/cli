@@ -5,6 +5,7 @@ import (
 	"os"
 
 	client "github.com/semaphoreci/cli/api/client"
+	"github.com/semaphoreci/cli/cmd/ssh"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
 )
@@ -33,23 +34,11 @@ var attachCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		ip := job.Status.Agent.Ip
+		conn, err := ssh.NewConnectionForJob(job)
 
-		var ssh_port int32
-		ssh_port = 0
+		utils.Check(err)
 
-		for _, p := range job.Status.Agent.Ports {
-			if p.Name == "ssh" {
-				ssh_port = p.Number
-			}
-		}
-
-		if ip != "" && ssh_port != 0 {
-			utils.SshIntoAJob(ip, ssh_port, "semaphore")
-		} else {
-			fmt.Printf("Job %s has no exposed SSH port.\n", job.Metadata.Id)
-			os.Exit(1)
-		}
+		conn.Session()
 	},
 }
 
