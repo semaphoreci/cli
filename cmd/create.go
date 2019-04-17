@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"regexp"
-	"strings"
 
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/semaphoreci/cli/cmd/workflows"
@@ -123,48 +121,6 @@ var CreateDashboardCmd = &cobra.Command{
 	},
 }
 
-var CreateSecretCmd = &cobra.Command{
-	Use:     "secret [NAME]",
-	Short:   "Create a secret.",
-	Long:    ``,
-	Aliases: []string{"secrets"},
-	Args:    cobra.ExactArgs(1),
-
-	Run: func(cmd *cobra.Command, args []string) {
-		name := args[0]
-
-		fileFlags, err := cmd.Flags().GetStringArray("file")
-		utils.Check(err)
-
-		var files []models.SecretV1BetaFile
-		for _, fileFlag := range fileFlags {
-			matchFormat, err := regexp.MatchString(`^[^: ]+:[^: ]+$`, fileFlag)
-			utils.Check(err)
-
-			if matchFormat == true {
-				flagPaths := strings.Split(fileFlag, ":")
-
-				file := models.SecretV1BetaFile{}
-				file.Path = flagPaths[1]
-				file.Content = encodeFromFileAt(flagPaths[0])
-				files = append(files, file)
-			} else {
-				utils.Fail("The format of --file flag must be: <local-path>:<semaphore-path>")
-			}
-		}
-
-		secret := models.NewSecretV1Beta(name, files)
-
-		c := client.NewSecretV1BetaApi()
-
-		_, err = c.CreateSecret(&secret)
-
-		utils.Check(err)
-
-		fmt.Printf("Secret '%s' created.\n", secret.Metadata.Name)
-	},
-}
-
 var CreateWorkflowCmd = &cobra.Command{
 	Use:     "workflow [NAME]",
 	Short:   "Create a workflow from snapshot.",
@@ -221,9 +177,10 @@ func encodeFromFileAt(path string) string {
 func init() {
 	createJobCmd := NewCreateJobCmd().Cmd
 	createNotificationCmd := NewCreateNotificationCmd()
+	createSecretCmd := NewCreateSecretCmd()
 
 	RootCmd.AddCommand(createCmd)
-	createCmd.AddCommand(CreateSecretCmd)
+	createCmd.AddCommand(createSecretCmd)
 	createCmd.AddCommand(CreateDashboardCmd)
 	createCmd.AddCommand(createJobCmd)
 	createCmd.AddCommand(CreateWorkflowCmd)
@@ -233,11 +190,6 @@ func init() {
 
 	desc := "Filename, directory, or URL to files to use to create the resource"
 	createCmd.Flags().StringP("file", "f", "", desc)
-
-	// Secret Create Flags
-
-	desc = "File mapping <local-path>:<mount-path>, used to create a secret with file"
-	CreateSecretCmd.Flags().StringArrayP("file", "f", []string{}, desc)
 
 	CreateWorkflowCmd.Flags().StringP("project-name", "p", "", "project name; if not specified will be inferred wrom git origin")
 	CreateWorkflowCmd.Flags().StringP("label", "l", "", "workflow label")
