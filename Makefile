@@ -27,6 +27,18 @@ build:
 	env GOOS=$(OS) GOARCH=$(ARCH) go build -o sem
 	tar -czvf /tmp/sem.tar.gz sem
 
+tag.major:
+	git fetch --tags
+	latest=$$(git tag | sort --version-sort | tail -n 1); new=$$(echo $$latest | cut -c 2- | awk -F '.' '{ print "v" $$1+1 ".0.0" }');          echo $$new; git tag $$new; git push origin $$new
+
+tag.minor:
+	git fetch --tags
+	latest=$$(git tag | sort --version-sort | tail -n 1); new=$$(echo $$latest | cut -c 2- | awk -F '.' '{ print "v" $$1 "." $$2 + 1 ".0" }');  echo $$new; git tag $$new; git push origin $$new
+
+tag.patch:
+	git fetch --tags
+	latest=$$(git tag | sort --version-sort | tail -n 1); new=$$(echo $$latest | cut -c 2- | awk -F '.' '{ print "v" $$1 "." $$2 "." $$3+1 }'); echo $$new; git tag $$new; git push origin $$new
+
 release:
 	$(MAKE) build OS=$(OS) ARCH=$(ARCH) -o sem
 	gsutil cp /tmp/sem.tar.gz gs://$(REL_BUCKET)/$(REL_VERSION)-$(OS)-$(ARCH).tar.gz

@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.10.0
+
+- Introduced -e flags in Secret creation for passing list of environment
+  variables.
+
 ### v0.9.2
 
 - Handle race condition when entering SSH debug session (client tries to enter
