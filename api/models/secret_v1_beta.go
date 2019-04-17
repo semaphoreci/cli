@@ -37,11 +37,12 @@ type SecretV1BetaMetadata struct {
 	UpdateTime json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
 }
 
-func NewSecretV1Beta(name string, files []SecretV1BetaFile) SecretV1Beta {
+func NewSecretV1Beta(name string, envVars []SecretV1BetaEnvVar, files []SecretV1BetaFile) SecretV1Beta {
 	s := SecretV1Beta{}
 
 	s.setApiVersionAndKind()
 	s.Metadata.Name = name
+	s.Data.EnvVars = envVars
 	s.Data.Files = files
 
 	return s
