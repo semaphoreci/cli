@@ -103,7 +103,7 @@ func (c *ProjectApiV1AlphaApi) UpdateProject(d *models.ProjectV1Alpha) (*models.
 		return nil, errors.New(fmt.Sprintf("failed to serialize %s object '%s'", c.ResourceNameSingular, err))
 	}
 
-	identifier := d.Metadata.Name
+	identifier := d.Metadata.Id
 
 	body, status, err := c.BaseClient.Patch(c.ResourceNamePlural, identifier, json_body)
 

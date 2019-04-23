@@ -169,7 +169,7 @@ func Test__EditProject__Response200(t *testing.T) {
 		},
 	)
 
-	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/hello",
+	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
 		func(req *http.Request) (*http.Response, error) {
 			received = true
 
