@@ -11,8 +11,9 @@ type ProjectV1Alpha struct {
 	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion"`
 	Kind       string `json:"kind,omitempty" yaml:"kind"`
 	Metadata   struct {
-		Name string `json:"name,omitempty"`
-		Id   string `json:"id,omitempty"`
+		Name          string `json:"name,omitempty"`
+		Id            string `json:"id,omitempty"`
+		Description   string `json:"description,omitempty"`
 	} `json:"metadata,omitempty"`
 
 	Spec struct {

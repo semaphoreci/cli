@@ -143,3 +143,44 @@ func Test__EditSecret__Response200(t *testing.T) {
 		t.Error("Expected the API to receive GET and PATCH secret")
 	}
 }
+
+func Test__EditProject__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	dash := `{
+		"metadata":{
+			"name":"hello",
+			"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+			"description":"Just saying hi!"
+		},
+		"spec":{
+			"repository":{
+				"url":"git@github.com/renderextext/hello"
+			}
+		}
+	}`
+
+	received := false
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects/hello",
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(200, dash), nil
+		},
+	)
+
+	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			return httpmock.NewStringResponse(200, dash), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"edit", "project", "hello"})
+	RootCmd.Execute()
+
+	if received == false {
+		t.Error("Expected the API to receive GET and PATCH project")
+	}
+}

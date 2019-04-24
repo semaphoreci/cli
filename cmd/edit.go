@@ -123,10 +123,47 @@ var EditSecretCmd = &cobra.Command{
 	},
 }
 
+var EditProjectCmd = &cobra.Command{
+	Use:     "project [name]",
+	Short:   "Edit a project.",
+	Long:    ``,
+	Aliases: []string{"project", "prj"},
+	Args:    cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		name := args[0]
+
+		c := client.NewProjectV1AlphaApi()
+
+		project, err := c.GetProject(name)
+
+		utils.Check(err)
+
+		content, err := project.ToYaml()
+
+		utils.Check(err)
+
+		new_content, err := utils.EditYamlInEditor(project.ObjectName(), string(content))
+
+		utils.Check(err)
+
+		updated_project, err := models.NewProjectV1AlphaFromYaml([]byte(new_content))
+
+		utils.Check(err)
+
+		project, err = c.UpdateProject(updated_project)
+
+		utils.Check(err)
+
+		fmt.Printf("Project '%s' updated.\n", project.Metadata.Name)
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(editCmd)
 
 	editCmd.AddCommand(EditSecretCmd)
 	editCmd.AddCommand(EditDashboardCmd)
 	editCmd.AddCommand(EditNotificationCmd)
+	editCmd.AddCommand(EditProjectCmd)
 }
