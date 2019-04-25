@@ -6,14 +6,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Version = "dev"
+var VERSION = "dev"
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Display the version",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(Version)
+		fmt.Println(VERSION)
 	},
 }
 
