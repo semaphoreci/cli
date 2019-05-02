@@ -24,7 +24,7 @@ test:
 	go test -v ./...
 
 build:
-	env GOOS=$(OS) GOARCH=$(ARCH) go build -o sem
+	env GOOS=$(OS) GOARCH=$(ARCH) go build -ldflags "-s -w -X cmd.VERSION=$(shell git describe --tags --abbrev=0)" -o sem
 	tar -czvf /tmp/sem.tar.gz sem
 
 tag.major:
