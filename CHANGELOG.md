@@ -1,5 +1,13 @@
 # Changelog
 
+### v0.11.2, v0.11.1
+
+- Sem CLI versioning fixes
+
+### v0.11.0
+
+- Introduced sem edit project support
+
 ### v0.10.0
 
 - Introduced -e flags in Secret creation for passing list of environment
