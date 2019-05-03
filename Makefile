@@ -3,6 +3,11 @@
 REL_VERSION=$(shell git rev-parse HEAD)
 REL_BUCKET=sem-cli-releases
 
+install.goreleaser:
+	curl -L https://github.com/goreleaser/goreleaser/releases/download/v0.106.0/goreleaser_Linux_x86_64.tar.gz -o /tmp/goreleaser.tar.gz
+	tar -xf /tmp/goreleaser.tar.gz -C /tmp
+	sudo mv /tmp/goreleaser /usr/bin/goreleaser
+
 go.install:
 	cd /tmp
 	sudo curl -O https://dl.google.com/go/go1.11.linux-amd64.tar.gz
@@ -39,35 +44,16 @@ tag.patch:
 	git fetch --tags
 	latest=$$(git tag | sort --version-sort | tail -n 1); new=$$(echo $$latest | cut -c 2- | awk -F '.' '{ print "v" $$1 "." $$2 "." $$3+1 }'); echo $$new; git tag $$new; git push origin $$new
 
-release:
-	$(MAKE) build OS=$(OS) ARCH=$(ARCH) -o sem
-	gsutil cp /tmp/sem.tar.gz gs://$(REL_BUCKET)/$(REL_VERSION)-$(OS)-$(ARCH).tar.gz
-	gsutil acl -R ch -u AllUsers:R gs://$(REL_BUCKET)/$(REL_VERSION)-$(OS)-$(ARCH).tar.gz
-	gsutil setmeta -h "Cache-Control:private, max-age=0, no-transform" gs://$(REL_BUCKET)/$(REL_VERSION)-$(OS)-$(ARCH).tar.gz
-	echo "https://storage.googleapis.com/$(REL_BUCKET)/$(REL_VERSION)-$(OS)-$(ARCH).tar.gz"
-
-release.all:
-	$(MAKE) release OS=linux   ARCH=386
-	$(MAKE) release OS=linux   ARCH=amd64
-	$(MAKE) release OS=darwin  ARCH=386
-	$(MAKE) release OS=darwin  ARCH=amd64
-	# $(MAKE) release OS=windows ARCH=386    # mousetrap issues?
-	# $(MAKE) release OS=windows ARCH=amd64
-
-release.stable:
-	$(MAKE) release.all REL_VERSION=stable
-
-release.edge:
-	$(MAKE) release.all REL_VERSION=edge
-
 release.stable.install.script:
-	gsutil cp scripts/get gs://$(REL_BUCKET)/get.sh
+	sed `s/VERSION_PLACEHOLDER/$(shell git describe --tags --abbrev=0)/` scripts/get.template.sh > scripts/get.sh
+	gsutil cp scripts/get.sh gs://$(REL_BUCKET)/get.sh
 	gsutil acl -R ch -u AllUsers:R gs://$(REL_BUCKET)/get.sh
 	gsutil setmeta -h "Cache-Control:private, max-age=0, no-transform" gs://$(REL_BUCKET)/get.sh
 	echo "https://storage.googleapis.com/$(REL_BUCKET)/get.sh"
 
 release.edge.install.script:
-	gsutil cp scripts/get-edge gs://$(REL_BUCKET)/get-edge.sh
+	sed `s/VERSION_PLACEHOLDER/$(shell git describe --tags --abbrev=0)/` scripts/get.template.sh > scripts/get-edge.sh
+	gsutil cp scripts/get-edge.sh gs://$(REL_BUCKET)/get-edge.sh
 	gsutil acl -R ch -u AllUsers:R gs://$(REL_BUCKET)/get-edge.sh
 	gsutil setmeta -h "Cache-Control:private, max-age=0, no-transform" gs://$(REL_BUCKET)/get-edge.sh
 	echo "https://storage.googleapis.com/$(REL_BUCKET)/get-edge.sh"

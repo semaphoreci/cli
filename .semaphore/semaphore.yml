@@ -33,11 +33,8 @@ blocks:
           - make release
 
 promotions:
-  - name: Release Stable
-    pipeline_file: "stable.yml"
-
-  - name: Release Edge
-    pipeline_file: "edge.yml"
+  - name: "Release on Github & Brew Tap"
+    pipeline_file: "release.yml"
     auto_promote_on:
       - result: passed
         branch:

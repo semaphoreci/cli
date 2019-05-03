@@ -2,3 +2,5 @@ sem
 bin/
 cli
 dist
+scripts/get.sh
+scripts/get-edge.sh
