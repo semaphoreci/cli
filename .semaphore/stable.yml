@@ -20,22 +20,4 @@ blocks:
         commands:
           - echo $GCE_CREDS | base64 --decode > gce-creds.json
           - checkout
-          - make go.install
-          - "export PATH=/usr/local/go/bin:$PATH"
-          - "export GOPATH=~/go"
-          - "export GOROOT=/usr/local/go"
-          - env
-          - go version
-          - make gsutil.configure
-          - make go.get
-          - make test
-          - make release.stable
-          - 'curl -X POST -H "Content-type: application/json" --data "{\"text\":\"Sem CLI: New stable release: $(git log -1 --pretty=%B | tr -d \"\n\")\"}" "https://hooks.slack.com/services/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"'
-
-promotions:
-  - name: Release Homebrew
-    pipeline_file: brewrelease.yml
-    auto_promote_on:
-      - result: passed
-        branch:
-          - "^refs/tags/v*"
+          - make release.stable.install.script

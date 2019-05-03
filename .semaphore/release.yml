@@ -1,11 +1,11 @@
 version: "v1.0"
-name: Release
+name: "Github Release & Brew Tap Release"
 agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu1804
 blocks:
-  - name: "Release"
+  - name: "Github Release & Brew Tap Release"
     task:
       env_vars:
         - name: GO111MODULE
@@ -19,6 +19,16 @@ blocks:
           - "export PATH=/home/semaphore/go/bin:$PATH"
           - checkout
       jobs:
-      - name: Sem Cli
+      - name: GoReleaser
         commands:
-          - curl -sL https://git.io/goreleaser | bash -s -- --rm-dist
+          - make install.goreleaser
+          - goreleaser --rm-dist
+
+promotions:
+  - name: Release Edge
+    pipeline_file: "edge.yml"
+    auto_promote_on:
+      - result: passed
+
+  - name: Release Stable
+    pipeline_file: "stable.yml"
