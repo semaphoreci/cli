@@ -1,8 +1,12 @@
 # Changelog
 
-### v0.11.3, v0.11.2, v0.11.1
+### v0.11.4, v0.11.3, v0.11.2, v0.11.1
 
 - Sem CLI versioning fixes
+  - Versioning of the CLI is fixed
+  - We display release version, release sha, and release date in sem cli
+  - We ship all releases to Github releases instead of Google Cloud Storage drive
+  - get.sh script is now downloading from Github
 
 ### v0.11.0
 

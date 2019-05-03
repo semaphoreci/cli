@@ -51,3 +51,5 @@ releasing new versions procedure to update and release.
    the release on Semaphore. Find the workflow for the tag you want to promote
    to stable, and click on the "Stable" promotion. This will update the `get.sh`
    script.
+
+5. Update the CHANGELOG.md file
