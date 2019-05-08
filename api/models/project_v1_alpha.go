@@ -7,6 +7,14 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+type Scheduler struct {
+  Name         string `json:"name,omitempty"`
+  Id           string `json:"id,omitempty"`
+  Branch       string `json:"branch,omitempty"`
+  At           string `json:"at,omitempty"`
+  PipelineFile string `json:"pipeline_file,omitempty" yaml:"pipeline_file"`
+}
+
 type ProjectV1Alpha struct {
 	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion"`
 	Kind       string `json:"kind,omitempty" yaml:"kind"`
@@ -20,6 +28,7 @@ type ProjectV1Alpha struct {
 		Repository struct {
 			Url string `json:"url,omitempty"`
 		} `json:"repository,omitempty"`
+    Schedulers []Scheduler `json:"schedulers,omitempty"`
 	} `json:"spec,omitempty"`
 }
 
