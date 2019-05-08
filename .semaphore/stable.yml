@@ -6,18 +6,14 @@ agent:
     os_image: ubuntu1804
 
 blocks:
-  - name: "Edge Release"
+  - name: "Stable Release"
     task:
       secrets:
         - name: s2prod-gce
 
-      env_vars:
-        - name: GO111MODULE
-          value: "on"
-
       jobs:
       - name: "Stable"
         commands:
-          - echo $GCE_CREDS | base64 --decode > gce-creds.json
           - checkout
+          - make gsutil.configure
           - make release.stable.install.script

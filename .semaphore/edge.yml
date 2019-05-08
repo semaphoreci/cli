@@ -12,13 +12,9 @@ blocks:
         - name: s2prod-gce
         - name: sem-robot-ghtoken
 
-      env_vars:
-        - name: GO111MODULE
-          value: "on"
-
       jobs:
       - name: "Release"
         commands:
-          - echo $GCE_CREDS | base64 --decode > gce-creds.json
           - checkout
+          - make gsutil.configure
           - make release.edge.install.script

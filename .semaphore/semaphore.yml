@@ -6,11 +6,8 @@ agent:
     os_image: ubuntu1804
 
 blocks:
-  - name: "Test & Build"
+  - name: "Test"
     task:
-      secrets:
-        - name: s2prod-gce
-
       env_vars:
         - name: GO111MODULE
           value: "on"
@@ -18,19 +15,13 @@ blocks:
       jobs:
       - name: "Test"
         commands:
-          - echo $GCE_CREDS | base64 --decode > gce-creds.json
           - checkout
           - make go.install
           - "export PATH=/usr/local/go/bin:$PATH"
           - "export GOPATH=~/go"
           - "export GOROOT=/usr/local/go"
-          - env
-          - go version
-          - make gsutil.configure
           - make go.get
           - make test
-          - make build
-          - make release
 
 promotions:
   - name: "Release on Github & Brew Tap"
