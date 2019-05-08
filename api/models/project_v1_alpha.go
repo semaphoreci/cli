@@ -8,11 +8,11 @@ import (
 )
 
 type Scheduler struct {
-  Name         string `json:"name,omitempty"`
+  Name         string `json:"name"`
   Id           string `json:"id,omitempty"`
-  Branch       string `json:"branch,omitempty"`
-  At           string `json:"at,omitempty"`
-  PipelineFile string `json:"pipeline_file,omitempty" yaml:"pipeline_file"`
+  Branch       string `json:"branch"`
+  At           string `json:"at"`
+  PipelineFile string `json:"pipeline_file" yaml:"pipeline_file"`
 }
 
 type ProjectV1Alpha struct {
