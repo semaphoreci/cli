@@ -1,9 +1,14 @@
 version: "v1.0"
 name: Pipeline
+
 agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu1804
+
+  containers:
+    - name: main
+      image: semaphoreci/golang:1.12
 
 blocks:
   - name: "Test"
@@ -16,10 +21,6 @@ blocks:
       - name: "Test"
         commands:
           - checkout
-          - make go.install
-          - "export PATH=/usr/local/go/bin:$PATH"
-          - "export GOPATH=~/go"
-          - "export GOROOT=/usr/local/go"
           - make go.get
           - make test
 
