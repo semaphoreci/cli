@@ -28,7 +28,7 @@ type ProjectV1Alpha struct {
 		Repository struct {
 			Url string `json:"url,omitempty"`
 		} `json:"repository,omitempty"`
-    Schedulers []Scheduler `json:"schedulers,omitempty"`
+    Schedulers []Scheduler `json:"schedulers"`
 	} `json:"spec,omitempty"`
 }
 
