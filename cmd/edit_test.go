@@ -158,15 +158,15 @@ func Test__EditProject__Response200(t *testing.T) {
 			"repository":{
 				"url":"git@github.com/renderextext/hello"
 			},
-      "schedulers":[
-        {
-          "name":"cron",
-          "id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
-          "branch":"master",
-          "at":"* * * *",
-          "pipeline_file":".semaphore/cron.yml"
-        }
-      ]
+			"schedulers":[
+				{
+					"name":"cron",
+					"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
+					"branch":"master",
+					"at":"* * * *",
+					"pipeline_file":".semaphore/cron.yml"
+				}
+			]
 		}
 	}`
 

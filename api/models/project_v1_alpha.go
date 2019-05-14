@@ -8,27 +8,27 @@ import (
 )
 
 type Scheduler struct {
-  Name         string `json:"name"`
-  Id           string `json:"id,omitempty"`
-  Branch       string `json:"branch"`
-  At           string `json:"at"`
-  PipelineFile string `json:"pipeline_file" yaml:"pipeline_file"`
+	Name         string `json:"name"`
+	Id           string `json:"id,omitempty"`
+	Branch       string `json:"branch"`
+	At           string `json:"at"`
+	PipelineFile string `json:"pipeline_file" yaml:"pipeline_file"`
 }
 
 type ProjectV1Alpha struct {
 	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion"`
 	Kind       string `json:"kind,omitempty" yaml:"kind"`
 	Metadata   struct {
-		Name          string `json:"name,omitempty"`
-		Id            string `json:"id,omitempty"`
-		Description   string `json:"description,omitempty"`
+		Name        string `json:"name,omitempty"`
+		Id          string `json:"id,omitempty"`
+		Description string `json:"description,omitempty"`
 	} `json:"metadata,omitempty"`
 
 	Spec struct {
 		Repository struct {
 			Url string `json:"url,omitempty"`
 		} `json:"repository,omitempty"`
-    Schedulers []Scheduler `json:"schedulers,omitempty" yaml:"schedulers,omitempty"`
+		Schedulers []Scheduler `json:"schedulers,omitempty" yaml:"schedulers,omitempty"`
 	} `json:"spec,omitempty"`
 }
 
