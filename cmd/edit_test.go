@@ -170,7 +170,7 @@ func Test__EditProject__Response200(t *testing.T) {
 		}
 	}`
 
-	received := false
+	var received *models.ProjectV1Alpha
 
 	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects/hello",
 		func(req *http.Request) (*http.Response, error) {
@@ -180,16 +180,27 @@ func Test__EditProject__Response200(t *testing.T) {
 
 	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
 		func(req *http.Request) (*http.Response, error) {
-			received = true
+			body, _ := ioutil.ReadAll(req.Body)
+			received, _ = models.NewProjectV1AlphaFromJson(body)
 
-			return httpmock.NewStringResponse(200, dash), nil
+			return httpmock.NewStringResponse(200, string(body)), nil
 		},
 	)
 
 	RootCmd.SetArgs([]string{"edit", "project", "hello"})
 	RootCmd.Execute()
 
-	if received == false {
-		t.Error("Expected the API to receive GET and PATCH project")
-	}
+	assert.Equal(t, received.Metadata.Name, "hello")
+	assert.Equal(t, received.Metadata.Description, "Just saying hi!")
+
+	repo := received.Spec.Repository
+
+	assert.Equal(t, repo.Url, "git@github.com/renderextext/hello")
+
+	scheduler := received.Spec.Schedulers[0]
+
+	assert.Equal(t, scheduler.Name, "cron")
+	assert.Equal(t, scheduler.Branch, "master")
+	assert.Equal(t, scheduler.At, "* * * *")
+	assert.Equal(t, scheduler.PipelineFile, ".semaphore/cron.yml")
 }
