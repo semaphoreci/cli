@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.12.0
+
+- Introduced support for managing scheduler rules with project edit
+
 ### v0.11.8, v0.11.7, v0.11.6, v0.11.5, v0.11.4, v0.11.3, v0.11.2, v0.11.1
 
 - Sem CLI versioning fixes
