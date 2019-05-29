@@ -48,12 +48,20 @@ func RunDebugJobCmd(cmd *cobra.Command, args []string) {
 
 	// Copy everything to new job, except commands
 	job.Spec = oldJob.Spec
-	job.Spec.EpilogueCommands = []string{}
+	job.Spec.EpilogueAlwaysCommands = []string{}
+	job.Spec.EpilogueOnPassCommands = []string{}
+	job.Spec.EpilogueOnFailCommands = []string{}
 
 	// Construct a commands file and inject into job
-	commandsFileContent := fmt.Sprintf("%s\n%s",
+	commandsFileContent := strings.Join([]string{
 		strings.Join(oldJob.Spec.Commands, "\n"),
-		strings.Join(oldJob.Spec.EpilogueCommands, "\n"))
+		"# epilogue always commands",
+		strings.Join(oldJob.Spec.EpilogueAlwaysCommands, "\n"),
+		"# epilogue on pass commands",
+		strings.Join(oldJob.Spec.EpilogueOnPassCommands, "\n"),
+		"# epilogue on fail commands",
+		strings.Join(oldJob.Spec.EpilogueOnFailCommands, "\n"),
+	}, "\n")
 
 	job.Spec.Files = []models.JobV1AlphaSpecFile{
 		models.JobV1AlphaSpecFile{
