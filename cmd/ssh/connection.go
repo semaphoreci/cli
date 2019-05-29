@@ -3,6 +3,7 @@ package ssh
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -84,7 +85,10 @@ func (c *Connection) WaitUntilReady(attempts int, callback func()) error {
 
 func (c *Connection) IsReady() (bool, error) {
 	cmd, err := c.sshCommand("echo 'success'", false)
+	log.Printf("SSH connection: Running %+v", cmd)
+
 	output, err := cmd.CombinedOutput()
+	log.Printf("SSH connection: Output %s", output)
 
 	if err == nil && strings.Contains(string(output), "success") {
 		return true, nil
@@ -104,7 +108,7 @@ func (c *Connection) IsReady() (bool, error) {
 }
 
 func (c *Connection) Session() error {
-	cmd, err := c.sshCommand("bash --login", true)
+	cmd, err := c.sshCommand("bash /tmp/ssh_jump_point", true)
 
 	if err != nil {
 		return err
@@ -139,7 +143,7 @@ func (c *Connection) sshCommand(directive string, interactive bool) (*exec.Cmd, 
 		interactiveFlag = "-T"
 	}
 
-	sshKeyFlag := fmt.Sprintf("-i %s", c.SSHKeyFile.Name())
+	sshKeyFlag := fmt.Sprintf("-i%s", c.SSHKeyFile.Name())
 
 	noStrictFlag := "-oStrictHostKeyChecking=no"
 	timeoutFlag := "-oConnectTimeout=5"
