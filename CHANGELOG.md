@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.13.0
+
+- SSH sessions work without configuring the CLI with an SSH key
+- Customers can attach to any Job without the need to inject public keys into the job
+- Debugging and Attaching works for Docker based CI/CD environments
+
 ### v0.12.0
 
 - Introduced support for managing scheduler rules with project edit
