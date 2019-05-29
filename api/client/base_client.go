@@ -49,8 +49,8 @@ func (c *BaseClient) SetApiVersion(apiVersion string) *BaseClient {
 	return c
 }
 
-func (c *BaseClient) Get(kind string, name string) ([]byte, int, error) {
-	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
+func (c *BaseClient) Get(kind string, resource string) ([]byte, int, error) {
+	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, resource)
 
 	log.Printf("GET %s\n", url)
 

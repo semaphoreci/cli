@@ -8,7 +8,6 @@ import (
 	models "github.com/semaphoreci/cli/api/models"
 	"github.com/semaphoreci/cli/cmd/ssh"
 	"github.com/semaphoreci/cli/cmd/utils"
-	"github.com/semaphoreci/cli/config"
 	"github.com/spf13/cobra"
 )
 
@@ -36,9 +35,6 @@ func NewDebugProjectCmd() *cobra.Command {
 }
 
 func RunDebugProjectCmd(cmd *cobra.Command, args []string) {
-	publicKey, err := config.GetPublicSshKeyForDebugSession()
-	utils.Check(err)
-
 	machineType, err := cmd.Flags().GetString("machine-type")
 	utils.Check(err)
 
@@ -61,7 +57,6 @@ func RunDebugProjectCmd(cmd *cobra.Command, args []string) {
 	job.Spec.ProjectId = project.Metadata.Id
 
 	job.Spec.Commands = []string{
-		fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
 		fmt.Sprintf("sleep %d", int(duration.Seconds())),
 	}
 

@@ -76,32 +76,6 @@ func SetAuth(token string) {
 	Set(key_path, token)
 }
 
-const unsetPublicSshKeyMsg = `Before creating a debug session job, configure the debug.PublicSshKey value.
-
-Examples:
-
-  # Configuring public ssh key with a literal
-  sem config set debug.PublicSshKey "ssh-rsa AX3....DD"
-
-  # Configuring public ssh key with a file
-  sem config set debug.PublicSshKey "$(cat ~/.ssh/id_rsa.pub)"
-
-  # Configuring public ssh key with your GitHub keys
-  sem config set debug.PublicSshKey "$(curl -s https://github.com/<username>.keys)"
-`
-
-func GetPublicSshKeyForDebugSession() (string, error) {
-	publicKey := viper.GetString("debug.PublicSshKey")
-
-	if publicKey == "" {
-		err := fmt.Errorf("Public SSH key for debugging is not configured.\n\n%s", unsetPublicSshKeyMsg)
-
-		return "", err
-	}
-
-	return publicKey, nil
-}
-
 func GetHost() string {
 	if flag.Lookup("test.v") == nil {
 		context := GetActiveContext()

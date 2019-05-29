@@ -2,6 +2,8 @@ package ssh
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -11,20 +13,33 @@ import (
 )
 
 type Connection struct {
-	IP       string
-	Port     int32
-	Username string
+	IP         string
+	Port       int32
+	Username   string
+	SSHKeyFile *os.File
 }
 
-func NewConnection(ip string, port int32, username string) (*Connection, error) {
+func NewConnection(ip string, port int32, username string, sshKey string) (*Connection, error) {
+	sshKeyFile, err := ioutil.TempFile("", "sem-cli-debug-private-key")
+	if err != nil {
+		return nil, err
+	}
+	if _, err := sshKeyFile.Write([]byte(sshKey)); err != nil {
+		return nil, err
+	}
+	if err := sshKeyFile.Close(); err != nil {
+		return nil, err
+	}
+
 	return &Connection{
-		IP:       ip,
-		Port:     port,
-		Username: username,
+		IP:         ip,
+		Port:       port,
+		Username:   username,
+		SSHKeyFile: sshKeyFile,
 	}, nil
 }
 
-func NewConnectionForJob(job *models.JobV1Alpha) (*Connection, error) {
+func NewConnectionForJob(job *models.JobV1Alpha, sshKeyPath string) (*Connection, error) {
 	ip := job.Status.Agent.Ip
 
 	var port int32
@@ -42,7 +57,11 @@ func NewConnectionForJob(job *models.JobV1Alpha) (*Connection, error) {
 		return nil, err
 	}
 
-	return NewConnection(ip, port, "semaphore")
+	return NewConnection(ip, port, "semaphore", sshKeyPath)
+}
+
+func (c *Connection) Close() {
+	os.Remove(c.SSHKeyFile.Name()) // clean up
 }
 
 func (c *Connection) WaitUntilReady(attempts int, callback func()) error {
@@ -66,7 +85,10 @@ func (c *Connection) WaitUntilReady(attempts int, callback func()) error {
 
 func (c *Connection) IsReady() (bool, error) {
 	cmd, err := c.sshCommand("echo 'success'", false)
+	log.Printf("SSH connection: Running %+v", cmd)
+
 	output, err := cmd.CombinedOutput()
+	log.Printf("SSH connection: Output %s", output)
 
 	if err == nil && strings.Contains(string(output), "success") {
 		return true, nil
@@ -86,7 +108,7 @@ func (c *Connection) IsReady() (bool, error) {
 }
 
 func (c *Connection) Session() error {
-	cmd, err := c.sshCommand("bash --login", true)
+	cmd, err := c.sshCommand("bash /tmp/ssh_jump_point", true)
 
 	if err != nil {
 		return err
@@ -121,6 +143,8 @@ func (c *Connection) sshCommand(directive string, interactive bool) (*exec.Cmd, 
 		interactiveFlag = "-T"
 	}
 
+	sshKeyFlag := fmt.Sprintf("-i%s", c.SSHKeyFile.Name())
+
 	noStrictFlag := "-oStrictHostKeyChecking=no"
 	timeoutFlag := "-oConnectTimeout=5"
 	userAndIp := fmt.Sprintf("%s@%s", c.Username, c.IP)
@@ -128,6 +152,7 @@ func (c *Connection) sshCommand(directive string, interactive bool) (*exec.Cmd, 
 	cmd := exec.Command(
 		path,
 		interactiveFlag,
+		sshKeyFlag,
 		portFlag,
 		timeoutFlag,
 		noStrictFlag,

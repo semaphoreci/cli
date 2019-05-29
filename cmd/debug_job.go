@@ -8,7 +8,6 @@ import (
 
 	client "github.com/semaphoreci/cli/api/client"
 	models "github.com/semaphoreci/cli/api/models"
-	config "github.com/semaphoreci/cli/config"
 
 	"github.com/semaphoreci/cli/cmd/ssh"
 	"github.com/semaphoreci/cli/cmd/utils"
@@ -34,9 +33,6 @@ func NewDebugJobCmd() *cobra.Command {
 }
 
 func RunDebugJobCmd(cmd *cobra.Command, args []string) {
-	publicKey, err := config.GetPublicSshKeyForDebugSession()
-	utils.Check(err)
-
 	duration, err := cmd.Flags().GetDuration("duration")
 	utils.Check(err)
 
@@ -52,12 +48,20 @@ func RunDebugJobCmd(cmd *cobra.Command, args []string) {
 
 	// Copy everything to new job, except commands
 	job.Spec = oldJob.Spec
-	job.Spec.EpilogueCommands = []string{}
+	job.Spec.EpilogueAlwaysCommands = []string{}
+	job.Spec.EpilogueOnPassCommands = []string{}
+	job.Spec.EpilogueOnFailCommands = []string{}
 
 	// Construct a commands file and inject into job
-	commandsFileContent := fmt.Sprintf("%s\n%s",
+	commandsFileContent := strings.Join([]string{
 		strings.Join(oldJob.Spec.Commands, "\n"),
-		strings.Join(oldJob.Spec.EpilogueCommands, "\n"))
+		"# epilogue always commands",
+		strings.Join(oldJob.Spec.EpilogueAlwaysCommands, "\n"),
+		"# epilogue on pass commands",
+		strings.Join(oldJob.Spec.EpilogueOnPassCommands, "\n"),
+		"# epilogue on fail commands",
+		strings.Join(oldJob.Spec.EpilogueOnFailCommands, "\n"),
+	}, "\n")
 
 	job.Spec.Files = []models.JobV1AlphaSpecFile{
 		models.JobV1AlphaSpecFile{
@@ -66,9 +70,9 @@ func RunDebugJobCmd(cmd *cobra.Command, args []string) {
 		},
 	}
 
-	// Overwrite commands with a simple SSH public key insertion and infinite sleep
+	// Overwrite commands with a sleep. This will keep the job up for N seconds.
+	// Original commands are inserted into commands.sh.
 	job.Spec.Commands = []string{
-		fmt.Sprintf("echo '%s' >> .ssh/authorized_keys", publicKey),
 		fmt.Sprintf("sleep %d", int(duration.Seconds())),
 	}
 

@@ -39,11 +39,19 @@ func StartDebugSession(job *models.JobV1Alpha, message string) error {
 		return err
 	}
 
-	conn, err := NewConnectionForJob(job)
+	// Get SSH key for job
+	sshKey, err := c.GetJobDebugSSHKey(job.Metadata.Id)
 	if err != nil {
 		fmt.Printf("\n[ERROR] %s\n", err)
 		return err
 	}
+
+	conn, err := NewConnectionForJob(job, sshKey.Key)
+	if err != nil {
+		fmt.Printf("\n[ERROR] %s\n", err)
+		return err
+	}
+	defer conn.Close()
 
 	fmt.Printf("* Waiting for ssh daemon to become ready .")
 	err = conn.WaitUntilReady(20, func() { fmt.Printf(".") })

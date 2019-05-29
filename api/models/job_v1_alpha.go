@@ -30,20 +30,39 @@ type JobV1AlphaSpecEnvVar struct {
 	Value string `json:"value,omitempty" yaml: "value,omitempty"`
 }
 
-type JobV1AlphaSpec struct {
-	Agent struct {
-		Machine struct {
-			Type    string `json:"type,omitempty" yaml:"type,omitempty"`
-			OsImage string `json:"os_image,omitempty" yaml:"os_image,omitempty"`
-		} `json:"machine,omitempty" yaml:"machine,omitempty"`
-	} `json:"agent,omitempty" yaml:"agent,omitempty"`
+type JobV1AlphaAgentImagePullSecret struct {
+	Name string `json:"name,omitempty" yaml: "name,omitempty"`
+}
 
-	Files            []JobV1AlphaSpecFile   `json:"files,omitempty" yaml: "files,omitempty"`
-	EnvVars          []JobV1AlphaSpecEnvVar `json:"env_vars,omitempty" yaml: "env_vars,omitempty"`
-	Secrets          []JobV1AlphaSpecSecret `json:"secrets,omitempty" yaml: "secrets,omitempty"`
-	Commands         []string               `json:"commands,omitempty" yaml:"commands,omitempty"`
-	EpilogueCommands []string               `json:"epilogue_commands,omitempty" yaml:"epilogue_commands,omitempty"`
-	ProjectId        string                 `json:"project_id,omitempty" yaml:"project_id,omitempty"`
+type JobV1AlphaAgentMachine struct {
+	Type    string `json:"type,omitempty" yaml:"type,omitempty"`
+	OsImage string `json:"os_image,omitempty" yaml:"os_image,omitempty"`
+}
+
+type JobV1AlphaAgentContainer struct {
+	Name    string                 `json:"name,omitempty" yaml:"name,omitempty"`
+	Image   string                 `json:"image,omitempty" yaml:"image,omitempty"`
+	Command string                 `json:"command,omitempty" yaml:"command,omitempty"`
+	EnvVars []JobV1AlphaSpecEnvVar `json:"env_vars,omitempty" yaml: "env_vars,omitempty"`
+	Secrets []JobV1AlphaSpecSecret `json:"secrets,omitempty" yaml: "secrets,omitempty"`
+}
+
+type JobV1AlphaAgent struct {
+	Machine          JobV1AlphaAgentMachine           `json:"machine,omitempty" yaml:"machine,omitempty"`
+	Containers       []JobV1AlphaAgentContainer       `json:"containers,omitempty" yaml:"containers,omitempty"`
+	ImagePullSecrets []JobV1AlphaAgentImagePullSecret `json:"image_pull_secrets,omitempty" yaml: "image_pull_secrets,omitempty"`
+}
+
+type JobV1AlphaSpec struct {
+	Agent                  JobV1AlphaAgent        `json:"agent,omitempty" yaml:"agent,omitempty"`
+	Files                  []JobV1AlphaSpecFile   `json:"files,omitempty" yaml: "files,omitempty"`
+	EnvVars                []JobV1AlphaSpecEnvVar `json:"env_vars,omitempty" yaml: "env_vars,omitempty"`
+	Secrets                []JobV1AlphaSpecSecret `json:"secrets,omitempty" yaml: "secrets,omitempty"`
+	Commands               []string               `json:"commands,omitempty" yaml:"commands,omitempty"`
+	EpilogueAlwaysCommands []string               `json:"epilogue_always_commands,omitempty" yaml:"epilogue_always_commands,omitempty"`
+	EpilogueOnPassCommands []string               `json:"epilogue_on_pass_commands,omitempty" yaml:"epilogue_on_pass_commands,omitempty"`
+	EpilogueOnFailCommands []string               `json:"epilogue_on_fail_commands,omitempty" yaml:"epilogue_on_fail_commands,omitempty"`
+	ProjectId              string                 `json:"project_id,omitempty" yaml:"project_id,omitempty"`
 }
 
 type JobV1AlphaStatus struct {
