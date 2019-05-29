@@ -59,6 +59,21 @@ func (c *JobsApiV1AlphaApi) GetJob(name string) (*models.JobV1Alpha, error) {
 	return models.NewJobV1AlphaFromJson(body)
 }
 
+func (c *JobsApiV1AlphaApi) GetJobDebugSSHKey(id string) (string, error) {
+	path := fmt.Sprintf("%s/%s", id, "debug_ssh_key")
+	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, path)
+
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+	}
+
+	if status != 200 {
+		return "", errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
+
+	return string(body), nil
+}
+
 func (c *JobsApiV1AlphaApi) CreateJob(j *models.JobV1Alpha) (*models.JobV1Alpha, error) {
 	json_body, err := j.ToJson()
 
