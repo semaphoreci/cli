@@ -46,7 +46,7 @@ func StartDebugSession(job *models.JobV1Alpha, message string) error {
 		return err
 	}
 
-	conn, err := NewConnectionForJob(job, sshKey)
+	conn, err := NewConnectionForJob(job, sshKey.Key)
 	if err != nil {
 		fmt.Printf("\n[ERROR] %s\n", err)
 		return err

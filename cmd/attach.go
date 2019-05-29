@@ -38,7 +38,7 @@ var attachCmd = &cobra.Command{
 		sshKey, err := c.GetJobDebugSSHKey(job.Metadata.Id)
 		utils.Check(err)
 
-		conn, err := ssh.NewConnectionForJob(job, sshKey)
+		conn, err := ssh.NewConnectionForJob(job, sshKey.Key)
 		utils.Check(err)
 		defer conn.Close()
 
