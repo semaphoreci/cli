@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.13.1
+
+- Fix "Too many authentication failures" error for debug sessions by utilizing
+  IdentitiesOnly=yes
+
 ### v0.13.0
 
 - SSH sessions work without configuring the CLI with an SSH key
