@@ -147,10 +147,12 @@ func (c *Connection) sshCommand(directive string, interactive bool) (*exec.Cmd, 
 
 	noStrictFlag := "-oStrictHostKeyChecking=no"
 	timeoutFlag := "-oConnectTimeout=5"
+	identitiesOnlyFlag := "-oIdentitiesOnly=yes"
 	userAndIp := fmt.Sprintf("%s@%s", c.Username, c.IP)
 
 	cmd := exec.Command(
 		path,
+		identitiesOnlyFlag,
 		interactiveFlag,
 		sshKeyFlag,
 		portFlag,
