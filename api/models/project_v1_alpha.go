@@ -16,7 +16,7 @@ type Scheduler struct {
 }
 
 type ForkedPullRequests struct {
-	AllowedSecrets []string `json:"allowed_secrets" yaml:"allowed_secrets"`
+	AllowedSecrets []string `json:"allowed_secrets,omitempty" yaml:"allowed_secrets,omitempty"`
 }
 
 type ProjectV1Alpha struct {
