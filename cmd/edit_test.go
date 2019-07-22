@@ -200,11 +200,11 @@ func Test__EditProject__Response200(t *testing.T) {
 	repo := received.Spec.Repository
 
 	assert.Equal(t, repo.Url, "git@github.com/renderextext/hello")
-	assert.Equal(t, repo.RunOn, ["tags", "branches"])
+	assert.Equal(t, repo.RunOn, []string{"tags", "branches"})
 
 	forked_pull_requests := received.Spec.Repository.ForkedPullRequests
 
-	assert.Equal(t, forked_pull_requests.AllowedSecrets, ["foo"])
+	assert.Equal(t, forked_pull_requests.AllowedSecrets, []string{"foo"})
 
 	scheduler := received.Spec.Schedulers[0]
 
