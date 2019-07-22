@@ -15,6 +15,10 @@ type Scheduler struct {
 	PipelineFile string `json:"pipeline_file" yaml:"pipeline_file"`
 }
 
+type ForkedPullRequests struct {
+	AllowedSecrets []string `json:"allowed_secrets" yaml:"allowed_secrets"`
+}
+
 type ProjectV1Alpha struct {
 	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion"`
 	Kind       string `json:"kind,omitempty" yaml:"kind"`
@@ -27,6 +31,8 @@ type ProjectV1Alpha struct {
 	Spec struct {
 		Repository struct {
 			Url string `json:"url,omitempty"`
+			RunOn []string `json:"run_on,omitempty" yaml:"run_on,omitempty"`
+			ForkedPullRequests ForkedPullRequests `json:"forked_pull_requests,omitempty" yaml:"forked_pull_requests,omitempty"`
 		} `json:"repository,omitempty"`
 		Schedulers []Scheduler `json:"schedulers,omitempty" yaml:"schedulers,omitempty"`
 	} `json:"spec,omitempty"`
