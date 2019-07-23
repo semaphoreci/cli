@@ -31,7 +31,7 @@ type ProjectV1Alpha struct {
 	Spec struct {
 		Repository struct {
 			Url string `json:"url,omitempty"`
-			RunOn []string `json:"run_on,omitempty" yaml:"run_on,omitempty"`
+			RunOn []string `json:"run_on,omitempty" yaml:"run_on"`
 			ForkedPullRequests ForkedPullRequests `json:"forked_pull_requests,omitempty" yaml:"forked_pull_requests,omitempty"`
 		} `json:"repository,omitempty"`
 		Schedulers []Scheduler `json:"schedulers,omitempty" yaml:"schedulers,omitempty"`
