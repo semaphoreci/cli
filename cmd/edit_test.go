@@ -156,7 +156,11 @@ func Test__EditProject__Response200(t *testing.T) {
 		},
 		"spec":{
 			"repository":{
-				"url":"git@github.com/renderextext/hello"
+				"url":"git@github.com/renderextext/hello",
+				"run_on":["tags", "branches"],
+				"forked_pull_requests":{
+					"allowed_secrets":["foo"]
+				}
 			},
 			"schedulers":[
 				{
@@ -196,6 +200,11 @@ func Test__EditProject__Response200(t *testing.T) {
 	repo := received.Spec.Repository
 
 	assert.Equal(t, repo.Url, "git@github.com/renderextext/hello")
+	assert.Equal(t, repo.RunOn, []string{"tags", "branches"})
+
+	forked_pull_requests := received.Spec.Repository.ForkedPullRequests
+
+	assert.Equal(t, forked_pull_requests.AllowedSecrets, []string{"foo"})
 
 	scheduler := received.Spec.Schedulers[0]
 
