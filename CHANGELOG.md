@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.14.0
+
+- Introduced support for managing pull requests related settings to project
+
 ### v0.13.1
 
 - Fix "Too many authentication failures" error for debug sessions by utilizing
