@@ -84,13 +84,13 @@ func (c *Connection) WaitUntilReady(attempts int, callback func()) error {
 }
 
 func (c *Connection) IsReady() (bool, error) {
-	cmd, err := c.sshCommand("echo 'success'", false)
+	cmd, err := c.sshCommand("cat /tmp/sempahore-user-commands-have-started", false)
 	log.Printf("SSH connection: Running %+v", cmd)
 
 	output, err := cmd.CombinedOutput()
 	log.Printf("SSH connection: Output %s", output)
 
-	if err == nil && strings.Contains(string(output), "success") {
+	if err == nil && strings.Contains(string(output), "yes") {
 		return true, nil
 	} else {
 		outputOneLine := string(output)
