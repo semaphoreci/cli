@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.14.1
+
+- Fix race condition between toolbox installation and SSH jump in; This
+  bug manifested as "unknown command checkout" if the SSH jump in happened
+  before the toolbox installation finished.
+
 ### v0.14.0
 
 - Introduced support for managing pull requests related settings to project
