@@ -84,7 +84,7 @@ func (c *Connection) WaitUntilReady(attempts int, callback func()) error {
 }
 
 func (c *Connection) IsReady() (bool, error) {
-	cmd, err := c.sshCommand("cat /tmp/sempahore-user-commands-have-started", false)
+	cmd, err := c.sshCommand("bash /tmp/ssh_jump_point cat /tmp/sempahore-user-commands-have-started", false)
 	log.Printf("SSH connection: Running %+v", cmd)
 
 	output, err := cmd.CombinedOutput()
