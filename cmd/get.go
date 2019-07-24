@@ -128,10 +128,10 @@ var GetProjectCmd = &cobra.Command{
 			const padding = 3
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
 
-			fmt.Fprintln(w, "NAME\tREPOSITORY")
+			fmt.Fprintln(w, "NAME")
 
 			for _, p := range projectList.Projects {
-				fmt.Fprintf(w, "%s\t%s\n", p.Metadata.Name, p.Spec.Repository.Url)
+				fmt.Fprintf(w, "%s\n", p.Metadata.Name)
 			}
 
 			w.Flush()
