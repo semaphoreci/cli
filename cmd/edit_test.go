@@ -157,6 +157,7 @@ func Test__EditProject__Response200(t *testing.T) {
 		"spec":{
 			"repository":{
 				"url":"git@github.com/renderextext/hello",
+				"run":true,
 				"run_on":["tags", "branches"],
 				"forked_pull_requests":{
 					"allowed_secrets":["foo"]
