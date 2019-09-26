@@ -10,16 +10,30 @@ import (
 	"github.com/semaphoreci/cli/cmd/utils"
 )
 
-func StartDebugSession(job *models.JobV1Alpha, message string) error {
+func StartDebugJobSession(debug *models.DebugJobV1Alpha, message string) error {
+	c := client.NewJobsV1AlphaApi()
+	job, err := c.CreateDebugJob(debug)
+	utils.Check(err)
+
+	return StartDebugSession(job, message)
+}
+
+func StartDebugProjectSession(job *models.JobV1Alpha, message string) error {
 	c := client.NewJobsV1AlphaApi()
 	job, err := c.CreateJob(job)
 	utils.Check(err)
+
+	return StartDebugSession(job, message)
+}
+
+func StartDebugSession(job *models.JobV1Alpha, message string) error {
+	c := client.NewJobsV1AlphaApi()
 
 	defer func() {
 		fmt.Printf("\n")
 		fmt.Printf("* Stopping debug session ..\n")
 
-		err = c.StopJob(job.Metadata.Id)
+		err := c.StopJob(job.Metadata.Id)
 
 		if err != nil {
 			utils.Check(err)
@@ -29,7 +43,7 @@ func StartDebugSession(job *models.JobV1Alpha, message string) error {
 	}()
 
 	fmt.Printf("* Waiting for debug session to boot up .")
-	err = waitUntilJobIsRunning(job, func() { fmt.Printf(".") })
+	err := waitUntilJobIsRunning(job, func() { fmt.Printf(".") })
 	fmt.Println()
 
 	// Reload Job
