@@ -1,5 +1,7 @@
 # Changelog
 
+- Modify initial pipeline file for projects
+
 ### v0.14.1
 
 - Fix race condition between toolbox installation and SSH jump in; This

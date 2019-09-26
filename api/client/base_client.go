@@ -15,6 +15,8 @@ import (
 	"github.com/semaphoreci/cli/config"
 )
 
+var UserAgent = "" // injected via main on every release
+
 type BaseClient struct {
 	authToken  string
 	host       string
@@ -58,6 +60,7 @@ func (c *BaseClient) Get(kind string, resource string) ([]byte, int, error) {
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
+	req.Header.Set("User-Agent", UserAgent)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
