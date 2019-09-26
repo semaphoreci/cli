@@ -1,5 +1,7 @@
 # Changelog
 
+### v0.15.0
+
 - Modify initial pipeline file for projects
 
 ### v0.14.1
