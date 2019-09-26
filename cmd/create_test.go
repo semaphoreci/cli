@@ -44,7 +44,7 @@ spec:
 	RootCmd.SetArgs([]string{"create", "-f", yaml_file_path})
 	RootCmd.Execute()
 
-	expected := `{"apiVersion":"v1alpha","kind":"Project","metadata":{"name":"Test"},"spec":{"repository":{"url":"git@github.com:/semaphoreci/cli.git","forked_pull_requests":{}}}}`
+	expected := `{"apiVersion":"v1alpha","kind":"Project","metadata":{"name":"Test"},"spec":{"repository":{"url":"git@github.com:/semaphoreci/cli.git","forked_pull_requests":{},"pipeline_file":""}}}`
 
 	if received != expected {
 		t.Errorf("Expected the API to receive POST projects with: %s, got: %s", expected, received)

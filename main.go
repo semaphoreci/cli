@@ -1,6 +1,12 @@
 package main
 
-import "github.com/semaphoreci/cli/cmd"
+import (
+	"fmt"
+	"runtime"
+
+	client "github.com/semaphoreci/cli/api/client"
+	"github.com/semaphoreci/cli/cmd"
+)
 
 // injected as ldflags during building
 var (
@@ -14,6 +20,9 @@ func main() {
 	cmd.ReleaseVersion = version
 	cmd.ReleaseCommit = commit
 	cmd.ReleaseDate = date
+
+	// Inject Semaphore User-Agent to identify the CLI in HTTP calls
+	client.UserAgent = fmt.Sprintf("Semaphore CLI (%s; %s; %s; %s; %s)", version, commit, date, runtime.GOOS, runtime.GOARCH)
 
 	cmd.Execute()
 }

@@ -160,7 +160,8 @@ func Test__EditProject__Response200(t *testing.T) {
 				"run_on":["tags", "branches"],
 				"forked_pull_requests":{
 					"allowed_secrets":["foo"]
-				}
+				},
+				"pipeline_file": ""
 			},
 			"schedulers":[
 				{
