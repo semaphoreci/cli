@@ -72,5 +72,5 @@ Semaphore CI Debug Session.
 Documentation: https://docs.semaphoreci.com/article/75-debugging-with-ssh-access.
 `
 
-	ssh.StartDebugSession(job, sshIntroMessage)
+	ssh.StartDebugProjectSession(job, sshIntroMessage)
 }

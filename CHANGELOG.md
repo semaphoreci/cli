@@ -1,5 +1,7 @@
 # Changelog
 
+- Move debug job creation to server side
+
 ### v0.15.0
 
 - Modify initial pipeline file for projects
