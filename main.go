@@ -22,7 +22,7 @@ func main() {
 	cmd.ReleaseDate = date
 
 	// Inject Semaphore User-Agent to identify the CLI in HTTP calls
-	client.UserAgent = fmt.Sprintf("Semaphore CLI (%s; %s; %s; %s; %s)", version, commit, date, runtime.GOOS, runtime.GOARCH)
+	client.UserAgent = fmt.Sprintf("SemaphoreCLI/%s (%s; %s; %s; %s; %s)", version, version, commit, date, runtime.GOOS, runtime.GOARCH)
 
 	cmd.Execute()
 }

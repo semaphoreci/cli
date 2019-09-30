@@ -90,6 +90,7 @@ func (c *BaseClient) List(kind string) ([]byte, int, error) {
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
+	req.Header.Set("User-Agent", UserAgent)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -119,6 +120,7 @@ func (c *BaseClient) ListWithParams(kind string, query url.Values) ([]byte, int,
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
+	req.Header.Set("User-Agent", UserAgent)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -148,6 +150,7 @@ func (c *BaseClient) Delete(kind string, name string) ([]byte, int, error) {
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
+	req.Header.Set("User-Agent", UserAgent)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -187,6 +190,7 @@ func (c *BaseClient) PostHeaders(kind string, resource []byte, headers map[strin
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
+	req.Header.Set("User-Agent", UserAgent)
 
 	for k, v := range headers {
 		req.Header.Set(k, v)
@@ -220,6 +224,7 @@ func (c *BaseClient) Patch(kind string, name string, resource []byte) ([]byte, i
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
+	req.Header.Set("User-Agent", UserAgent)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -278,6 +283,7 @@ func (c *BaseClient) PostMultipart(kind string, args map[string]string, fileArgN
 	}
 
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
+	req.Header.Set("User-Agent", UserAgent)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
