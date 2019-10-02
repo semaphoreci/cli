@@ -1,5 +1,9 @@
 # Changelog
 
+- Introduced support for changing repository status notification
+
+### v0.16.0
+
 - Move debug job creation to server side
 
 ### v0.15.0

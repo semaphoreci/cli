@@ -19,6 +19,15 @@ type ForkedPullRequests struct {
 	AllowedSecrets []string `json:"allowed_secrets,omitempty" yaml:"allowed_secrets,omitempty"`
 }
 
+type Status struct {
+	PipelineFiles []PipelineFile `json:"pipeline_files" yaml:"pipeline_files"`
+}
+
+type PipelineFile struct {
+	Path string `json:"path"`
+	Level string `json:"level"`
+}
+
 type ProjectV1Alpha struct {
 	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion"`
 	Kind       string `json:"kind,omitempty" yaml:"kind"`
@@ -34,6 +43,7 @@ type ProjectV1Alpha struct {
 			RunOn              []string           `json:"run_on,omitempty" yaml:"run_on"`
 			ForkedPullRequests ForkedPullRequests `json:"forked_pull_requests,omitempty" yaml:"forked_pull_requests,omitempty"`
 			PipelineFile       string             `json:"pipeline_file" yaml:"pipeline_file"`
+			Status             *Status            `json:"status,omitempty" yaml:"status"`
 		} `json:"repository,omitempty"`
 		Schedulers []Scheduler `json:"schedulers,omitempty" yaml:"schedulers,omitempty"`
 	} `json:"spec,omitempty"`
