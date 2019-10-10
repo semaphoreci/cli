@@ -28,6 +28,11 @@ type PipelineFile struct {
 	Level string `json:"level"`
 }
 
+type Whitelist struct {
+	Branches []string `json:"branches,omitempty"`
+	Tags []string `json:"tags,omitempty"`
+}
+
 type ProjectV1Alpha struct {
 	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion"`
 	Kind       string `json:"kind,omitempty" yaml:"kind"`
@@ -45,6 +50,7 @@ type ProjectV1Alpha struct {
 			ForkedPullRequests ForkedPullRequests `json:"forked_pull_requests,omitempty" yaml:"forked_pull_requests,omitempty"`
 			PipelineFile       string             `json:"pipeline_file" yaml:"pipeline_file"`
 			Status             *Status            `json:"status,omitempty" yaml:"status"`
+			Whitelist          Whitelist          `json:"whitelist" yaml:"whitelist"`
 		} `json:"repository,omitempty"`
 		Schedulers []Scheduler `json:"schedulers,omitempty" yaml:"schedulers,omitempty"`
 	} `json:"spec,omitempty"`
