@@ -1,5 +1,9 @@
 # Changelog
 
+- Introduced support for changing project public status
+
+### v0.17.0
+
 - Introduced support for changing repository status notification
 
 ### v0.16.0

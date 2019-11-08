@@ -38,6 +38,7 @@ type ProjectV1Alpha struct {
 	} `json:"metadata,omitempty"`
 
 	Spec struct {
+		Visibility string `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 		Repository struct {
 			Url                string             `json:"url,omitempty"`
 			RunOn              []string           `json:"run_on,omitempty" yaml:"run_on"`
