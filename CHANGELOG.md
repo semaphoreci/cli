@@ -1,6 +1,7 @@
 # Changelog
 
 - Introduced support for changing project public status
+- Introduced support for changing branches and tags whitelists
 
 ### v0.17.0
 
