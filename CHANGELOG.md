@@ -1,5 +1,9 @@
 # Changelog
 
+- Introduce webhooks in notifications
+
+### v0.18.0
+
 - Introduced support for changing project public status
 - Introduced support for changing branches and tags whitelists
 

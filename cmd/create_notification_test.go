@@ -38,6 +38,7 @@ func Test__CreateNotification(t *testing.T) {
 		"--pipelines", ".semaphore/semaphore.yml",
 		"--slack-channels", "#product",
 		"--slack-endpoint", "https://dasdasdasd/sa/das/da/sdas",
+		"--webhook-endpoint", "https://dasdasdasd/sa",
 	})
 
 	RootCmd.Execute()
@@ -64,4 +65,7 @@ func Test__CreateNotification(t *testing.T) {
 
 	assert.Equal(t, received.Spec.Rules[0].Notify.Slack.Endpoint,
 		"https://dasdasdasd/sa/das/da/sdas")
+
+	assert.Equal(t, received.Spec.Rules[0].Notify.Webhook.Endpoint,
+		"https://dasdasdasd/sa")
 }
