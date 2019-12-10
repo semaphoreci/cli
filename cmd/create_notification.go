@@ -28,6 +28,8 @@ func NewCreateNotificationCmd() *cobra.Command {
 	cmd.Flags().String("slack-channels", "", "Slack channels where to send notifications")
 	cmd.Flags().String("slack-endpoint", "", "Slack webhook endpoint")
 
+	cmd.Flags().String("webhook-endpoint", "", "Webhook endpoint")
+
 	return cmd
 }
 
@@ -45,12 +47,13 @@ Example:
   sem create notification my-notif --slack-channels "#general,#devops"
 `
 
-const errNotificationWithoutSlackEndpoint = `Specify the slack endpoint where to send notificaitons.
+const errNotificationWithoutEndpoint = `Specify the slack and/or webhook endpoint where to send notificaitons.
 
 Example:
 
   sem create notification my-notif \
-    --slack-endpoint "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
+    --slack-endpoint "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX" \
+    --webhook-endpoint "https://example.com/postrequest"
 `
 
 func RunCreateNotification(cmd *cobra.Command, args []string) {
@@ -71,12 +74,15 @@ func RunCreateNotification(cmd *cobra.Command, args []string) {
 	slackEndpoint, err := cmd.Flags().GetString("slack-endpoint")
 	utils.Check(err)
 
+	webhookEndpoint, err := cmd.Flags().GetString("webhook-endpoint")
+	utils.Check(err)
+
 	if len(projects) == 0 {
 		utils.Fail(errNotificationWithoutProject)
 	}
 
-	if slackEndpoint == "" {
-		utils.Fail(errNotificationWithoutSlackEndpoint)
+	if slackEndpoint == "" && webhookEndpoint == "" {
+		utils.Fail(errNotificationWithoutEndpoint)
 	}
 
 	filter := models.NotificationV1AlphaSpecRuleFilter{}
@@ -87,6 +93,7 @@ func RunCreateNotification(cmd *cobra.Command, args []string) {
 	notify := models.NotificationV1AlphaSpecRuleNotify{}
 	notify.Slack.Channels = slackChannels
 	notify.Slack.Endpoint = slackEndpoint
+	notify.Webhook.Endpoint = webhookEndpoint
 
 	ruleName := fmt.Sprintf(
 		"Send notifications for %s", strings.Join(projects, ", "))
