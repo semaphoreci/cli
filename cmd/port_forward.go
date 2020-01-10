@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 
@@ -18,11 +19,14 @@ var portForwardCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 		id := args[0]
-		local_port := args[1]
-		remote_port := args[2]
+		localPort := args[1]
+		remotePort := args[2]
 
 		c := client.NewJobsV1AlphaApi()
 		job, err := c.GetJob(id)
+		utils.Check(err)
+
+		sshKey, err := c.GetJobDebugSSHKey(job.Metadata.Id)
 
 		utils.Check(err)
 
@@ -38,17 +42,17 @@ var portForwardCmd = &cobra.Command{
 
 		ip := job.Status.Agent.Ip
 
-		var ssh_port int32
-		ssh_port = 0
+		var sshPort int32
+		sshPort = 0
 
 		for _, p := range job.Status.Agent.Ports {
 			if p.Name == "ssh" {
-				ssh_port = p.Number
+				sshPort = p.Number
 			}
 		}
 
-		if ip != "" && ssh_port != 0 {
-			sshAndPortForward(ip, ssh_port, "semaphore", local_port, remote_port)
+		if ip != "" && sshPort != 0 {
+			sshAndPortForward(ip, sshPort, "semaphore", localPort, remotePort, sshKey.Key)
 		} else {
 			fmt.Printf("Port forwarding is not possible for job %s.\n", job.Metadata.Id)
 			os.Exit(1)
@@ -56,27 +60,31 @@ var portForwardCmd = &cobra.Command{
 	},
 }
 
-func sshAndPortForward(ip string, sshPort int32, username string, localPort string, remotePort string) {
-	ssh_path, err := exec.LookPath("ssh")
+func sshAndPortForward(ip string, sshPort int32, username string, localPort string, remotePort string, sshKey string) {
+	sshPath, err := exec.LookPath("ssh")
 
 	utils.Check(err)
 
 	portFlag := fmt.Sprintf("-p %d", sshPort)
-	userAndIp := fmt.Sprintf("%s@%s", username, ip)
+	userAndIP := fmt.Sprintf("%s@%s", username, ip)
 	portForwardRule := fmt.Sprintf("%s:0.0.0.0:%s", localPort, remotePort)
 	noStrictRule := "-oStrictHostKeyChecking=no"
 
+	sshKeyFile, _ := ioutil.TempFile("", "sem-cli-debug-private-key")
+	defer os.Remove(sshKeyFile.Name())
+	sshKeyFile.Write([]byte(sshKey))
+	sshKeyFile.Close()
+
 	fmt.Printf("Forwarding %s:%s -> %s:%s...\n", ip, remotePort, "0.0.0.0", localPort)
+	sshCmd := exec.Command(sshPath, "-L", portForwardRule, portFlag, noStrictRule, userAndIP, "-i", sshKeyFile.Name(), "sleep infinity")
 
-	ssh_cmd := exec.Command(ssh_path, "-L", portForwardRule, portFlag, noStrictRule, userAndIp, "sleep infinity")
-
-	ssh_cmd.Stdin = os.Stdin
-	ssh_cmd.Stdout = os.Stdout
-	err = ssh_cmd.Start()
+	sshCmd.Stdin = os.Stdin
+	sshCmd.Stdout = os.Stdout
+	err = sshCmd.Start()
 
 	utils.Check(err)
 
-	err = ssh_cmd.Wait()
+	err = sshCmd.Wait()
 
 	utils.Check(err)
 }
