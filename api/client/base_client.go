@@ -52,8 +52,7 @@ func (c *BaseClient) SetApiVersion(apiVersion string) *BaseClient {
 }
 
 func (c *BaseClient) Get(kind string, resource string) ([]byte, int, error) {
-	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, resource)
-
+	url := c.escapeUrl(fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, resource))
 	log.Printf("GET %s\n", url)
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -82,7 +81,7 @@ func (c *BaseClient) Get(kind string, resource string) ([]byte, int, error) {
 }
 
 func (c *BaseClient) List(kind string) ([]byte, int, error) {
-	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
+	url := c.escapeUrl(fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind))
 
 	log.Printf("GET %s\n", url)
 
@@ -112,7 +111,7 @@ func (c *BaseClient) List(kind string) ([]byte, int, error) {
 }
 
 func (c *BaseClient) ListWithParams(kind string, query url.Values) ([]byte, int, error) {
-	url := fmt.Sprintf("https://%s/api/%s/%s?%s", c.host, c.apiVersion, kind, query.Encode())
+	url := c.escapeUrl(fmt.Sprintf("https://%s/api/%s/%s?%s", c.host, c.apiVersion, kind, query.Encode()))
 
 	log.Printf("GET %s\n", url)
 
@@ -142,7 +141,7 @@ func (c *BaseClient) ListWithParams(kind string, query url.Values) ([]byte, int,
 }
 
 func (c *BaseClient) Delete(kind string, name string) ([]byte, int, error) {
-	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
+	url := c.escapeUrl(fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name))
 
 	log.Printf("DELETE %s\n", url)
 
@@ -181,7 +180,7 @@ func (c *BaseClient) Post(kind string, resource []byte) ([]byte, int, error) {
 }
 
 func (c *BaseClient) PostHeaders(kind string, resource []byte, headers map[string]string) ([]byte, int, error) {
-	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
+	url := c.escapeUrl(fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind))
 
 	log.Printf("POST %s\n", url)
 	log.Println("Resource", string(resource))
@@ -216,7 +215,7 @@ func (c *BaseClient) PostHeaders(kind string, resource []byte, headers map[strin
 }
 
 func (c *BaseClient) Patch(kind string, name string, resource []byte) ([]byte, int, error) {
-	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
+	url := c.escapeUrl(fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name))
 
 	log.Printf("PATCH %s\n", url)
 
@@ -274,7 +273,7 @@ func newfileUploadRequest(uri string, args map[string]string, fileArgName, path 
 }
 
 func (c *BaseClient) PostMultipart(kind string, args map[string]string, fileArgName, path string) ([]byte, int, error) {
-	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
+	url := c.escapeUrl(fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind))
 	log.Printf("POST %s\n", url)
 
 	req, err := newfileUploadRequest(url, args, fileArgName, path)
@@ -299,4 +298,13 @@ func (c *BaseClient) PostMultipart(kind string, args map[string]string, fileArgN
 	log.Println(string(body))
 
 	return body, resp.StatusCode, err
+}
+
+func (c *BaseClient) escapeUrl(rawURL string) string {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return u.String()
 }

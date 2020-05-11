@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	httpmock "gopkg.in/jarcoal/httpmock.v1"
 	"github.com/stretchr/testify/assert"
+	httpmock "gopkg.in/jarcoal/httpmock.v1"
 )
 
 func Test__ListProjects__Response200(t *testing.T) {
@@ -257,13 +257,13 @@ func Test__GetSecret__Response200(t *testing.T) {
 
 	received := false
 
-	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1beta/secrets/aaaaaaa",
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1beta/secrets/test:a:b",
 		func(req *http.Request) (*http.Response, error) {
 			received = true
 
 			s1 := `{
 				"metadata":{
-					"name":"aaaaaaa",
+					"name":"test:a:b",
 					"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
 					"create_time":"1536673464",
 					"update_time":"1536674946"
@@ -284,7 +284,7 @@ func Test__GetSecret__Response200(t *testing.T) {
 		},
 	)
 
-	RootCmd.SetArgs([]string{"get", "secrets", "aaaaaaa"})
+	RootCmd.SetArgs([]string{"get", "secrets", "test:a:b"})
 	RootCmd.Execute()
 
 	if received == false {
