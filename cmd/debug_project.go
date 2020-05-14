@@ -69,7 +69,7 @@ Semaphore CI Debug Session.
   - Checkout your code with ` + "`checkout`" + `
   - Leave the session with ` + "`exit`" + `
 
-Documentation: https://docs.semaphoreci.com/article/75-debugging-with-ssh-access.
+Documentation: https://docs.semaphoreci.com/essentials/debugging-with-ssh-access/.
 `
 
 	ssh.StartDebugProjectSession(job, sshIntroMessage)
