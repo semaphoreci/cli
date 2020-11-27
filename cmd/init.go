@@ -67,6 +67,7 @@ func RunInit(cmd *cobra.Command, args []string) {
 	c := client.NewProjectV1AlphaApi()
 	projectModel := models.NewProjectV1Alpha(name)
 	projectModel.Spec.Repository.Url = repoUrl
+	projectModel.Spec.Repository.RunOn = []string{"branches", "tags"}
 
 	project, err := c.CreateProject(&projectModel)
 
