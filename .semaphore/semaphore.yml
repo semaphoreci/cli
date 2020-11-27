@@ -8,7 +8,7 @@ agent:
 
   containers:
     - name: main
-      image: semaphoreci/golang:1.12
+      image: registry.semaphoreci.com/golang:1.14
 
 blocks:
   - name: "Test"
