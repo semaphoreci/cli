@@ -87,6 +87,10 @@ func (c *Connection) IsReady() (bool, error) {
 	cmd, err := c.sshCommand("bash /tmp/ssh_jump_point cat /tmp/sempahore-user-commands-have-started", false)
 	log.Printf("SSH connection: Running %+v", cmd)
 
+	if err != nil {
+		return false, err
+	}
+
 	output, err := cmd.CombinedOutput()
 	log.Printf("SSH connection: Output %s", output)
 
