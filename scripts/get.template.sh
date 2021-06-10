@@ -4,6 +4,12 @@ OS=$(uname -s)
 ARCH=$(uname -m)
 VERSION="VERSION_PLACEHOLDER"
 
+# Since we don't have built release for Darwin arm64, 
+# we install Darwin x86_64 - which works on M1 with Rosseta emulator
+if [[ "$OS $ARCH" == "Darwin arm64" ]]; then
+  ARCH="x86_64"
+fi
+
 echo "Downloading Semaphore CLI release ${VERSION} for ${OS}_${ARCH} ..."
 echo ""
 
