@@ -11,6 +11,7 @@ builds:
   goarch:
     - 386
     - amd64
+    - arm64
 archive:
   name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
   replacements:
