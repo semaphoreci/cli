@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.22.0
+
+- Introduced support for debug/attach permissions in projects
+
 ### v0.21.0
 
 - Init projects with branches and tags enabled
