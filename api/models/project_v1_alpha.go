@@ -53,6 +53,8 @@ type ProjectV1Alpha struct {
 			Whitelist          Whitelist          `json:"whitelist" yaml:"whitelist"`
 		} `json:"repository,omitempty"`
 		Schedulers []Scheduler `json:"schedulers,omitempty" yaml:"schedulers,omitempty"`
+		DebugPermissions []string `json:"debug_permissions,omitempty" yaml:"debug_permissions,omitempty"`
+		AttachPermissions []string `json:"attach_permissions,omitempty" yaml:"attach_permissions,omitempty"`
 	} `json:"spec,omitempty"`
 }
 

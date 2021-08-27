@@ -1,5 +1,24 @@
 # Changelog
 
+### v0.22.0
+
+- Introduced support for debug/attach permissions in projects
+
+### v0.21.0
+
+- Init projects with branches and tags enabled
+- Update docker image in semaphore config file
+
+### v0.20.1
+
+- Update debug docs link
+
+### v0.20.0
+
+- Fix port-forward for macOS cli release
+
+### v0.19.0
+
 - Introduce webhooks in notifications
 
 ### v0.18.0
