@@ -18,6 +18,7 @@ if ! [ $? -eq 0 ]; then
   echo " - Linux_i386"
   echo " - Darwin_i386"
   echo " - Darwin_x86_64"
+  echo " - Darwin_arm64"
   echo ""
   exit 1
 fi
