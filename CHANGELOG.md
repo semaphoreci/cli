@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.23.1
+
+- Updates goreleaser
+- fixes support for arm64
+
 ### v0.23.0
 
 - Adds support for Darwin arm64 (M1)
