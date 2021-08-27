@@ -3,15 +3,20 @@ before:
   hooks:
   - go get ./...
 builds:
-- env:
-  - CGO_ENABLED=0
-  goos:
-    - linux
-    - darwin
-  goarch:
-    - 386
-    - amd64
-    - arm64
+  - env:
+    - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - 386
+      - amd64
+      - arm64
+    ignore:
+    - goos: darwin
+      goarch: 386
+    - goos: linux
+      goarch: arm64
 archive:
   name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
   replacements:
