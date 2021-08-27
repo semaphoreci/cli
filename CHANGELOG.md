@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.23.0
+
+- Adds support for Darwin arm64 (M1)
+- Fix ssh executable check 
+
 ### v0.22.0
 
 - Introduced support for debug/attach permissions in projects
