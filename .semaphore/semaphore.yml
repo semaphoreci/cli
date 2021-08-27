@@ -18,11 +18,18 @@ blocks:
           value: "on"
 
       jobs:
-      - name: "Test"
-        commands:
-          - checkout
-          - make go.get
-          - make test
+        - name: "Test"
+          commands:
+            - checkout
+            - make go.get
+            - make test
+        - name: "Check release"
+          commands:
+            - checkout
+            - make install.goreleaser
+            - make go.get
+            - goreleaser check
+            - goreleaser release --snapshot --rm-dist
 
 promotions:
   - name: "Release on Github & Brew Tap"
