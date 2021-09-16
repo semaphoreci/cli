@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.24.0
+
+- Adds custom_permissions flag for projects
+
 ### v0.23.1
 
 - Updates goreleaser
