@@ -1,7 +1,6 @@
 package client
 
 import (
-	"errors"
 	"fmt"
 
 	uuid "github.com/google/uuid"
@@ -30,11 +29,11 @@ func (c *PipelinesApiV1AlphaApi) DescribePpl(id string) (*models.PipelineV1Alpha
 	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, detailed)
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
 	}
 
 	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
 	}
 
 	return models.NewPipelineV1AlphaFromJson(body)
@@ -46,11 +45,11 @@ func (c *PipelinesApiV1AlphaApi) StopPpl(id string) ([]byte, error) {
 	body, status, err := c.BaseClient.Patch(c.ResourceNamePlural, id, request_body)
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
 	}
 
 	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
 	}
 
 	return body, nil
@@ -60,48 +59,48 @@ func (c *PipelinesApiV1AlphaApi) PartialRebuildPpl(id string) ([]byte, error) {
 	requestToken, err := uuid.NewUUID()
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("request token generation failed '%s'", err))
+		return nil, fmt.Errorf("request token generation failed '%s'", err)
 	}
 
 	actionArgs := fmt.Sprintf("%s?%s=%s", "partial_rebuild", "request_token", requestToken.String())
 	body, status, err := c.BaseClient.PostAction(c.ResourceNamePlural, id, actionArgs, []byte(""))
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
 	}
 
 	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
 	}
 
 	return body, nil
 }
 
 func (c *PipelinesApiV1AlphaApi) ListPplByWfID(projectID, wfID string) ([]byte, error) {
-  detailed := fmt.Sprintf("%s?project_id=%s&wf_id=%s", c.ResourceNamePlural, projectID, wfID)
+	detailed := fmt.Sprintf("%s?project_id=%s&wf_id=%s", c.ResourceNamePlural, projectID, wfID)
 	body, status, err := c.BaseClient.List(detailed)
 
-  if err != nil {
-		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+	if err != nil {
+		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
 	}
 
 	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
 	}
 
 	return body, nil
 }
 
 func (c *PipelinesApiV1AlphaApi) ListPpl(projectID string) ([]byte, error) {
-  detailed := fmt.Sprintf("%s?project_id=%s", c.ResourceNamePlural, projectID)
+	detailed := fmt.Sprintf("%s?project_id=%s", c.ResourceNamePlural, projectID)
 	body, status, err := c.BaseClient.List(detailed)
 
-  if err != nil {
-		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+	if err != nil {
+		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
 	}
 
 	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
 	}
 
 	return body, nil

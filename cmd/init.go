@@ -120,7 +120,7 @@ func ConstructProjectName(repo_url string) (string, error) {
 	errTemplate += "To add a project with an alternative git url, use the --repo-url flag:\n"
 	errTemplate += "  - sem init --repo-url git@github.com:<owner>/<repo_name>.git\n"
 
-	return "", errors.New(fmt.Sprintf(errTemplate, repo_url))
+	return "", fmt.Errorf(errTemplate, repo_url)
 }
 
 func getGitOriginUrl() (string, error) {

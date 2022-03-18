@@ -1,7 +1,6 @@
 package client
 
 import (
-	"errors"
 	"fmt"
 
 	models "github.com/semaphoreci/cli/api/models"
@@ -28,11 +27,11 @@ func (c *SecretApiV1BetaApi) ListSecrets() (*models.SecretListV1Beta, error) {
 	body, status, err := c.BaseClient.List(c.ResourceNamePlural)
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
 	}
 
 	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
 	}
 
 	return models.NewSecretListV1BetaFromJson(body)
@@ -42,11 +41,11 @@ func (c *SecretApiV1BetaApi) GetSecret(name string) (*models.SecretV1Beta, error
 	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, name)
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
 	}
 
 	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
 	}
 
 	return models.NewSecretV1BetaFromJson(body)
@@ -70,17 +69,17 @@ func (c *SecretApiV1BetaApi) CreateSecret(d *models.SecretV1Beta) (*models.Secre
 	json_body, err := d.ToJson()
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("failed to serialize object '%s'", err))
+		return nil, fmt.Errorf("failed to serialize object '%s'", err)
 	}
 
 	body, status, err := c.BaseClient.Post(c.ResourceNamePlural, json_body)
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("creating %s on Semaphore failed '%s'", c.ResourceNameSingular, err))
+		return nil, fmt.Errorf("creating %s on Semaphore failed '%s'", c.ResourceNameSingular, err)
 	}
 
 	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
 	}
 
 	return models.NewSecretV1BetaFromJson(body)
@@ -90,7 +89,7 @@ func (c *SecretApiV1BetaApi) UpdateSecret(d *models.SecretV1Beta) (*models.Secre
 	json_body, err := d.ToJson()
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("failed to serialize %s object '%s'", c.ResourceNameSingular, err))
+		return nil, fmt.Errorf("failed to serialize %s object '%s'", c.ResourceNameSingular, err)
 	}
 
 	identifier := ""
@@ -104,11 +103,11 @@ func (c *SecretApiV1BetaApi) UpdateSecret(d *models.SecretV1Beta) (*models.Secre
 	body, status, err := c.BaseClient.Patch(c.ResourceNamePlural, identifier, json_body)
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("updating %s on Semaphore failed '%s'", c.ResourceNamePlural, err))
+		return nil, fmt.Errorf("updating %s on Semaphore failed '%s'", c.ResourceNamePlural, err)
 	}
 
 	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
 	}
 
 	return models.NewSecretV1BetaFromJson(body)
