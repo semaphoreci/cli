@@ -57,6 +57,9 @@ func (c *BaseClient) Get(kind string, resource string) ([]byte, int, error) {
 	log.Printf("GET %s\n", url)
 
 	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return []byte(""), 0, err
+	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
@@ -87,6 +90,9 @@ func (c *BaseClient) List(kind string) ([]byte, int, error) {
 	log.Printf("GET %s\n", url)
 
 	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return []byte(""), 0, err
+	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
@@ -117,6 +123,9 @@ func (c *BaseClient) ListWithParams(kind string, query url.Values) ([]byte, int,
 	log.Printf("GET %s\n", url)
 
 	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return []byte(""), 0, err
+	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
@@ -147,6 +156,9 @@ func (c *BaseClient) Delete(kind string, name string) ([]byte, int, error) {
 	log.Printf("DELETE %s\n", url)
 
 	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return []byte(""), 0, err
+	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
@@ -187,6 +199,9 @@ func (c *BaseClient) PostHeaders(kind string, resource []byte, headers map[strin
 	log.Println("Resource", string(resource))
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(resource))
+	if err != nil {
+		return []byte(""), 0, err
+	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
@@ -221,6 +236,9 @@ func (c *BaseClient) Patch(kind string, name string, resource []byte) ([]byte, i
 	log.Printf("PATCH %s\n", url)
 
 	req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(resource))
+	if err != nil {
+		return []byte(""), 0, err
+	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
