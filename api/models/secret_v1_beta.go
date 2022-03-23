@@ -27,7 +27,7 @@ type SecretV1BetaFile struct {
 
 type SecretV1BetaData struct {
 	EnvVars []SecretV1BetaEnvVar `json:"env_vars" yaml:"env_vars"`
-	Files   []SecretV1BetaFile   `json:"files" yaml: "files"`
+	Files   []SecretV1BetaFile   `json:"files" yaml:"files"`
 }
 
 type SecretV1BetaMetadata struct {
