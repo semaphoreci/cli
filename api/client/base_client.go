@@ -282,7 +282,10 @@ func newfileUploadRequest(uri string, args map[string]string, fileArgName, path 
 	}
 
 	for key, val := range args {
-		_ = writer.WriteField(key, val)
+		err = writer.WriteField(key, val)
+		if err != nil {
+			return nil, err
+		}
 	}
 	err = writer.Close()
 	if err != nil {
