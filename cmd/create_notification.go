@@ -29,6 +29,7 @@ func NewCreateNotificationCmd() *cobra.Command {
 	cmd.Flags().String("slack-endpoint", "", "Slack webhook endpoint")
 
 	cmd.Flags().String("webhook-endpoint", "", "Webhook endpoint")
+	cmd.Flags().String("webhook-secret", "", "Webhook secret")
 
 	return cmd
 }
@@ -77,6 +78,9 @@ func RunCreateNotification(cmd *cobra.Command, args []string) {
 	webhookEndpoint, err := cmd.Flags().GetString("webhook-endpoint")
 	utils.Check(err)
 
+	webhookSecret, err := cmd.Flags().GetString("webhook-secret")
+	utils.Check(err)
+
 	if len(projects) == 0 {
 		utils.Fail(errNotificationWithoutProject)
 	}
@@ -94,6 +98,7 @@ func RunCreateNotification(cmd *cobra.Command, args []string) {
 	notify.Slack.Channels = slackChannels
 	notify.Slack.Endpoint = slackEndpoint
 	notify.Webhook.Endpoint = webhookEndpoint
+	notify.Webhook.Secret = webhookSecret
 
 	ruleName := fmt.Sprintf(
 		"Send notifications for %s", strings.Join(projects, ", "))
