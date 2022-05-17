@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.25.0
+
+- Adds secret to webhook notifications
+
 ### v0.24.0
 
 - Adds custom_permissions flag for projects
