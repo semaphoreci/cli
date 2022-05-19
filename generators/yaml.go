@@ -1,7 +1,6 @@
 package generators
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -84,7 +83,7 @@ func GeneratePipelineYaml() error {
 		err := os.Mkdir(".semaphore", 0755)
 
 		if err != nil {
-			return errors.New(fmt.Sprintf("failed to create .semaphore directory '%s'", err))
+			return fmt.Errorf("failed to create .semaphore directory '%s'", err)
 		}
 	}
 
@@ -93,7 +92,7 @@ func GeneratePipelineYaml() error {
 	if err == nil {
 		return nil
 	} else {
-		return errors.New(fmt.Sprintf("failed to create %s file '%s'", path, err))
+		return fmt.Errorf("failed to create %s file '%s'", path, err)
 	}
 }
 

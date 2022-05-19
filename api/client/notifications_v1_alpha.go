@@ -1,7 +1,6 @@
 package client
 
 import (
-	"errors"
 	"fmt"
 
 	models "github.com/semaphoreci/cli/api/models"
@@ -70,7 +69,7 @@ func (c *NotificationsV1AlphaApi) CreateNotification(n *models.NotificationV1Alp
 	json_body, err := n.ToJson()
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("failed to serialize object '%s'", err))
+		return nil, fmt.Errorf("failed to serialize object '%s'", err)
 	}
 
 	body, status, err := c.BaseClient.Post(c.ResourceNamePlural, json_body)
@@ -90,7 +89,7 @@ func (c *NotificationsV1AlphaApi) UpdateNotification(n *models.NotificationV1Alp
 	json_body, err := n.ToJson()
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("failed to serialize %s object '%s'", c.ResourceNameSingular, err))
+		return nil, fmt.Errorf("failed to serialize %s object '%s'", c.ResourceNameSingular, err)
 	}
 
 	identifier := ""
