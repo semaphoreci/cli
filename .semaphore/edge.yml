@@ -9,8 +9,7 @@ blocks:
   - name: "Edge Release"
     task:
       secrets:
-        - name: s2prod-gce
-        - name: sem-robot-ghtoken
+        - name: container-registry-writer
 
       jobs:
       - name: "Release"
