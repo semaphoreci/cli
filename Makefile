@@ -41,7 +41,7 @@ test:
 	docker-compose run --rm cli gotestsum --format short-verbose --junitfile results.xml --packages="./..." -- -p 1
 
 build:
-	docker-compose run --rm cli env GOOS=$(OS) GOARCH=$(ARCH) go build -ldflags "-s -w -X cmd.VERSION=$(shell git describe --tags --abbrev=0)" -o sem
+	docker-compose run --rm cli env GOOS=$(OS) GOARCH=$(ARCH) go build -ldflags "-s -w -X main.version=$(shell git describe --tags --abbrev=0)" -o sem
 	tar -czvf /tmp/sem.tar.gz sem
 
 # Automation of CLI tagging.
