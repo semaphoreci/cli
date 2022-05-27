@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.26.0
+
+- Allow repo URLs also from other hosts than github.com
+- Update goreleaser
+
 ### v0.25.0
 
 - Adds secret to webhook notifications
