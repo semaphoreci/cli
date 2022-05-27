@@ -118,7 +118,21 @@ func TestConstructProjectName__GitFormat(t *testing.T) {
 }
 
 func TestConstructProjectName__HttpFormat(t *testing.T) {
-	_, err := ConstructProjectName("github.com/renderedtext/test")
+	name, _ := ConstructProjectName("https://semaphore@bitbucket.org/semaphoreci/test.git")
+
+	if name != "test" {
+		t.Errorf("Name is incorrect, got: %s, want: %s.", name, "test")
+	}
+
+	name, _ = ConstructProjectName("https://semaphore@bitbucket.org/semaphoreci/test")
+
+	if name != "test" {
+		t.Errorf("Name is incorrect, got: %s, want: %s.", name, "test")
+	}
+}
+
+func TestConstructProjectName__InvalidFormat(t *testing.T) {
+	_, err := ConstructProjectName("github.com/renderedtext")
 
 	if err == nil {
 		t.Errorf("Expected error for unrecognized format.")
