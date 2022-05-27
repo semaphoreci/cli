@@ -4,7 +4,7 @@ REL_VERSION=$(shell git rev-parse HEAD)
 REL_BUCKET=sem-cli-releases
 
 install.goreleaser:
-	curl -L https://github.com/goreleaser/goreleaser/releases/download/v0.159.0/goreleaser_Linux_x86_64.tar.gz -o /tmp/goreleaser.tar.gz
+	curl -L https://github.com/goreleaser/goreleaser/releases/download/v1.9.1/goreleaser_Linux_x86_64.tar.gz -o /tmp/goreleaser.tar.gz
 	tar -xf /tmp/goreleaser.tar.gz -C /tmp
 	sudo mv /tmp/goreleaser /usr/bin/goreleaser
 
