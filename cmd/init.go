@@ -89,20 +89,13 @@ func RunInit(cmd *cobra.Command, args []string) {
 	fmt.Println("")
 }
 
-func ConstructProjectName(repo_url string) (string, error) {
+func ConstructProjectName(repoUrl string) (string, error) {
 	formats := []*regexp.Regexp{
-		regexp.MustCompile(`git\@github\.com:/.*\/(.*).git`),
-		regexp.MustCompile(`git\@github\.com:.*\/(.*).git`),
-		regexp.MustCompile(`git\@github\.com:/.*\/(.*)`),
-		regexp.MustCompile(`git\@github\.com:.*\/(.*)`),
-		regexp.MustCompile(`https://github.com/.*\/(.*).git`),
-		regexp.MustCompile(`https://github.com/.*\/(.*)`),
-		regexp.MustCompile(`http://github.com/.*\/(.*).git`),
-		regexp.MustCompile(`http://github.com/.*\/(.*)`),
+		regexp.MustCompile(`.+[:|\/].*\/([^.]*)`),
 	}
 
 	for _, r := range formats {
-		match := r.FindStringSubmatch(repo_url)
+		match := r.FindStringSubmatch(repoUrl)
 
 		if len(match) >= 2 {
 			return match[1], nil
@@ -112,15 +105,15 @@ func ConstructProjectName(repo_url string) (string, error) {
 	errTemplate := "unsupported git remote format '%s'.\n"
 	errTemplate += "\n"
 	errTemplate += "Format must be one of the following:\n"
-	errTemplate += "  - git@github.com:<owner>/<repo_name>.git\n"
-	errTemplate += "  - git@github.com:<owner>/<repo_name>\n"
-	errTemplate += "  - https://github.com/<owner>/<repo_name>\n"
-	errTemplate += "  - https://github.com/<owner>/<repo_name>.git\n"
+	errTemplate += "  - git@HOST:<owner>/<repo_name>.git\n"
+	errTemplate += "  - git@HOST:<owner>/<repo_name>\n"
+	errTemplate += "  - https://HOST/<owner>/<repo_name>\n"
+	errTemplate += "  - https://HOST/<owner>/<repo_name>.git\n"
 	errTemplate += "\n"
 	errTemplate += "To add a project with an alternative git url, use the --repo-url flag:\n"
 	errTemplate += "  - sem init --repo-url git@github.com:<owner>/<repo_name>.git\n"
 
-	return "", errors.New(fmt.Sprintf(errTemplate, repo_url))
+	return "", errors.New(fmt.Sprintf(errTemplate, repoUrl))
 }
 
 func getGitOriginUrl() (string, error) {
