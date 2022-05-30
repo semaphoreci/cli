@@ -9,7 +9,7 @@ blocks:
   - name: "Stable Release"
     task:
       secrets:
-        - name: s2prod-gce
+        - name: container-registry-writer
 
       jobs:
       - name: "Stable"

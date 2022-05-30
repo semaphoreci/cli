@@ -16,7 +16,8 @@ go.install:
 	cd -
 
 gsutil.configure:
-	gcloud auth activate-service-account deploy-from-semaphore@semaphore2-prod.iam.gserviceaccount.com --key-file ~/gce-creds.json
+	gcloud auth activate-service-account $(GCP_REGISTRY_WRITER_EMAIL) --key-file ~/gce-registry-writer-key.json
+	gcloud --quiet auth configure-docker
 	gcloud config set project semaphore2-prod
 
 go.get:
