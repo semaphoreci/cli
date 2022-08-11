@@ -22,7 +22,7 @@ blocks:
       - name: GoReleaser
         commands:
           - make install.goreleaser
-          - goreleaser --rm-dist
+          - sem-semantic-release --plugins @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/changelog @semantic-release/git @semantic-release/exec --branches master
 
 promotions:
   - name: Release Edge
