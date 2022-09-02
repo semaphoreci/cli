@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.26.1
+
+- Adds agent name to job
+
 ### v0.26.0
 
 - Allow repo URLs also from other hosts than github.com
