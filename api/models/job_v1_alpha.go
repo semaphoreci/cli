@@ -70,6 +70,7 @@ type JobV1AlphaStatus struct {
 	Result string `json:"result" yaml:"result"`
 	Agent  struct {
 		Ip    string `json:"ip" yaml:"ip"`
+		Name  string `json:"name" yaml:"name"`
 		Ports []struct {
 			Name   string `json:"name" yaml:"name"`
 			Number int32  `json:"number" yaml:"number"`
