@@ -77,6 +77,18 @@ func RunApply(cmd *cobra.Command, args []string) {
 		utils.Check(err)
 
 		fmt.Printf("Notification '%s' updated.\n", notif.Metadata.Name)
+	case "Project":
+		proj , err := models.NewProjectV1AlphaFromYaml(data)
+
+		utils.Check(err)
+
+		c := client.NewProjectV1AlphaApi()
+
+		proj, err = c.UpdateProject(proj)
+
+		utils.Check(err)
+
+		fmt.Printf("Project '%s' updated.\n", proj.Metadata.Name)
 	default:
 		utils.Fail(fmt.Sprintf("Unsuported resource kind '%s'", kind))
 	}

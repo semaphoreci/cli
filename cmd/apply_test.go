@@ -129,3 +129,44 @@ spec:
 		t.Errorf("Expected the API to receive PATCH dashbord with: %s, got: %s", expected, received)
 	}
 }
+
+func Test__ApplyProject__FromYaml_Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	yaml_file := `
+apiVersion: v1alpha
+kind: Project
+metadata:
+  name: Test
+  id: a13949b7-b2f6-4286-8f26-3962d7e97828
+spec:
+  visibility: public
+  repository:
+    url: "git@github.com:/semaphoreci/cli.git"
+`
+
+	yaml_file_path := "/tmp/project.yaml"
+	ioutil.WriteFile(yaml_file_path, []byte(yaml_file), 0644)
+
+	received := ""
+
+	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/a13949b7-b2f6-4286-8f26-3962d7e97828",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+
+			received = string(body)
+
+			return httpmock.NewStringResponse(200, received), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"apply", "-f", yaml_file_path})
+	RootCmd.Execute()
+
+	expected := `{"apiVersion":"v1alpha","kind":"Project","metadata":{"name":"Test","id":"a13949b7-b2f6-4286-8f26-3962d7e97828"},"spec":{"visibility":"public","repository":{"url":"git@github.com:/semaphoreci/cli.git","forked_pull_requests":{},"pipeline_file":"","whitelist":{}}}}`
+
+	if received != expected {
+		t.Errorf("Expected the API to receive PATCH project with: %s, got: %s", expected, received)
+	}
+}
