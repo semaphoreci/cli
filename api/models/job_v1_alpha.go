@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -140,4 +141,12 @@ func (j *JobV1Alpha) ToJson() ([]byte, error) {
 
 func (j *JobV1Alpha) ToYaml() ([]byte, error) {
 	return yaml.Marshal(j)
+}
+
+func (j *JobV1Alpha) IsSelfHosted() bool {
+	return strings.HasPrefix(j.Spec.Agent.Machine.Type, "s1-")
+}
+
+func (j *JobV1Alpha) AgentName() string {
+	return j.Status.Agent.Name
 }

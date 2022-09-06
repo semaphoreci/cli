@@ -34,7 +34,20 @@ var attachCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// Get SSH key for job
+		/*
+		 * If we want to attach to a machine where a self-hosted job is running, no SSH key will be available.
+		 * We just give the agent name back to the user and return.
+		 */
+		if job.IsSelfHosted() {
+			fmt.Printf("* Job '%s' is running in the self-hosted agent named '%s'.\n", id, job.AgentName())
+			fmt.Printf("* Once you access the machine where that agent is running, make sure you are logged in as the same user the Semaphore agent is using.\n")
+			fmt.Printf("* You can source the '/tmp/.env-*' file where the agent keeps all the environment variables exposed to the job.\n")
+			return
+		}
+
+		/*
+		 * If this is for a cloud job, we go for the SSH key.
+		 */
 		sshKey, err := c.GetJobDebugSSHKey(job.Metadata.Id)
 		utils.Check(err)
 
