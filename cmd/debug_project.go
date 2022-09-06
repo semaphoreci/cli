@@ -41,7 +41,7 @@ func RunDebugProjectCmd(cmd *cobra.Command, args []string) {
 	utils.Check(err)
 
 	if jobs.IsSelfHosted(machineType) {
-		fmt.Printf("Error: self-hosted agent type '%s' can't be used to debug a project. Only cloud agent types are allowed.\n", machineType)
+		fmt.Printf("Self-hosted agent type '%s' can't be used to debug a project. Only cloud agent types are allowed.\n", machineType)
 		os.Exit(1)
 	}
 
