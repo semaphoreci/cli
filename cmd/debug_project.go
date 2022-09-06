@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	client "github.com/semaphoreci/cli/api/client"
 	models "github.com/semaphoreci/cli/api/models"
+	"github.com/semaphoreci/cli/cmd/jobs"
 	"github.com/semaphoreci/cli/cmd/ssh"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
@@ -37,6 +39,11 @@ func NewDebugProjectCmd() *cobra.Command {
 func RunDebugProjectCmd(cmd *cobra.Command, args []string) {
 	machineType, err := cmd.Flags().GetString("machine-type")
 	utils.Check(err)
+
+	if jobs.IsSelfHosted(machineType) {
+		fmt.Printf("Error: self-hosted agent type '%s' can't be used to debug a project. Only cloud agent types are allowed.\n", machineType)
+		os.Exit(1)
+	}
 
 	duration, err := cmd.Flags().GetDuration("duration")
 

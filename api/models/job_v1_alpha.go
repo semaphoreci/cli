@@ -3,8 +3,8 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
+	"github.com/semaphoreci/cli/cmd/jobs"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -144,7 +144,7 @@ func (j *JobV1Alpha) ToYaml() ([]byte, error) {
 }
 
 func (j *JobV1Alpha) IsSelfHosted() bool {
-	return strings.HasPrefix(j.Spec.Agent.Machine.Type, "s1-")
+	return jobs.IsSelfHosted(j.Spec.Agent.Machine.Type)
 }
 
 func (j *JobV1Alpha) AgentName() string {
