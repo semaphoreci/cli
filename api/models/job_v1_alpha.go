@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/semaphoreci/cli/cmd/jobs"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -140,4 +141,12 @@ func (j *JobV1Alpha) ToJson() ([]byte, error) {
 
 func (j *JobV1Alpha) ToYaml() ([]byte, error) {
 	return yaml.Marshal(j)
+}
+
+func (j *JobV1Alpha) IsSelfHosted() bool {
+	return jobs.IsSelfHosted(j.Spec.Agent.Machine.Type)
+}
+
+func (j *JobV1Alpha) AgentName() string {
+	return j.Status.Agent.Name
 }
