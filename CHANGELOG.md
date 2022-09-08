@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.26.2
+
+- Add apply for project yaml files
+- Self-hosted debug sessions support
+
 ### v0.26.1
 
 - Adds agent name to job
