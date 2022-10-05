@@ -20,9 +20,9 @@ func StartDebugJobSession(debug *models.DebugJobV1Alpha, message string) error {
 	return StartDebugSession(job, message)
 }
 
-func StartDebugProjectSession(job *models.JobV1Alpha, message string) error {
+func StartDebugProjectSession(debug_project *models.DebugProjectV1Alpha, message string) error {
 	c := client.NewJobsV1AlphaApi()
-	job, err := c.CreateJob(job)
+	job, err := c.CreateDebugProject(debug_project)
 	utils.Check(err)
 
 	return StartDebugSession(job, message)
