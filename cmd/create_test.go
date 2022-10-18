@@ -24,6 +24,7 @@ spec:
   visibility: public
   repository:
     url: "git@github.com:/semaphoreci/cli.git"
+    integration_type: github_token
 `
 
 	yaml_file_path := "/tmp/project.yaml"
@@ -45,7 +46,7 @@ spec:
 	RootCmd.SetArgs([]string{"create", "-f", yaml_file_path})
 	RootCmd.Execute()
 
-    expected := `{"apiVersion":"v1alpha","kind":"Project","metadata":{"name":"Test"},"spec":{"visibility":"public","repository":{"url":"git@github.com:/semaphoreci/cli.git","forked_pull_requests":{},"pipeline_file":"","whitelist":{}}}}`
+	expected := `{"apiVersion":"v1alpha","kind":"Project","metadata":{"name":"Test"},"spec":{"visibility":"public","repository":{"url":"git@github.com:/semaphoreci/cli.git","forked_pull_requests":{},"pipeline_file":"","whitelist":{},"integration_type":"github_token"}}}`
 
 	if received != expected {
 		t.Errorf("Expected the API to receive POST projects with: %s, got: %s", expected, received)
