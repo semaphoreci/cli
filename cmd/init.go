@@ -17,8 +17,14 @@ import (
 	gitconfig "github.com/tcnksm/go-gitconfig"
 )
 
+const (
+	IntegrationTypeGithubToken = "github_token"
+	IntegrationTypeGithubApp   = "github_app"
+)
+
 var flagProjectName string
 var flagRepoUrl string
+var flagIntegrationType string
 
 func InitCmd() cobra.Command {
 	cmd := cobra.Command{
@@ -33,6 +39,13 @@ func InitCmd() cobra.Command {
 
 	cmd.Flags().StringVar(&flagRepoUrl, "repo-url", "", "explicitly set the repository url, if not set it is extracted from local git repository")
 	cmd.Flags().StringVar(&flagProjectName, "project-name", "", "explicitly set the project name, if not set it is extracted from the repo-url")
+
+	cmd.Flags().StringVar(
+		&flagIntegrationType,
+		"integration-type",
+		"github_token",
+		fmt.Sprintf("integration type for the project. Possible values are: %v", validIntegrationTypes()),
+	)
 
 	return cmd
 }
@@ -64,10 +77,19 @@ func RunInit(cmd *cobra.Command, args []string) {
 		utils.Check(err)
 	}
 
+	if flagIntegrationType != IntegrationTypeGithubToken && flagIntegrationType != IntegrationTypeGithubApp {
+		utils.Fail(fmt.Sprintf(
+			"Invalid integration type '%s' for project. Possible values are %v",
+			flagIntegrationType,
+			validIntegrationTypes(),
+		))
+	}
+
 	c := client.NewProjectV1AlphaApi()
 	projectModel := models.NewProjectV1Alpha(name)
 	projectModel.Spec.Repository.Url = repoUrl
 	projectModel.Spec.Repository.RunOn = []string{"branches", "tags"}
+	projectModel.Spec.Repository.IntegrationType = flagIntegrationType
 
 	project, err := c.CreateProject(&projectModel)
 
@@ -126,4 +148,8 @@ func getGitOriginUrl() (string, error) {
 	} else {
 		return "git@github.com:/renderedtext/something.git", nil
 	}
+}
+
+func validIntegrationTypes() []string {
+	return []string{IntegrationTypeGithubToken, IntegrationTypeGithubApp}
 }

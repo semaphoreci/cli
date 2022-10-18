@@ -24,13 +24,13 @@ type Status struct {
 }
 
 type PipelineFile struct {
-	Path string `json:"path"`
+	Path  string `json:"path"`
 	Level string `json:"level"`
 }
 
 type Whitelist struct {
 	Branches []string `json:"branches,omitempty"`
-	Tags []string `json:"tags,omitempty"`
+	Tags     []string `json:"tags,omitempty"`
 }
 
 type ProjectV1Alpha struct {
@@ -51,11 +51,12 @@ type ProjectV1Alpha struct {
 			PipelineFile       string             `json:"pipeline_file" yaml:"pipeline_file"`
 			Status             *Status            `json:"status,omitempty" yaml:"status"`
 			Whitelist          Whitelist          `json:"whitelist" yaml:"whitelist"`
+			IntegrationType    string             `json:"integration_type" yaml:"integration_type"`
 		} `json:"repository,omitempty"`
-		Schedulers []Scheduler `json:"schedulers,omitempty" yaml:"schedulers,omitempty"`
-		CustomPermissions *bool `json:"custom_permissions,omitempty" yaml:"custom_permissions,omitempty"`
-		DebugPermissions []string `json:"debug_permissions,omitempty" yaml:"debug_permissions,omitempty"`
-		AttachPermissions []string `json:"attach_permissions,omitempty" yaml:"attach_permissions,omitempty"`
+		Schedulers        []Scheduler `json:"schedulers,omitempty" yaml:"schedulers,omitempty"`
+		CustomPermissions *bool       `json:"custom_permissions,omitempty" yaml:"custom_permissions,omitempty"`
+		DebugPermissions  []string    `json:"debug_permissions,omitempty" yaml:"debug_permissions,omitempty"`
+		AttachPermissions []string    `json:"attach_permissions,omitempty" yaml:"attach_permissions,omitempty"`
 	} `json:"spec,omitempty"`
 }
 
