@@ -144,6 +144,7 @@ spec:
   visibility: public
   repository:
     url: "git@github.com:/semaphoreci/cli.git"
+    integration_type: github_token
 `
 
 	yaml_file_path := "/tmp/project.yaml"
@@ -164,7 +165,7 @@ spec:
 	RootCmd.SetArgs([]string{"apply", "-f", yaml_file_path})
 	RootCmd.Execute()
 
-	expected := `{"apiVersion":"v1alpha","kind":"Project","metadata":{"name":"Test","id":"a13949b7-b2f6-4286-8f26-3962d7e97828"},"spec":{"visibility":"public","repository":{"url":"git@github.com:/semaphoreci/cli.git","forked_pull_requests":{},"pipeline_file":"","whitelist":{}}}}`
+	expected := `{"apiVersion":"v1alpha","kind":"Project","metadata":{"name":"Test","id":"a13949b7-b2f6-4286-8f26-3962d7e97828"},"spec":{"visibility":"public","repository":{"url":"git@github.com:/semaphoreci/cli.git","forked_pull_requests":{},"pipeline_file":"","whitelist":{},"integration_type":"github_token"}}}`
 
 	if received != expected {
 		t.Errorf("Expected the API to receive PATCH project with: %s, got: %s", expected, received)
