@@ -89,7 +89,7 @@ func TestRunInit__IntegrationTypeParamPassed(t *testing.T) {
 
 	cmd.SetArgs([]string{
 		`--project-name=another-name`,
-		`--integration-type=github_app`,
+		`--github-integration=github_app`,
 	})
 
 	cmd.Execute()
