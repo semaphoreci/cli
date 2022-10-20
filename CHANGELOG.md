@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.26.3
+
+- Add `--github-integration` option for init command
+
 ### v0.26.2
 
 - Add apply for project yaml files
