@@ -94,6 +94,17 @@ var createCmd = &cobra.Command{
 			utils.Check(err)
 
 			fmt.Printf("Job '%s' created.\n", job.Metadata.Id)
+		case "SelfHostedAgentType":
+			at, err := models.NewAgentTypeV1AlphaFromYaml(data)
+			utils.Check(err)
+
+			c := client.NewAgentTypeApiV1AlphaApi()
+			newAgentType, err := c.CreateAgentType(at)
+			utils.Check(err)
+
+			y, err := newAgentType.ToYaml()
+			utils.Check(err)
+			fmt.Printf("%s", y)
 		default:
 			utils.Fail(fmt.Sprintf("Unsupported resource kind '%s'", kind))
 		}
@@ -118,6 +129,27 @@ var CreateDashboardCmd = &cobra.Command{
 		utils.Check(err)
 
 		fmt.Printf("Dashboard '%s' created.\n", dash.Metadata.Name)
+	},
+}
+
+var CreateAgentTypeCmd = &cobra.Command{
+	Use:     "agent_type [NAME]",
+	Short:   "Create a self-hosted agent type.",
+	Long:    ``,
+	Aliases: []string{"agent_type", "at"},
+	Args:    cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		name := args[0]
+
+		c := client.NewAgentTypeApiV1AlphaApi()
+		at := models.NewAgentTypeV1Alpha(name)
+		agentType, err := c.CreateAgentType(&at)
+		utils.Check(err)
+
+		y, err := agentType.ToYaml()
+		utils.Check(err)
+		fmt.Printf("%s", y)
 	},
 }
 
@@ -185,6 +217,7 @@ func init() {
 	createCmd.AddCommand(createJobCmd)
 	createCmd.AddCommand(CreateWorkflowCmd)
 	createCmd.AddCommand(createNotificationCmd)
+	createCmd.AddCommand(CreateAgentTypeCmd)
 
 	// Create Flags
 

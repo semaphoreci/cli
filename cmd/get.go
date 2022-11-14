@@ -110,6 +110,49 @@ var GetSecretCmd = &cobra.Command{
 	},
 }
 
+var GetAgentTypeCmd = &cobra.Command{
+	Use:     "agent_types [name]",
+	Short:   "Get self-hosted agent types.",
+	Long:    ``,
+	Aliases: []string{"agent_type"},
+	Args:    cobra.RangeArgs(0, 1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		c := client.NewAgentTypeApiV1AlphaApi()
+
+		if len(args) == 0 {
+			agentTypeList, err := c.ListAgentTypes()
+
+			utils.Check(err)
+
+			const padding = 3
+			w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
+
+			fmt.Fprintln(w, "NAME\tAGE")
+
+			for _, a := range agentTypeList.AgentTypes {
+				updateTime, err := a.Metadata.UpdateTime.Int64()
+				utils.Check(err)
+				fmt.Fprintf(w, "%s\t%s\n", a.Metadata.Name, utils.RelativeAgeForHumans(updateTime))
+			}
+
+			w.Flush()
+		} else {
+			name := args[0]
+
+			secret, err := c.GetAgentType(name)
+
+			utils.Check(err)
+
+			y, err := secret.ToYaml()
+
+			utils.Check(err)
+
+			fmt.Printf("%s", y)
+		}
+	},
+}
+
 var GetProjectCmd = &cobra.Command{
 	Use:     "projects [name]",
 	Short:   "Get projects.",
@@ -283,6 +326,7 @@ func init() {
 	getCmd.AddCommand(getNotificationCmd)
 	getCmd.AddCommand(GetSecretCmd)
 	getCmd.AddCommand(GetProjectCmd)
+	getCmd.AddCommand(GetAgentTypeCmd)
 
 	GetJobCmd.Flags().BoolVar(&GetJobAllStates, "all", false, "list all jobs including finished ones")
 	getCmd.AddCommand(GetJobCmd)

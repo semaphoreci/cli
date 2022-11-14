@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	httpmock "gopkg.in/jarcoal/httpmock.v1"
 	"github.com/stretchr/testify/assert"
+	httpmock "gopkg.in/jarcoal/httpmock.v1"
 )
 
 func Test__ListProjects__Response200(t *testing.T) {
@@ -289,6 +289,39 @@ func Test__GetSecret__Response200(t *testing.T) {
 
 	if received == false {
 		t.Error("Expected the API to receive GET secrets/aaaaaaa")
+	}
+}
+
+func Test__GetAgentType__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/self_hosted_agent_types/s1-testing",
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			a1 := `{
+				"metadata":{
+					"name":"s1-testing",
+					"create_time":1536673464,
+					"update_time":1536674946
+				},
+				"status":{
+					"total_agent_count":0
+				}
+			}`
+
+			return httpmock.NewStringResponse(200, a1), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"get", "agent_type", "s1-testing"})
+	RootCmd.Execute()
+
+	if received == false {
+		t.Error("Expected the API to receive GET self_hosted_agent_types/s1-testing")
 	}
 }
 

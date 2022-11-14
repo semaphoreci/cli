@@ -55,6 +55,23 @@ var DeleteSecretCmd = &cobra.Command{
 	},
 }
 
+var DeleteAgentTypeCmd = &cobra.Command{
+	Use:     "agent_type [NAME]",
+	Short:   "Delete a self-hosted agent type.",
+	Long:    ``,
+	Aliases: []string{"agent_Type"},
+	Args:    cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		name := args[0]
+		c := client.NewAgentTypeApiV1AlphaApi()
+		err := c.DeleteAgentType(name)
+		utils.Check(err)
+
+		fmt.Printf("Self-hosted agent type '%s' deleted.\n", name)
+	},
+}
+
 var DeleteProjectCmd = &cobra.Command{
 	Use:     "project [NAME]",
 	Short:   "Delete a project.",
@@ -102,4 +119,5 @@ func init() {
 	deleteCmd.AddCommand(DeleteProjectCmd)
 	deleteCmd.AddCommand(DeleteSecretCmd)
 	deleteCmd.AddCommand(DeleteNotificationCmd)
+	deleteCmd.AddCommand(DeleteAgentTypeCmd)
 }
