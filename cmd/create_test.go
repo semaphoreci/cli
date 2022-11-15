@@ -199,3 +199,66 @@ func Test__CreateDashboard__WithSubcommand__Response200(t *testing.T) {
 		t.Errorf("Expected the API to receive POST dashboard with: %s, got: %s", expected, received)
 	}
 }
+
+func Test__CreateAgentType__FromYaml__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	yaml_file := `
+apiVersion: v1alpha
+kind: SelfHostedAgentType
+metadata:
+  name: s1-testing-from-yaml
+`
+
+	yaml_file_path := "/tmp/agent_type.yaml"
+
+	ioutil.WriteFile(yaml_file_path, []byte(yaml_file), 0644)
+
+	received := ""
+
+	httpmock.RegisterResponder("POST", "https://org.semaphoretext.xyz/api/v1alpha/self_hosted_agent_types",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+
+			received = string(body)
+
+			return httpmock.NewStringResponse(200, received), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"create", "-f", yaml_file_path})
+	RootCmd.Execute()
+
+	expected := `{"apiVersion":"v1alpha","kind":"SelfHostedAgentType","metadata":{"name":"s1-testing-from-yaml"},"status":{}}`
+
+	if received != expected {
+		t.Errorf("Expected the API to receive POST self_hosted_agent_types with: %s, got: %s", expected, received)
+	}
+}
+
+func Test__CreateAgentType__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := ""
+
+	httpmock.RegisterResponder("POST", "https://org.semaphoretext.xyz/api/v1alpha/self_hosted_agent_types",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+
+			received = string(body)
+
+			return httpmock.NewStringResponse(200, received), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"create", "agent_type", "s1-testing"})
+	RootCmd.Execute()
+
+	expected := `{"apiVersion":"v1alpha","kind":"SelfHostedAgentType","metadata":{"name":"s1-testing"},"status":{}}`
+
+	if received != expected {
+		t.Errorf("Expected the API to receive POST self_hosted_agent_types with: %s, got: %s", expected, received)
+	}
+}
