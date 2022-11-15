@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.26.4
+
+- Add get/create/delete commands for agent types
+
 ### v0.26.3
 
 - Add `--github-integration` option for init command
