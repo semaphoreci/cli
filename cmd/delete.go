@@ -59,7 +59,7 @@ var DeleteAgentTypeCmd = &cobra.Command{
 	Use:     "agent_type [NAME]",
 	Short:   "Delete a self-hosted agent type.",
 	Long:    ``,
-	Aliases: []string{"agent_Type"},
+	Aliases: []string{"agenttype", "agentType"},
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {

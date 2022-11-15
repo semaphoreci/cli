@@ -114,7 +114,7 @@ var GetAgentTypeCmd = &cobra.Command{
 	Use:     "agent_types [name]",
 	Short:   "Get self-hosted agent types.",
 	Long:    ``,
-	Aliases: []string{"agent_type"},
+	Aliases: []string{"agent_type", "agenttype", "agenttypes", "agentTypes", "agentType"},
 	Args:    cobra.RangeArgs(0, 1),
 
 	Run: func(cmd *cobra.Command, args []string) {

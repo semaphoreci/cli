@@ -136,7 +136,7 @@ var CreateAgentTypeCmd = &cobra.Command{
 	Use:     "agent_type [NAME]",
 	Short:   "Create a self-hosted agent type.",
 	Long:    ``,
-	Aliases: []string{"agent_type", "at"},
+	Aliases: []string{"agenttype", "agentType"},
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
