@@ -7,7 +7,7 @@ VERSION="VERSION_PLACEHOLDER"
 echo "Downloading Semaphore CLI release ${VERSION} for ${OS}_${ARCH} ..."
 echo ""
 
-readonly TMP_DIR="$(mktemp -p . -d -t sem-XXXX)"
+readonly TMP_DIR="$(mktemp -d -t sem-XXXX)"
 
 trap cleanup EXIT
 
