@@ -7,7 +7,16 @@ VERSION="VERSION_PLACEHOLDER"
 echo "Downloading Semaphore CLI release ${VERSION} for ${OS}_${ARCH} ..."
 echo ""
 
-curl --fail -L "https://github.com/semaphoreci/cli/releases/download/${VERSION}/sem_${OS}_${ARCH}.tar.gz" -o /tmp/sem.tar.gz
+readonly TMP_DIR="$(mktemp -d -t sem-XXXX)"
+
+trap cleanup EXIT
+
+cleanup() {
+  rm -rf "${TMP_DIR}"
+}
+
+curl --fail -L "https://github.com/semaphoreci/cli/releases/download/${VERSION}/sem_${OS}_${ARCH}.tar.gz" -o ${TMP_DIR}/sem.tar.gz
+
 
 if ! [ $? -eq 0 ]; then
   echo ""
@@ -24,9 +33,11 @@ if ! [ $? -eq 0 ]; then
   exit 1
 fi
 
-tar -xzf /tmp/sem.tar.gz -C /tmp
-sudo chmod +x /tmp/sem
-sudo mv /tmp/sem /usr/local/bin/
+
+tar -xzf ${TMP_DIR}/sem.tar.gz -C ${TMP_DIR}
+sudo chmod +x ${TMP_DIR}/sem
+sudo mv ${TMP_DIR}/sem /usr/local/bin/
+
 
 echo ""
 echo "Semaphore CLI ${VERSION} for ${OS}_${ARCH} installed."
