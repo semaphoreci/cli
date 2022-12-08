@@ -43,6 +43,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	CheckNewerVersion()
 	RootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 }
 
