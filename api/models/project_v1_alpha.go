@@ -13,6 +13,7 @@ type Scheduler struct {
 	Branch       string `json:"branch"`
 	At           string `json:"at"`
 	PipelineFile string `json:"pipeline_file" yaml:"pipeline_file"`
+	Status       string `json:"status,omitempty" yaml:"status,omitempty"`
 }
 
 type ForkedPullRequests struct {
