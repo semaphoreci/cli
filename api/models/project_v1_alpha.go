@@ -13,6 +13,7 @@ type Scheduler struct {
 	Branch       string `json:"branch"`
 	At           string `json:"at"`
 	PipelineFile string `json:"pipeline_file" yaml:"pipeline_file"`
+	Paused 		 bool   `json:"paused,omitempty" yaml:"paused,omitempty"`
 }
 
 type ForkedPullRequests struct {
@@ -87,6 +88,9 @@ func NewProjectV1AlphaFromYaml(data []byte) (*ProjectV1Alpha, error) {
 	p := ProjectV1Alpha{}
 
 	err := yaml.UnmarshalStrict(data, &p)
+
+	fmt.Println("data from yaml: ")
+	fmt.Printf("%+v", p)
 
 	if err != nil {
 		return nil, err
