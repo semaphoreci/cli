@@ -69,6 +69,7 @@ func sshAndPortForward(ip string, sshPort int32, username string, localPort stri
 	userAndIP := fmt.Sprintf("%s@%s", username, ip)
 	portForwardRule := fmt.Sprintf("%s:0.0.0.0:%s", localPort, remotePort)
 	noStrictRule := "-oStrictHostKeyChecking=no"
+	identityOnlyrule := "-oIdentitiesOnly=yes"
 
 	sshKeyFile, _ := ioutil.TempFile("", "sem-cli-debug-private-key")
 	defer os.Remove(sshKeyFile.Name())
@@ -76,7 +77,7 @@ func sshAndPortForward(ip string, sshPort int32, username string, localPort stri
 	sshKeyFile.Close()
 
 	fmt.Printf("Forwarding %s:%s -> %s:%s...\n", ip, remotePort, "0.0.0.0", localPort)
-	sshCmd := exec.Command(sshPath, "-L", portForwardRule, portFlag, noStrictRule, userAndIP, "-i", sshKeyFile.Name(), "sleep infinity")
+	sshCmd := exec.Command(sshPath, "-L", portForwardRule, portFlag, noStrictRule, identityOnlyrule, userAndIP, "-i", sshKeyFile.Name(), "sleep infinity")
 
 	sshCmd.Stdin = os.Stdin
 	sshCmd.Stdout = os.Stdout
