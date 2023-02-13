@@ -15,5 +15,5 @@ require (
 	github.com/stretchr/testify v1.2.2
 	github.com/tcnksm/go-gitconfig v0.1.2
 	gopkg.in/jarcoal/httpmock.v1 v1.0.0-20180719183105-8007e27cdb32
-	gopkg.in/yaml.v2 v2.2.1
+	gopkg.in/yaml.v2 v2.4.0
 )
