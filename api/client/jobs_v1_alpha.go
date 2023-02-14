@@ -115,6 +115,27 @@ func (c *JobsApiV1AlphaApi) CreateDebugJob(j *models.DebugJobV1Alpha) (*models.J
 	return models.NewJobV1AlphaFromJson(body)
 }
 
+func (c *JobsApiV1AlphaApi) CreateDebugProject(j *models.DebugProjectV1Alpha) (*models.JobV1Alpha, error) {
+	json_body, err := j.ToJson()
+
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("failed to serialize object '%s'", err))
+	}
+
+	path := fmt.Sprintf("%s/%s/%s", c.ResourceNamePlural, "project_debug", j.ProjectIdOrName)
+	body, status, err := c.BaseClient.Post(path, json_body)
+
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("creating debug %s on Semaphore failed '%s'", c.ResourceNameSingular, err))
+	}
+
+	if status != 200 {
+		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
+
+	return models.NewJobV1AlphaFromJson(body)
+}
+
 func (c *JobsApiV1AlphaApi) StopJob(id string) error {
 	path := fmt.Sprintf("%s/%s/%s", c.ResourceNamePlural, id, "stop")
 	body, status, err := c.BaseClient.Post(path, []byte{})
