@@ -13,6 +13,7 @@ type SecretV1Beta struct {
 
 	Metadata SecretV1BetaMetadata `json:"metadata" yaml:"metadata"`
 	Data     SecretV1BetaData     `json:"data" yaml:"data"`
+	OrgConfig *SecretV1BetaOrgConfig `json:"org_config,omitempty" yaml:"org_config,omitempty"`
 }
 
 type SecretV1BetaEnvVar struct {
@@ -35,6 +36,13 @@ type SecretV1BetaMetadata struct {
 	Id         string      `json:"id,omitempty" yaml:"id,omitempty"`
 	CreateTime json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
 	UpdateTime json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
+}
+
+type SecretV1BetaOrgConfig struct {
+	Projects_access string `json:"projects_access,omitempty" yaml:"projects_access,omitempty"`
+	Project_ids []string `json:"project_ids,omitempty" yaml:"project_ids,omitempty"`
+	Debug_access string `json:"debug_access,omitempty" yaml:"debug_access,omitempty"`
+	Attach_access string `json:"attach_access,omitempty" yaml:"attach_access,omitempty"`
 }
 
 func NewSecretV1Beta(name string, envVars []SecretV1BetaEnvVar, files []SecretV1BetaFile) SecretV1Beta {
