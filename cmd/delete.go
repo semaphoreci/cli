@@ -38,20 +38,33 @@ var DeleteDashboardCmd = &cobra.Command{
 var DeleteSecretCmd = &cobra.Command{
 	Use:     "secret [NAME]",
 	Short:   "Delete a secret.",
-	Long:    ``,
+	Long:    `Delete a organization or project secret. To delete a project secret, use the --project-name or --project-id flag.`,
 	Aliases: []string{"secrets"},
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		name := args[0]
+		projectID := GetPrjIfPresent(cmd)
 
-		c := client.NewSecretV1BetaApi()
+		if projectID == "" {
+			name := args[0]
 
-		err := c.DeleteSecret(name)
+			c := client.NewSecretV1BetaApi()
 
-		utils.Check(err)
+			err := c.DeleteSecret(name)
 
-		fmt.Printf("Secret '%s' deleted.\n", name)
+			utils.Check(err)
+
+			fmt.Printf("Secret '%s' deleted.\n", name)
+		} else {
+			name := args[0]
+			c := client.NewProjectSecretV1Api(projectID)
+
+			err := c.DeleteSecret(name)
+
+			utils.Check(err)
+
+			fmt.Printf("Secret '%s' deleted.\n", name)
+		}
 	},
 }
 
@@ -117,7 +130,12 @@ func init() {
 
 	deleteCmd.AddCommand(DeleteDashboardCmd)
 	deleteCmd.AddCommand(DeleteProjectCmd)
-	deleteCmd.AddCommand(DeleteSecretCmd)
 	deleteCmd.AddCommand(DeleteNotificationCmd)
 	deleteCmd.AddCommand(DeleteAgentTypeCmd)
+
+	DeleteSecretCmd.Flags().StringP("project-name", "p", "",
+		"project name; if specified will delete project secret, otherwise organization secret")
+	DeleteSecretCmd.Flags().StringP("project-id", "i", "",
+		"project id; if specified will delete project secret, otherwise organization secret")
+	deleteCmd.AddCommand(DeleteSecretCmd)
 }

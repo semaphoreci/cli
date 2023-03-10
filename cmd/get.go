@@ -73,39 +73,77 @@ var GetSecretCmd = &cobra.Command{
 	Args:    cobra.RangeArgs(0, 1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		c := client.NewSecretV1BetaApi()
+		projectID := GetPrjIfPresent(cmd)
 
-		if len(args) == 0 {
-			secretList, err := c.ListSecrets()
+		if projectID == "" {
+			c := client.NewSecretV1BetaApi()
 
-			utils.Check(err)
-
-			const padding = 3
-			w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
-
-			fmt.Fprintln(w, "NAME\tAGE")
-
-			for _, s := range secretList.Secrets {
-				updateTime, err := s.Metadata.UpdateTime.Int64()
+			if len(args) == 0 {
+				secretList, err := c.ListSecrets()
 
 				utils.Check(err)
 
-				fmt.Fprintf(w, "%s\t%s\n", s.Metadata.Name, utils.RelativeAgeForHumans(updateTime))
+				const padding = 3
+				w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
+
+				fmt.Fprintln(w, "NAME\tAGE")
+
+				for _, s := range secretList.Secrets {
+					updateTime, err := s.Metadata.UpdateTime.Int64()
+
+					utils.Check(err)
+
+					fmt.Fprintf(w, "%s\t%s\n", s.Metadata.Name, utils.RelativeAgeForHumans(updateTime))
+				}
+
+				w.Flush()
+			} else {
+				name := args[0]
+
+				secret, err := c.GetSecret(name)
+
+				utils.Check(err)
+
+				y, err := secret.ToYaml()
+
+				utils.Check(err)
+
+				fmt.Printf("%s", y)
 			}
-
-			w.Flush()
 		} else {
-			name := args[0]
+			c := client.NewProjectSecretV1Api(projectID)
 
-			secret, err := c.GetSecret(name)
+			if len(args) == 0 {
+				secretList, err := c.ListSecrets()
+				utils.Check(err)
 
-			utils.Check(err)
+				const padding = 3
+				w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
 
-			y, err := secret.ToYaml()
+				fmt.Fprintln(w, "NAME\tAGE")
 
-			utils.Check(err)
+				for _, s := range secretList.Secrets {
+					updateTime, err := s.Metadata.UpdateTime.Int64()
 
-			fmt.Printf("%s", y)
+					utils.Check(err)
+
+					fmt.Fprintf(w, "%s\t%s\n", s.Metadata.Name, utils.RelativeAgeForHumans(updateTime))
+				}
+
+				w.Flush()
+			} else {
+				name := args[0]
+
+				secret, err := c.GetSecret(name)
+
+				utils.Check(err)
+
+				y, err := secret.ToYaml()
+
+				utils.Check(err)
+
+				fmt.Printf("%s", y)
+			}
 		}
 	},
 }
@@ -296,6 +334,25 @@ var GetWfCmd = &cobra.Command{
 	},
 }
 
+func GetPrjIfPresent(cmd *cobra.Command) string {
+	projectID, err := cmd.Flags().GetString("project-id")
+	if projectID != "" {
+		return projectID
+	}
+
+	projectName, err := cmd.Flags().GetString("project-name")
+	utils.Check(err)
+
+	if projectName == "" {
+		return ""
+	}
+
+	projectID = utils.GetProjectId(projectName)
+	log.Printf("Project ID: %s\n", projectID)
+
+	return projectID
+}
+
 func getPrj(cmd *cobra.Command) string {
 	projectID, err := cmd.Flags().GetString("project-id")
 	if projectID != "" {
@@ -324,9 +381,14 @@ func init() {
 
 	getCmd.AddCommand(GetDashboardCmd)
 	getCmd.AddCommand(getNotificationCmd)
-	getCmd.AddCommand(GetSecretCmd)
 	getCmd.AddCommand(GetProjectCmd)
 	getCmd.AddCommand(GetAgentTypeCmd)
+
+	GetSecretCmd.Flags().StringP("project-name", "p", "",
+		"project name; if specified will get secret from project level, otherwise organization secret")
+	GetSecretCmd.Flags().StringP("project-id", "i", "",
+		"project id; if specified will get secret from project level, otherwise organization secret")
+	getCmd.AddCommand(GetSecretCmd)
 
 	GetJobCmd.Flags().BoolVar(&GetJobAllStates, "all", false, "list all jobs including finished ones")
 	getCmd.AddCommand(GetJobCmd)
