@@ -73,7 +73,7 @@ var GetSecretCmd = &cobra.Command{
 	Args:    cobra.RangeArgs(0, 1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		projectID := GetPrjIfPresent(cmd)
+		projectID := GetProjectID(cmd)
 
 		if projectID == "" {
 			c := client.NewSecretV1BetaApi()
@@ -334,7 +334,7 @@ var GetWfCmd = &cobra.Command{
 	},
 }
 
-func GetPrjIfPresent(cmd *cobra.Command) string {
+func GetProjectID(cmd *cobra.Command) string {
 	projectID, err := cmd.Flags().GetString("project-id")
 	if projectID != "" {
 		return projectID

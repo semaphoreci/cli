@@ -95,7 +95,7 @@ var EditSecretCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		projectID := GetPrjIfPresent(cmd)
+		projectID := GetProjectID(cmd)
 
 		if projectID == "" {
 			name := args[0]
