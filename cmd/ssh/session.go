@@ -46,6 +46,11 @@ func StartDebugSession(job *models.JobV1Alpha, message string) error {
 
 	fmt.Printf("* Waiting for debug session to boot up .")
 	err := waitUntilJobIsRunning(job, func() { fmt.Printf(".") })
+	if err != nil {
+		fmt.Printf("\n[ERROR] %s\n", err)
+		return err
+	}
+
 	fmt.Println()
 
 	// Reload Job
