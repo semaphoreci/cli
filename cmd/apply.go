@@ -53,6 +53,18 @@ func RunApply(cmd *cobra.Command, args []string) {
 		utils.Check(err)
 
 		fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
+	case "ProjectSecret":
+		secret, err := models.NewProjectSecretV1FromYaml(data)
+
+		utils.Check(err)
+
+		c := client.NewProjectSecretV1Api(secret.Metadata.ProjectIdOrName)
+
+		secret, err = c.UpdateSecret(secret)
+
+		utils.Check(err)
+
+		fmt.Printf("Secret '%s' created in project '%s'.\n", secret.Metadata.Name, secret.Metadata.ProjectIdOrName)
 	case "Dashboard":
 		dash, err := models.NewDashboardV1AlphaFromYaml(data)
 

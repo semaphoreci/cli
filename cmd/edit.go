@@ -95,31 +95,61 @@ var EditSecretCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		name := args[0]
+		projectID := GetProjectID(cmd)
 
-		c := client.NewSecretV1BetaApi()
+		if projectID == "" {
+			name := args[0]
 
-		secret, err := c.GetSecret(name)
+			c := client.NewSecretV1BetaApi()
 
-		utils.Check(err)
+			secret, err := c.GetSecret(name)
 
-		content, err := secret.ToYaml()
+			utils.Check(err)
 
-		utils.Check(err)
+			content, err := secret.ToYaml()
 
-		new_content, err := utils.EditYamlInEditor(secret.ObjectName(), string(content))
+			utils.Check(err)
 
-		utils.Check(err)
+			new_content, err := utils.EditYamlInEditor(secret.ObjectName(), string(content))
 
-		updated_secret, err := models.NewSecretV1BetaFromYaml([]byte(new_content))
+			utils.Check(err)
 
-		utils.Check(err)
+			updated_secret, err := models.NewSecretV1BetaFromYaml([]byte(new_content))
 
-		secret, err = c.UpdateSecret(updated_secret)
+			utils.Check(err)
 
-		utils.Check(err)
+			secret, err = c.UpdateSecret(updated_secret)
 
-		fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
+			utils.Check(err)
+
+			fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
+		} else {
+			name := args[0]
+
+			c := client.NewProjectSecretV1Api(projectID)
+
+			secret, err := c.GetSecret(name)
+
+			utils.Check(err)
+
+			content, err := secret.ToYaml()
+
+			utils.Check(err)
+
+			new_content, err := utils.EditYamlInEditor(secret.ObjectName(), string(content))
+
+			utils.Check(err)
+
+			updated_secret, err := models.NewProjectSecretV1FromYaml([]byte(new_content))
+
+			utils.Check(err)
+
+			secret, err = c.UpdateSecret(updated_secret)
+
+			utils.Check(err)
+
+			fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
+		}
 	},
 }
 
@@ -162,6 +192,10 @@ var EditProjectCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(editCmd)
 
+	EditSecretCmd.Flags().StringP("project-name", "p", "",
+		"project name; if specified will edit project level secret, otherwise organization secret")
+	EditSecretCmd.Flags().StringP("project-id", "i", "",
+		"project id; if specified will edit project level secret, otherwise organization secret")
 	editCmd.AddCommand(EditSecretCmd)
 	editCmd.AddCommand(EditDashboardCmd)
 	editCmd.AddCommand(EditNotificationCmd)
