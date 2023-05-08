@@ -9,6 +9,7 @@ import (
 	httpmock "gopkg.in/jarcoal/httpmock.v1"
 
 	models "github.com/semaphoreci/cli/api/models"
+	"github.com/semaphoreci/cli/api/uuid"
 )
 
 func Test__CreateProject__FromYaml__Response200(t *testing.T) {
@@ -258,6 +259,76 @@ func Test__CreateAgentType__Response200(t *testing.T) {
 
 	expected := `{"apiVersion":"v1alpha","kind":"SelfHostedAgentType","metadata":{"name":"s1-testing"},"status":{}}`
 
+	if received != expected {
+		t.Errorf("Expected the API to receive POST self_hosted_agent_types with: %s, got: %s", expected, received)
+	}
+}
+
+func Test__CreateDeploymentTarget__FromYaml__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	uuid.Mock()
+	defer uuid.Unmock()
+
+	yaml_file := `
+apiVersion: v1alpha
+kind: DeploymentTarget
+metadata:
+  name: dt-name-from-yaml
+  organization_id: org-id
+  project_id: prj-id
+  url: www.semaphore.xyz
+  description: dt-description
+spec:
+  bookmark_parameter1: book1
+`
+
+	yaml_file_path := "/tmp/deployment_target.yaml"
+
+	ioutil.WriteFile(yaml_file_path, []byte(yaml_file), 0644)
+
+	received := ""
+
+	httpmock.RegisterResponder(http.MethodPost, "https://org.semaphoretext.xyz/api/v1alpha/deployment_targets",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+
+			received = string(body)
+			return httpmock.NewStringResponse(200, received), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"create", "-f", yaml_file_path})
+	RootCmd.Execute()
+
+	expected := `{"target":{"apiVersion":"v1alpha","kind":"DeploymentTarget","name":"dt-name-from-yaml","project_id":"prj-id","organization_id":"org-id","description":"dt-description","url":"www.semaphore.xyz","state":0,"bookmark_parameter1":"book1"},"unique_token":"00020406-090b-0e10-1315-181a1c1e2022","env_vars":null,"files":null,"project_id":""}`
+	if received != expected {
+		t.Errorf("Expected the API to receive POST deployment_targets: %s, got: %s", expected, received)
+	}
+}
+
+func Test__CreateDeploymentTarget__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	uuid.Mock()
+	defer uuid.Unmock()
+
+	received := ""
+
+	projectId := "projId1"
+	httpmock.RegisterResponder(http.MethodPost, "https://org.semaphoretext.xyz/api/v1alpha/deployment_targets",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+
+			received = string(body)
+			return httpmock.NewStringResponse(200, received), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"create", "target", "s1-testing", "--project-id", projectId})
+	RootCmd.Execute()
+
+	expected := `{"target":{"name":"s1-testing","state":0},"unique_token":"00020406-090b-0e10-1315-181a1c1e2022","env_vars":null,"files":null,"project_id":"projId1"}`
 	if received != expected {
 		t.Errorf("Expected the API to receive POST self_hosted_agent_types with: %s, got: %s", expected, received)
 	}

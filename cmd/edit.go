@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
 	client "github.com/semaphoreci/cli/api/client"
@@ -189,6 +190,59 @@ var EditProjectCmd = &cobra.Command{
 	},
 }
 
+var EditDeploymentTargetCmd = &cobra.Command{
+	Use:     "deployment_target [name]",
+	Short:   "Edit a deployment target.",
+	Long:    ``,
+	Aliases: []string{"deployment_target", "dt", "target", "targets", "tgt", "targ"},
+	Args:    cobra.RangeArgs(0, 1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		projectId := GetProjectID(cmd)
+		c := client.NewDeploymentTargetsV1AlphaApi()
+		var target *models.DeploymentTargetV1Alpha
+		var err error
+		if len(args) == 1 {
+			targetId := args[0]
+			target, err = c.Describe(targetId, projectId)
+			utils.Check(err)
+		} else {
+			targetName, err := cmd.Flags().GetString("target-name")
+			utils.Check(err)
+			if targetName == "" {
+				utils.Check(errors.New("target id or name must be present"))
+			}
+			target, err = c.DescribeByName(targetName, projectId)
+			utils.Check(err)
+		}
+		if target == nil {
+			utils.Check(errors.New("target must be present"))
+			return
+		}
+		// TODO: Load secrets for deployment target to avoid requiring clients
+		// to provide them every time they edit the request.
+		request := models.DeploymentTargetUpdateRequestV1Alpha{
+			ProjectId:               projectId,
+			DeploymentTargetV1Alpha: *target,
+		}
+		content, err := request.ToYaml()
+		utils.Check(err)
+
+		new_content, err := utils.EditYamlInEditor(request.ObjectName(), string(content))
+		utils.Check(err)
+
+		update_request, err := models.NewDeploymentTargetUpdateRequestV1AlphaFromYaml([]byte(new_content))
+		utils.Check(err)
+
+		update_request.Id = target.Id
+		update_request.ProjectId = target.ProjectId
+		updatedTarget, err := c.Update(update_request)
+		utils.Check(err)
+
+		fmt.Printf("Deployment target '%s' updated.\n", updatedTarget.Name)
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(editCmd)
 
@@ -200,4 +254,11 @@ func init() {
 	editCmd.AddCommand(EditDashboardCmd)
 	editCmd.AddCommand(EditNotificationCmd)
 	editCmd.AddCommand(EditProjectCmd)
+
+	EditDeploymentTargetCmd.Flags().StringP("project-name", "p", "",
+		"project name; if specified will edit project level secret, otherwise organization secret")
+	EditDeploymentTargetCmd.Flags().StringP("project-id", "i", "",
+		"project id; if specified will edit project level secret, otherwise organization secret")
+	EditDeploymentTargetCmd.Flags().StringP("target-name", "n", "", "target name")
+	editCmd.AddCommand(EditDeploymentTargetCmd)
 }

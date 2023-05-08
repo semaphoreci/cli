@@ -117,6 +117,20 @@ var createCmd = &cobra.Command{
 			y, err := newAgentType.ToYaml()
 			utils.Check(err)
 			fmt.Printf("%s", y)
+		case models.DeploymentTargetKindV1Alpha:
+			request, err := models.NewDeploymentTargetCreateRequestV1AlphaFromYaml(data)
+			utils.Check(err)
+
+			c := client.NewDeploymentTargetsV1AlphaApi()
+			for _, file := range request.Files {
+				utils.Check(file.LoadContent())
+			}
+			newDeploymentTarget, err := c.Create(request)
+			utils.Check(err)
+
+			y, err := newDeploymentTarget.ToYaml()
+			utils.Check(err)
+			fmt.Printf("Deployment target created:\n%s", y)
 		default:
 			utils.Fail(fmt.Sprintf("Unsupported resource kind '%s'", kind))
 		}
@@ -230,6 +244,7 @@ func init() {
 	createCmd.AddCommand(CreateWorkflowCmd)
 	createCmd.AddCommand(createNotificationCmd)
 	createCmd.AddCommand(CreateAgentTypeCmd)
+	createCmd.AddCommand(NewCreateDeploymentTargetCmd())
 
 	// Create Flags
 

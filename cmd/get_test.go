@@ -356,6 +356,68 @@ func Test__GetPipeline__Response200(t *testing.T) {
 	assert.True(t, received, "Expected the API to receive GET pipelines/:id")
 }
 
+func Test__GetDeploymentTarget__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	targetId := "494b76aa-f3f0-4ecf-b5ef-c389591a01be"
+	getURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s", targetId)
+	httpmock.RegisterResponder(http.MethodGet, getURL,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `{
+  					"id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+					"name": "dep target test",
+			    	"url": "https://semaphoreci.xyz/target",
+			    	"project_id": "proj_id"
+			
+			}	
+			`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"get", "target", "--target-id", targetId})
+	RootCmd.Execute()
+
+	assert.True(t, received, "Expected the API to receive GET deployment_targets/:id")
+}
+
+func Test__GetDeploymentTargetsList__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	projectId := "proj_id"
+	getURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets?project_id=%s", projectId)
+	httpmock.RegisterResponder(http.MethodGet, getURL,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `[{
+  					"id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+					"name": "dep target test",
+			    	"url": "https://semaphoreci.xyz/target",
+			    	"project_id": "proj_id"
+			
+			}]
+			`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"get", "target", projectId})
+	RootCmd.Execute()
+
+	assert.True(t, received, "Expected the API to receive GET deployment_targets/:id")
+}
+
 func Test__GetWorkflows__Response200(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()

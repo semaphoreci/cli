@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	client "github.com/semaphoreci/cli/api/client"
+	"github.com/semaphoreci/cli/cmd/deployment_targets"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
 )
@@ -125,6 +126,20 @@ var DeleteNotificationCmd = &cobra.Command{
 	},
 }
 
+var deleteTargetCmd = &cobra.Command{
+	Use:     "deployment_target [NAME]",
+	Short:   "Delete a deployment target.",
+	Long:    ``,
+	Aliases: []string{"deployment_target", "dt", "target", "targets", "tgt", "targ"},
+	Args:    cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		targetId := args[0]
+		projectId := getPrj(cmd)
+		deployment_targets.Delete(targetId, projectId)
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(deleteCmd)
 
@@ -138,4 +153,10 @@ func init() {
 	DeleteSecretCmd.Flags().StringP("project-id", "i", "",
 		"project id; if specified will delete project secret, otherwise organization secret")
 	deleteCmd.AddCommand(DeleteSecretCmd)
+
+	deleteCmd.AddCommand(deleteTargetCmd)
+	deleteTargetCmd.Flags().StringP("project-name", "p", "",
+		"project name; if not specified will be inferred from git origin")
+	deleteTargetCmd.Flags().StringP("project-id", "i", "",
+		"project id; if not specified will be inferred from git origin")
 }

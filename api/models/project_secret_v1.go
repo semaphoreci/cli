@@ -27,15 +27,15 @@ type ProjectSecretV1File struct {
 
 type ProjectSecretV1Data struct {
 	EnvVars []ProjectSecretV1EnvVar `json:"env_vars" yaml:"env_vars"`
-	Files   []ProjectSecretV1File   `json:"files" yaml: "files"`
+	Files   []ProjectSecretV1File   `json:"files" yaml:"files"`
 }
 
 type ProjectSecretV1Metadata struct {
-	Name       string      `json:"name,omitempty" yaml:"name,omitempty"`
-	Id         string      `json:"id,omitempty" yaml:"id,omitempty"`
-	CreateTime json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
-	UpdateTime json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
-	ProjectIdOrName string `json:"project_id_or_name,omitempty" yaml:"project_id_or_name,omitempty"`
+	Name            string      `json:"name,omitempty" yaml:"name,omitempty"`
+	Id              string      `json:"id,omitempty" yaml:"id,omitempty"`
+	CreateTime      json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
+	UpdateTime      json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
+	ProjectIdOrName string      `json:"project_id_or_name,omitempty" yaml:"project_id_or_name,omitempty"`
 }
 
 func NewProjectSecretV1(name string, envVars []ProjectSecretV1EnvVar, files []ProjectSecretV1File) ProjectSecretV1 {

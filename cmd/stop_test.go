@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -53,4 +54,32 @@ func Test__StopJob__Response200(t *testing.T) {
 	RootCmd.Execute()
 
 	assert.Equal(t, received, true)
+}
+
+func Test__StopDeploymentTarget__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	targetId := "494b76aa-f3f0-4ecf-b5ef-c389591a01be"
+	patchURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s/off", targetId)
+	httpmock.RegisterResponder(http.MethodPatch, patchURL,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			target := `{
+				"target_id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+			  "cordoned": true
+	  		}	
+	  		`
+
+			return httpmock.NewStringResponse(200, target), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"stop", "target", "494b76aa-f3f0-4ecf-b5ef-c389591a01be"})
+	RootCmd.Execute()
+
+	assert.True(t, received, "Expected the API to receive PATCH deployment_targets/:id")
 }

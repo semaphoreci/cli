@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/semaphoreci/cli/cmd/deployment_targets"
 	"github.com/semaphoreci/cli/cmd/pipelines"
 	"github.com/semaphoreci/cli/cmd/workflows"
 	"github.com/spf13/cobra"
@@ -39,9 +40,23 @@ var rebuildWfCmd = &cobra.Command{
 	},
 }
 
+var rebuildTargetCmd = &cobra.Command{
+	Use:     "deployment_target [id]",
+	Short:   "Unblock deployment target in the workflow.",
+	Long:    ``,
+	Aliases: []string{"deployment_target", "dt", "target", "targets", "tgt", "targ"},
+	Args:    cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		targetId := args[0]
+		deployment_targets.Rebuild(targetId)
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(rebuildCmd)
 
 	rebuildCmd.AddCommand(rebuildPplCmd)
 	rebuildCmd.AddCommand(rebuildWfCmd)
+	rebuildCmd.AddCommand(rebuildTargetCmd)
 }

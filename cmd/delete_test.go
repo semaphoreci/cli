@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
+	"github.com/semaphoreci/cli/api/uuid"
+	assert "github.com/stretchr/testify/assert"
 	httpmock "gopkg.in/jarcoal/httpmock.v1"
 )
 
@@ -93,4 +96,38 @@ func TestDeleteAgentTypeCmd__Response200(t *testing.T) {
 	if received == false {
 		t.Error("Expected the API to receive DELETE agent_type s1-testing")
 	}
+}
+
+func Test__DeleteDeploymentTarget__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	uuid.Mock()
+	defer uuid.Unmock()
+
+	received := false
+
+	targetId := "494b76aa-f3f0-4ecf-b5ef-c389591a01be"
+	projectId := "proj_id"
+	unique_token, _ := uuid.NewUUID()
+	deleteURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s?project_id=%s&unique_token=%s", targetId, projectId, unique_token)
+	httpmock.RegisterResponder(http.MethodDelete, deleteURL,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `{
+  					"id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+					"name": "dep target test",
+			    	"url": "https://semaphoreci.xyz/target",
+			    	"project_id": "proj_id"			
+			}	
+			`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"delete", "target", targetId, "--project-id", projectId})
+	RootCmd.Execute()
+
+	assert.True(t, received, "Expected the API to receive DELETE deployment_targets/:id")
 }

@@ -1,11 +1,14 @@
 package cmd
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
 
 	models "github.com/semaphoreci/cli/api/models"
+	"github.com/semaphoreci/cli/api/uuid"
 	assert "github.com/stretchr/testify/assert"
 	httpmock "gopkg.in/jarcoal/httpmock.v1"
 )
@@ -213,4 +216,68 @@ func Test__EditProject__Response200(t *testing.T) {
 	assert.Equal(t, scheduler.Branch, "master")
 	assert.Equal(t, scheduler.At, "* * * *")
 	assert.Equal(t, scheduler.PipelineFile, ".semaphore/cron.yml")
+}
+
+func Test__EditDeploymentTarget__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	uuid.Mock()
+	defer uuid.Unmock()
+
+	targetJSON := `{
+		
+		  "apiVersion": "v1alpha",
+		  "kind": "DeploymentTarget",
+		  "id": "1234-5678-id",
+		  "name": "dt-name",
+		  "project_id": "projId1",
+		  "organization_id": "org-id",
+		  "description": "dt-description",
+		  "url": "www.semaphore.xyz",
+		  "subject_rules": [
+			{
+			  "type": 0,
+			  "subject_id": "subjId1"
+			}
+		  ],
+		  "object_rules": [
+			{
+			  "type": 0,
+			  "match_mode": 1,
+			  "pattern": ".*main.*"
+			}
+		  ],
+		  "cordoned": true,
+		  "bookmark_parameter1": "book1"
+		
+	  }
+	  `
+
+	var received *models.DeploymentTargetV1Alpha
+
+	targetId := "1234-5678-id"
+	targetGetURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s", targetId)
+	httpmock.RegisterResponder(http.MethodGet, targetGetURL,
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(200, targetJSON), nil
+		},
+	)
+	targetPatchURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s", targetId)
+	httpmock.RegisterResponder(http.MethodPatch, targetPatchURL,
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			updateRequest := models.DeploymentTargetCreateRequestV1Alpha{}
+			json.Unmarshal(body, &updateRequest)
+			received = &updateRequest.DeploymentTargetV1Alpha
+			body, _ = json.Marshal(received)
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"edit", "target", targetId})
+	RootCmd.Execute()
+
+	assert.Equal(t, received.Name, "dt-name")
+	assert.Equal(t, received.Description, "dt-description")
+	assert.Equal(t, received.Url, "www.semaphore.xyz")
 }

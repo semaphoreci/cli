@@ -11,8 +11,8 @@ type SecretV1Beta struct {
 	ApiVersion string `json:"apiVersion,omitempty" yaml:"apiVersion"`
 	Kind       string `json:"kind,omitempty" yaml:"kind"`
 
-	Metadata SecretV1BetaMetadata `json:"metadata" yaml:"metadata"`
-	Data     SecretV1BetaData     `json:"data" yaml:"data"`
+	Metadata  SecretV1BetaMetadata   `json:"metadata" yaml:"metadata"`
+	Data      SecretV1BetaData       `json:"data" yaml:"data"`
 	OrgConfig *SecretV1BetaOrgConfig `json:"org_config,omitempty" yaml:"org_config,omitempty"`
 }
 
@@ -28,7 +28,7 @@ type SecretV1BetaFile struct {
 
 type SecretV1BetaData struct {
 	EnvVars []SecretV1BetaEnvVar `json:"env_vars" yaml:"env_vars"`
-	Files   []SecretV1BetaFile   `json:"files" yaml: "files"`
+	Files   []SecretV1BetaFile   `json:"files" yaml:"files"`
 }
 
 type SecretV1BetaMetadata struct {
@@ -39,10 +39,10 @@ type SecretV1BetaMetadata struct {
 }
 
 type SecretV1BetaOrgConfig struct {
-	Projects_access string `json:"projects_access,omitempty" yaml:"projects_access,omitempty"`
-	Project_ids []string `json:"project_ids,omitempty" yaml:"project_ids,omitempty"`
-	Debug_access string `json:"debug_access,omitempty" yaml:"debug_access,omitempty"`
-	Attach_access string `json:"attach_access,omitempty" yaml:"attach_access,omitempty"`
+	Projects_access string   `json:"projects_access,omitempty" yaml:"projects_access,omitempty"`
+	Project_ids     []string `json:"project_ids,omitempty" yaml:"project_ids,omitempty"`
+	Debug_access    string   `json:"debug_access,omitempty" yaml:"debug_access,omitempty"`
+	Attach_access   string   `json:"attach_access,omitempty" yaml:"attach_access,omitempty"`
 }
 
 func NewSecretV1Beta(name string, envVars []SecretV1BetaEnvVar, files []SecretV1BetaFile) SecretV1Beta {
