@@ -83,11 +83,12 @@ func (c *BaseClient) Get(kind string, resource string) ([]byte, int, error) {
 
 func (c *BaseClient) List(kind string) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
-
 	log.Printf("GET %s\n", url)
 
 	req, err := http.NewRequest("GET", url, nil)
-
+	if err != nil {
+		return nil, 0, err
+	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
 	req.Header.Set("User-Agent", UserAgent)
@@ -218,9 +219,10 @@ func (c *BaseClient) PostHeaders(kind string, resource []byte, headers map[strin
 func (c *BaseClient) Patch(kind string, name string, resource []byte) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s/%s", c.host, c.apiVersion, kind, name)
 
-	log.Printf("PATCH %s\n", url)
-
 	req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(resource))
+	if err != nil {
+		return nil, 0, err
+	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))

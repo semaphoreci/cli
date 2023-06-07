@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/semaphoreci/cli/api/models"
 	"os"
 	"time"
+
+	"github.com/semaphoreci/cli/api/models"
 
 	"github.com/semaphoreci/cli/cmd/jobs"
 	"github.com/semaphoreci/cli/cmd/ssh"

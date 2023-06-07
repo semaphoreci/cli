@@ -3,11 +3,11 @@ package utils
 import (
 	"fmt"
 
-	"github.com/semaphoreci/cli/api/client"
-
 	"log"
 	"os/exec"
 	"strings"
+
+	"github.com/semaphoreci/cli/api/client"
 )
 
 func GetProjectId(name string) string {
