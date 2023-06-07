@@ -369,7 +369,7 @@ var GetDTCmd = &cobra.Command{
 			if targetId != "" {
 				deployment_targets.Describe(targetId)
 			} else if targetName != "" {
-				deployment_targets.DescribeByname(targetName, getPrj(cmd))
+				deployment_targets.DescribeByName(targetName, getPrj(cmd))
 			} else {
 				deployment_targets.List(getPrj(cmd))
 			}

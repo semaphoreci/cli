@@ -28,7 +28,7 @@ func Describe(targetId string) {
 	fmt.Printf("%s\n", deploymentTargetYaml)
 }
 
-func DescribeByname(targetName, projectId string) {
+func DescribeByName(targetName, projectId string) {
 	c := client.NewDeploymentTargetsV1AlphaApi()
 
 	deploymentTarget, err := c.DescribeByName(targetName, projectId)
@@ -87,10 +87,10 @@ func List(projectId string) {
 			createdAt = t.CreatedAt.Format("2006-01-02 15:04:05")
 		}
 		stateName := t.State
-		state := "inactive"
+		status := "inactive"
 		if t.Active {
-			state = "active"
+			status = "active"
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", t.Id, t.Name, createdAt, stateName, state)
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", t.Id, t.Name, createdAt, stateName, status)
 	}
 }
