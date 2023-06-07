@@ -323,7 +323,7 @@ func Test__EditDeploymentTargetByName__Response200(t *testing.T) {
 			}
 			],
 			"active": true,
-			"bookmark_parameter1": "book1"f
+			"bookmark_parameter1": "book1"
 		}
 		`
 	targetsJSON := "[" + targetJSON + "]"
