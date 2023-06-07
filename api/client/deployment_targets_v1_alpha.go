@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	models "github.com/semaphoreci/cli/api/models"
 	"github.com/semaphoreci/cli/api/uuid"
@@ -15,6 +16,11 @@ type DeploymentTargetsApiV1AlphaApi struct {
 	ResourceNameSingular string
 	ResourceNamePlural   string
 }
+
+const (
+	CordonOpName   = "deactivate"
+	UncordonOpName = "activate"
+)
 
 func NewDeploymentTargetsV1AlphaApi() DeploymentTargetsApiV1AlphaApi {
 	baseClient := NewBaseClientFromConfig()
@@ -27,15 +33,14 @@ func NewDeploymentTargetsV1AlphaApi() DeploymentTargetsApiV1AlphaApi {
 	}
 }
 
-func (c *DeploymentTargetsApiV1AlphaApi) Describe(targetId, projectId string) (*models.DeploymentTargetV1Alpha, error) {
-	if targetId == "" {
-		return nil, errors.New("target id or name must be provided")
+func (c *DeploymentTargetsApiV1AlphaApi) Describe(targetId string, includeSecrets ...bool) (*models.DeploymentTargetV1Alpha, error) {
+	var resource string
+	if len(includeSecrets) > 0 && includeSecrets[0] {
+		resource = fmt.Sprintf("%s?include_secrets=true", targetId)
+	} else {
+		resource = targetId
 	}
-	query := targetId
-	if projectId != "" {
-		query = fmt.Sprintf("%s?project_id=%s", targetId, projectId)
-	}
-	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, query)
+	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, resource)
 	if err != nil {
 		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
 	}
@@ -48,33 +53,21 @@ func (c *DeploymentTargetsApiV1AlphaApi) Describe(targetId, projectId string) (*
 }
 
 func (c *DeploymentTargetsApiV1AlphaApi) DescribeByName(targetName, projectId string) (*models.DeploymentTargetV1Alpha, error) {
-	if targetName == "" {
-		return nil, errors.New("target name must be provided")
-	}
-	if projectId == "" {
-		return nil, errors.New("project id must be provided")
-	}
-	path := fmt.Sprintf("%s/%s", projectId, targetName)
-	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, path)
+	targets, err := c.list(projectId, targetName)
 	if err != nil {
-		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
+		return nil, err
 	}
-
-	if status != http.StatusOK {
-		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
+	if targets == nil || len(*targets) == 0 {
+		return nil, fmt.Errorf("target with name '%s' doesn't exist in the project '%s'", targetName, projectId)
 	}
-
-	return models.NewDeploymentTargetV1AlphaFromJson(body)
+	return (*targets)[0], nil
 }
 
-func (c *DeploymentTargetsApiV1AlphaApi) History(targetId, projectId string) (*models.DeploymentsV1Alpha, error) {
+func (c *DeploymentTargetsApiV1AlphaApi) History(targetId string) (*models.DeploymentsV1Alpha, error) {
 	if targetId == "" {
 		return nil, errors.New("target id must be provided")
 	}
-	if projectId == "" {
-		return nil, errors.New("project id must be provided")
-	}
-	query := fmt.Sprintf("/%s/history?project_id=%s", targetId, projectId)
+	query := fmt.Sprintf("%s/history", targetId)
 	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, query)
 	if err != nil {
 		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
@@ -100,12 +93,28 @@ func (c *DeploymentTargetsApiV1AlphaApi) List(projectId string) (*models.Deploym
 	return models.NewDeploymentTargetListV1AlphaFromJson(body)
 }
 
-func (c *DeploymentTargetsApiV1AlphaApi) Delete(targetId, projectId string) error {
+func (c *DeploymentTargetsApiV1AlphaApi) list(projectId string, targetNames ...string) (*models.DeploymentTargetListV1Alpha, error) {
+	kind := fmt.Sprintf("%s?project_id=%s", c.ResourceNamePlural, projectId)
+	for _, targetName := range targetNames {
+		kind = fmt.Sprintf("%s&target_name=%s", kind, url.PathEscape(targetName))
+	}
+	body, status, err := c.BaseClient.List(kind)
+	if err != nil {
+		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
+	}
+
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
+	}
+	return models.NewDeploymentTargetListV1AlphaFromJson(body)
+}
+
+func (c *DeploymentTargetsApiV1AlphaApi) Delete(targetId string) error {
 	unique_token, err := uuid.NewUUID()
 	if err != nil {
 		return fmt.Errorf("unique token generation failed: %s", err)
 	}
-	params := fmt.Sprintf("%s?project_id=%s&unique_token=%s", targetId, projectId, unique_token)
+	params := fmt.Sprintf("%s?unique_token=%s", targetId, unique_token)
 
 	body, status, err := c.BaseClient.Delete(c.ResourceNamePlural, params)
 	if err != nil {
@@ -169,6 +178,7 @@ func (c *DeploymentTargetsApiV1AlphaApi) Update(updateRequest *models.Deployment
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize deployment target update request: %s", err)
 	}
+
 	body, status, err := c.BaseClient.Patch(c.ResourceNamePlural, updateRequest.Id, json_body)
 	if err != nil {
 		return nil, fmt.Errorf("creating %s on Semaphore failed '%s'", c.ResourceNamePlural, err)
@@ -181,12 +191,12 @@ func (c *DeploymentTargetsApiV1AlphaApi) Update(updateRequest *models.Deployment
 	return models.NewDeploymentTargetV1AlphaFromJson(body)
 }
 
-func (c *DeploymentTargetsApiV1AlphaApi) Rebuild(targetId string) (bool, error) {
-	return c.cordon(targetId, "on")
+func (c *DeploymentTargetsApiV1AlphaApi) Activate(targetId string) (bool, error) {
+	return c.cordon(targetId, UncordonOpName)
 }
 
-func (c *DeploymentTargetsApiV1AlphaApi) Stop(targetId string) (bool, error) {
-	return c.cordon(targetId, "off")
+func (c *DeploymentTargetsApiV1AlphaApi) Deactivate(targetId string) (bool, error) {
+	return c.cordon(targetId, CordonOpName)
 }
 
 func (c *DeploymentTargetsApiV1AlphaApi) cordon(targetId, opName string) (bool, error) {
@@ -207,7 +217,7 @@ func (c *DeploymentTargetsApiV1AlphaApi) cordon(targetId, opName string) (bool, 
 	if response.TargetId != targetId {
 		return false, fmt.Errorf("wrong target id in the response")
 	}
-	if response.Cordoned != (opName == "off") {
+	if response.Cordoned != (opName == CordonOpName) {
 		if response.Cordoned {
 			return false, fmt.Errorf("target wasn't rebuilt successfully")
 		}

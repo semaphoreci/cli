@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	models "github.com/semaphoreci/cli/api/models"
+	"github.com/semaphoreci/cli/api/uuid"
 	assert "github.com/stretchr/testify/assert"
 	httpmock "gopkg.in/jarcoal/httpmock.v1"
 )
@@ -169,5 +170,60 @@ spec:
 
 	if received != expected {
 		t.Errorf("Expected the API to receive PATCH project with: %s, got: %s", expected, received)
+	}
+}
+
+func Test__ApplyDeploymentTarget__FromYaml_Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	uuid.Mock()
+	defer uuid.Unmock()
+
+	yaml_file := `
+apiVersion: v1alpha
+kind: DeploymentTarget
+metadata:
+  name: TestDT
+  id: a13949b7-b2f6-4286-8f26-3962d7e97828
+  url: someurl321.zyx
+  project_id: a13949b7-b2f6-4286-8f26-000000000000
+spec:
+  subject_rules:
+  - type: ANY
+  - type: USER
+    subject_id: 00000000-0000-0000-0000-000000000000
+  object_rules:
+  - type: BRANCH
+    match_mode: ALL
+  - type: TAG
+    match_mode: ALL
+  bookmark_parameter1: "book 1"
+  env_vars:
+  - name: X
+    value: 123
+`
+
+	yaml_file_path := "/tmp/apply_dt.yaml"
+	ioutil.WriteFile(yaml_file_path, []byte(yaml_file), 0644)
+
+	received := ""
+
+	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/a13949b7-b2f6-4286-8f26-3962d7e97828",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+
+			received = string(body)
+
+			return httpmock.NewStringResponse(200, received), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"apply", "-f", yaml_file_path})
+	RootCmd.Execute()
+
+	expected := `{"id":"a13949b7-b2f6-4286-8f26-3962d7e97828","name":"TestDT","project_id":"a13949b7-b2f6-4286-8f26-000000000000","organization_id":"","description":"","url":"someurl321.zyx","state":"","state_message":"","subject_rules":[{"type":"ANY"},{"type":"USER","subject_id":"00000000-0000-0000-0000-000000000000"}],"object_rules":[{"type":"BRANCH","match_mode":"ALL","pattern":""},{"type":"TAG","match_mode":"ALL","pattern":""}],"active":false,"bookmark_parameter1":"book 1","bookmark_parameter2":"","bookmark_parameter3":"","env_vars":[{"name":"X","value":"123"}],"unique_token":"00020406-090b-0e10-1315-181a1c1e2022"}`
+
+	if received != expected {
+		t.Errorf("Expected the API to receive PATCH deployment target with: %s, got: %s", expected, received)
 	}
 }

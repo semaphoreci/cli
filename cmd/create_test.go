@@ -283,7 +283,7 @@ spec:
   bookmark_parameter1: book1
 `
 
-	yaml_file_path := "/tmp/deployment_target.yaml"
+	yaml_file_path := "/tmp/create_dt.yaml"
 
 	ioutil.WriteFile(yaml_file_path, []byte(yaml_file), 0644)
 
@@ -294,6 +294,7 @@ spec:
 			body, _ := ioutil.ReadAll(req.Body)
 
 			received = string(body)
+
 			return httpmock.NewStringResponse(200, received), nil
 		},
 	)
@@ -301,7 +302,7 @@ spec:
 	RootCmd.SetArgs([]string{"create", "-f", yaml_file_path})
 	RootCmd.Execute()
 
-	expected := `{"target":{"apiVersion":"v1alpha","kind":"DeploymentTarget","name":"dt-name-from-yaml","project_id":"prj-id","organization_id":"org-id","description":"dt-description","url":"www.semaphore.xyz","state":0,"bookmark_parameter1":"book1"},"unique_token":"00020406-090b-0e10-1315-181a1c1e2022","env_vars":null,"files":null,"project_id":""}`
+	expected := `{"id":"","name":"dt-name-from-yaml","project_id":"prj-id","organization_id":"org-id","description":"dt-description","url":"www.semaphore.xyz","state":"","state_message":"","subject_rules":null,"object_rules":null,"active":false,"bookmark_parameter1":"book1","bookmark_parameter2":"","bookmark_parameter3":"","unique_token":"00020406-090b-0e10-1315-181a1c1e2022"}`
 	if received != expected {
 		t.Errorf("Expected the API to receive POST deployment_targets: %s, got: %s", expected, received)
 	}
@@ -321,15 +322,16 @@ func Test__CreateDeploymentTarget__Response200(t *testing.T) {
 			body, _ := ioutil.ReadAll(req.Body)
 
 			received = string(body)
+
 			return httpmock.NewStringResponse(200, received), nil
 		},
 	)
 
-	RootCmd.SetArgs([]string{"create", "target", "s1-testing", "--project-id", projectId})
+	RootCmd.SetArgs([]string{"create", "dt", "s1-testing", "--project-id", projectId})
 	RootCmd.Execute()
 
-	expected := `{"target":{"name":"s1-testing","state":0},"unique_token":"00020406-090b-0e10-1315-181a1c1e2022","env_vars":null,"files":null,"project_id":"projId1"}`
+	expected := `{"id":"","name":"s1-testing","project_id":"projId1","organization_id":"","description":"","url":"","state":"","state_message":"","subject_rules":null,"object_rules":null,"active":false,"bookmark_parameter1":"","bookmark_parameter2":"","bookmark_parameter3":"","unique_token":"00020406-090b-0e10-1315-181a1c1e2022"}`
 	if received != expected {
-		t.Errorf("Expected the API to receive POST self_hosted_agent_types with: %s, got: %s", expected, received)
+		t.Errorf("Expected the API to receive POST deployment_targets with: %s, got: %s", expected, received)
 	}
 }

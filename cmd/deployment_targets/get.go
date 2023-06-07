@@ -11,16 +11,13 @@ import (
 	"github.com/semaphoreci/cli/cmd/utils"
 )
 
-func Describe(targetId, targetName, projectId string) {
+func Describe(targetId string) {
 	c := client.NewDeploymentTargetsV1AlphaApi()
 
 	var deploymentTarget *models.DeploymentTargetV1Alpha
 	var err error
 	if targetId != "" {
-		deploymentTarget, err = c.Describe(targetId, projectId)
-		utils.Check(err)
-	} else if targetName != "" {
-		deploymentTarget, err = c.DescribeByName(targetName, projectId)
+		deploymentTarget, err = c.Describe(targetId)
 		utils.Check(err)
 	} else {
 		utils.Check(errors.New("target id or name must be provided"))
@@ -31,10 +28,37 @@ func Describe(targetId, targetName, projectId string) {
 	fmt.Printf("%s\n", deploymentTargetYaml)
 }
 
-func History(targetId, projectId string) {
+func DescribeByname(targetName, projectId string) {
 	c := client.NewDeploymentTargetsV1AlphaApi()
 
-	deployments, err := c.History(targetId, projectId)
+	deploymentTarget, err := c.DescribeByName(targetName, projectId)
+	utils.Check(err)
+
+	deploymentTargetYaml, err := deploymentTarget.ToYaml()
+	utils.Check(err)
+
+	fmt.Printf("%s\n", deploymentTargetYaml)
+}
+
+func History(targetId string) {
+	c := client.NewDeploymentTargetsV1AlphaApi()
+
+	deployments, err := c.History(targetId)
+	utils.Check(err)
+
+	deploymentsYaml, err := deployments.ToYaml()
+	utils.Check(err)
+
+	fmt.Printf("%s\n", deploymentsYaml)
+}
+
+func HistoryByName(targetName, projectId string) {
+	c := client.NewDeploymentTargetsV1AlphaApi()
+
+	deploymentTarget, err := c.DescribeByName(targetName, projectId)
+	utils.Check(err)
+
+	deployments, err := c.History(deploymentTarget.Id)
 	utils.Check(err)
 
 	deploymentsYaml, err := deployments.ToYaml()
@@ -53,7 +77,7 @@ func List(projectId string) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
 	defer w.Flush()
 
-	fmt.Fprintln(w, "TARGET ID\tTARGET NAME\tCREATION TIME\tSTATE\tCORDONED")
+	fmt.Fprintln(w, "DEPLOYMENT TARGET ID\tNAME\tCREATION TIME (UTC)\tSTATE\tSTATUS")
 	if deploymentTargetsList == nil {
 		return
 	}
@@ -62,11 +86,11 @@ func List(projectId string) {
 		if t.CreatedAt != nil {
 			createdAt = t.CreatedAt.Format("2006-01-02 15:04:05")
 		}
-		stateName := t.State.Name()
-		cordoned := "no"
-		if t.Cordoned {
-			cordoned = "yes"
+		stateName := t.State
+		state := "inactive"
+		if t.Active {
+			state = "active"
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%v\n", t.Id, t.Name, createdAt, stateName, cordoned)
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", t.Id, t.Name, createdAt, stateName, state)
 	}
 }

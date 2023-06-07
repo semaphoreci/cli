@@ -6,14 +6,11 @@ import (
 	"github.com/ghodss/yaml"
 )
 
-//
 // returns tuple (apiVersion, kind, error)
-//
 func ParseYamlResourceHeaders(raw []byte) (string, string, error) {
 	m := make(map[string]interface{})
 
 	err := yaml.Unmarshal(raw, &m)
-
 	if err != nil {
 		return "", "", fmt.Errorf("Failed to parse resource; %s", err)
 	}

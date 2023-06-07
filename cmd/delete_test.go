@@ -107,26 +107,25 @@ func Test__DeleteDeploymentTarget__Response200(t *testing.T) {
 	received := false
 
 	targetId := "494b76aa-f3f0-4ecf-b5ef-c389591a01be"
-	projectId := "proj_id"
 	unique_token, _ := uuid.NewUUID()
-	deleteURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s?project_id=%s&unique_token=%s", targetId, projectId, unique_token)
+	deleteURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s?unique_token=%s", targetId, unique_token)
 	httpmock.RegisterResponder(http.MethodDelete, deleteURL,
 		func(req *http.Request) (*http.Response, error) {
 			received = true
 
 			p := `{
-  					"id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+					"id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
 					"name": "dep target test",
-			    	"url": "https://semaphoreci.xyz/target",
-			    	"project_id": "proj_id"			
-			}	
+					"url": "https://semaphoreci.xyz/target",
+					"project_id": "proj_id"
+			}
 			`
 
 			return httpmock.NewStringResponse(200, p), nil
 		},
 	)
 
-	RootCmd.SetArgs([]string{"delete", "target", targetId, "--project-id", projectId})
+	RootCmd.SetArgs([]string{"delete", "dt", targetId})
 	RootCmd.Execute()
 
 	assert.True(t, received, "Expected the API to receive DELETE deployment_targets/:id")

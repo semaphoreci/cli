@@ -20,7 +20,7 @@ func NewCreateDeploymentTargetCmd() *cobra.Command {
 		Use:     "deployment_targets [NAME]",
 		Short:   "Create a deployment target.",
 		Long:    ``,
-		Aliases: []string{"deployment_target", "dt", "target", "targets", "tgt", "targ"},
+		Aliases: models.DeploymentTargetCmdAliases,
 		Args:    cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			createRequest := models.DeploymentTargetCreateRequestV1Alpha{}
@@ -41,7 +41,10 @@ func NewCreateDeploymentTargetCmd() *cobra.Command {
 				}
 				err := targetFile.LoadContent()
 				utils.Check(err)
-				createRequest.Files = append(createRequest.Files, targetFile)
+				if createRequest.Files == nil {
+					createRequest.Files = &models.DeploymentTargetFilesV1Alpha{}
+				}
+				*createRequest.Files = append(*createRequest.Files, targetFile)
 			}
 
 			envFlags, err := cmd.Flags().GetStringArray("env")
@@ -52,9 +55,12 @@ func NewCreateDeploymentTargetCmd() *cobra.Command {
 				}
 
 				parts := strings.SplitN(envFlag, "=", 2)
-				createRequest.EnvVars = append(createRequest.EnvVars, &models.DeploymentTargetEnvVarV1Alpha{
+				if createRequest.EnvVars == nil {
+					createRequest.EnvVars = &models.DeploymentTargetEnvVarsV1Alpha{}
+				}
+				*createRequest.EnvVars = append(*createRequest.EnvVars, &models.DeploymentTargetEnvVarV1Alpha{
 					Name:  parts[0],
-					Value: parts[1],
+					Value: models.HashedContent(parts[1]),
 				})
 			}
 
@@ -64,8 +70,6 @@ func NewCreateDeploymentTargetCmd() *cobra.Command {
 			createRequest.Description, err = cmd.Flags().GetString("desc")
 			utils.Check(err)
 			createRequest.Url, err = cmd.Flags().GetString("url")
-			utils.Check(err)
-			createRequest.SecretName, err = cmd.Flags().GetString("secret")
 			utils.Check(err)
 			bookmarks, err := cmd.Flags().GetStringArray("bookmark")
 			utils.Check(err)
@@ -86,10 +90,8 @@ func NewCreateDeploymentTargetCmd() *cobra.Command {
 				if len(subjectRuleStr) != 2 {
 					utils.Check(fmt.Errorf("invalid subject rule: %s, must be in format TYPE,SUBJECT_ID", subjectRuleStr))
 				}
-				subjRuleType, err := models.ParseSubjectRuleType(subjectRuleStr[0])
-				utils.Check(err)
 				createRequest.SubjectRules = append(createRequest.SubjectRules, &models.SubjectRuleV1Alpha{
-					Type:      subjRuleType,
+					Type:      subjectRuleStr[0],
 					SubjectId: subjectRuleStr[1],
 				})
 			}
@@ -100,13 +102,9 @@ func NewCreateDeploymentTargetCmd() *cobra.Command {
 				if len(objectRuleStr) != 3 {
 					utils.Check(fmt.Errorf("invalid object rule: %s, must be in format TYPE,MODE,PATTERN", objectRuleStr))
 				}
-				objRuleType, err := models.ParseObjectRuleType(objectRuleStr[0])
-				utils.Check(err)
-				objRuleMode, err := models.ParseObjectRuleMode(objectRuleStr[1])
-				utils.Check(err)
 				createRequest.ObjectRules = append(createRequest.ObjectRules, &models.ObjectRuleV1Alpha{
-					Type:      objRuleType,
-					MatchMode: objRuleMode,
+					Type:      objectRuleStr[0],
+					MatchMode: objectRuleStr[1],
 					Pattern:   objectRuleStr[2],
 				})
 			}
@@ -118,7 +116,7 @@ func NewCreateDeploymentTargetCmd() *cobra.Command {
 				return
 			}
 
-			fmt.Printf("Deployment target '%s' created.\n", createdTarget.Name)
+			fmt.Printf("Deployment target '%s' ('%s') created.\n", createdTarget.Id, createdTarget.Name)
 		},
 	}
 
@@ -138,8 +136,7 @@ func NewCreateDeploymentTargetCmd() *cobra.Command {
 		[]string{},
 		"Environment Variables given in the format VAR=VALUE",
 	)
-	cmd.Flags().StringP("secret", "c", "", "Secret name for deployment target")
-	cmd.Flags().StringArrayP("bookmark", "b", []string{}, "Bookmark for deployment target")
+	cmd.Flags().StringArrayP("bookmark", "b", []string{}, "Bookmarks for deployment target")
 	cmd.Flags().StringArrayP("subject_rules", "s", []string{}, "Subject rules for deployment target")
 	cmd.Flags().StringArrayP("object_rules", "o", []string{}, "Object rules for deployment target")
 	cmd.Flags().StringP("project-name", "p", "", "project name; if not specified will be inferred from git origin")

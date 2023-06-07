@@ -225,38 +225,42 @@ func Test__EditDeploymentTarget__Response200(t *testing.T) {
 	defer uuid.Unmock()
 
 	targetJSON := `{
-		
-		  "apiVersion": "v1alpha",
-		  "kind": "DeploymentTarget",
-		  "id": "1234-5678-id",
-		  "name": "dt-name",
-		  "project_id": "projId1",
-		  "organization_id": "org-id",
-		  "description": "dt-description",
-		  "url": "www.semaphore.xyz",
-		  "subject_rules": [
+			"apiVersion": "v1alpha",
+			"kind": "DeploymentTarget",
+			"id": "bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
+			"name": "dt-name",
+			"project_id": "projId1",
+			"organization_id": "org-id",
+			"description": "dt-description",
+			"url": "www.semaphore.xyz",
+			"subject_rules": [
 			{
-			  "type": 0,
-			  "subject_id": "subjId1"
+				"type": "USER",
+				"subject_id": "00000000-0000-0000-0000-000000000000"
 			}
-		  ],
-		  "object_rules": [
+			],
+			"object_rules": [
 			{
-			  "type": 0,
-			  "match_mode": 1,
-			  "pattern": ".*main.*"
+				"type": "BRANCH",
+				"match_mode": "PATTERN",
+				"pattern": ".*main.*"
 			}
-		  ],
-		  "cordoned": true,
-		  "bookmark_parameter1": "book1"
-		
-	  }
-	  `
+			],
+			"env_vars": [
+			{
+				"name": "X",
+				"value": "123"
+			}
+			],
+			"active": true,
+			"bookmark_parameter1": "book1"
+		}
+		`
 
 	var received *models.DeploymentTargetV1Alpha
 
-	targetId := "1234-5678-id"
-	targetGetURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s", targetId)
+	targetId := "bb2ba294-d4b3-48bc-90a7-12dd56e9424c"
+	targetGetURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s?include_secrets=true", targetId)
 	httpmock.RegisterResponder(http.MethodGet, targetGetURL,
 		func(req *http.Request) (*http.Response, error) {
 			return httpmock.NewStringResponse(200, targetJSON), nil
@@ -274,10 +278,149 @@ func Test__EditDeploymentTarget__Response200(t *testing.T) {
 		},
 	)
 
-	RootCmd.SetArgs([]string{"edit", "target", targetId})
+	RootCmd.SetArgs([]string{"edit", "dt", targetId})
 	RootCmd.Execute()
 
 	assert.Equal(t, received.Name, "dt-name")
 	assert.Equal(t, received.Description, "dt-description")
 	assert.Equal(t, received.Url, "www.semaphore.xyz")
+	assert.Equal(t, len(*received.EnvVars), 1)
+	assert.Equal(t, *(*received.EnvVars)[0], models.DeploymentTargetEnvVarV1Alpha{Name: "X", Value: "123"})
+}
+
+func Test__EditDeploymentTargetByName__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	uuid.Mock()
+	defer uuid.Unmock()
+
+	targetJSON := `{
+			"apiVersion": "v1alpha",
+			"kind": "DeploymentTarget",
+			"id": "bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
+			"name": "dt-name",
+			"project_id": "projId1",
+			"organization_id": "org-id",
+			"description": "dt-description",
+			"url": "www.semaphore.xyz",
+			"subject_rules": [
+			{
+				"type": "USER",
+				"subject_id": "00000000-0000-0000-0000-000000000000"
+			}
+			],
+			"object_rules": [
+			{
+				"type": "BRANCH",
+				"match_mode": "PATTERN",
+				"pattern": ".*main.*"
+			}
+			],
+			"env_vars": [
+			{
+				"name": "X",
+				"value": "123"
+			}
+			],
+			"active": true,
+			"bookmark_parameter1": "book1"f
+		}
+		`
+	targetsJSON := "[" + targetJSON + "]"
+	var received *models.DeploymentTargetV1Alpha
+
+	targetId := "bb2ba294-d4b3-48bc-90a7-12dd56e9424c"
+	targetName := "dt-name"
+	projectId := "projId1"
+	targetGetURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets?project_id=%s&target_name=%s", projectId, targetName)
+	httpmock.RegisterResponder(http.MethodGet, targetGetURL,
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(200, targetsJSON), nil
+		},
+	)
+	targetGetByIDURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s?include_secrets=true", targetId)
+	httpmock.RegisterResponder(http.MethodGet, targetGetByIDURL,
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(200, targetJSON), nil
+		},
+	)
+
+	targetPatchURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s", targetId)
+	httpmock.RegisterResponder(http.MethodPatch, targetPatchURL,
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+
+			updateRequest := models.DeploymentTargetCreateRequestV1Alpha{}
+			json.Unmarshal(body, &updateRequest)
+			received = &updateRequest.DeploymentTargetV1Alpha
+
+			body, _ = json.Marshal(received)
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"edit", "dt", targetName, "-i", projectId})
+	RootCmd.Execute()
+
+	assert.Equal(t, received.Name, "dt-name")
+	assert.Equal(t, received.Description, "dt-description")
+	assert.Equal(t, received.Url, "www.semaphore.xyz")
+	assert.Equal(t, len(*received.EnvVars), 1)
+	assert.Equal(t, *(*received.EnvVars)[0], models.DeploymentTargetEnvVarV1Alpha{Name: "X", Value: "123"})
+}
+
+func Test__EditDeploymentTargetDeactivate__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	targetId := "494b76aa-f3f0-4ecf-b5ef-c389591a01be"
+	patchURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s/deactivate", targetId)
+	httpmock.RegisterResponder(http.MethodPatch, patchURL,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			target := `{
+				"target_id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+				"cordoned": true
+				}
+				`
+
+			return httpmock.NewStringResponse(200, target), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"edit", "dt", targetId, "-d"})
+	RootCmd.Execute()
+
+	assert.True(t, received, "Expected the API to receive PATCH deployment_targets/:id/deactivate")
+}
+
+func Test__EditDeploymentTargetActivate__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	targetId := "494b76aa-f3f0-4ecf-b5ef-c389591a01be"
+	patchURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s/activate", targetId)
+	httpmock.RegisterResponder(http.MethodPatch, patchURL,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			target := `{
+				"target_id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+				"active": false
+				}
+				`
+
+			return httpmock.NewStringResponse(200, target), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"edit", "dt", targetId, "--activate"})
+	RootCmd.Execute()
+
+	assert.True(t, received, "Expected the API to receive PATCH deployment_targets/:id/activate")
 }

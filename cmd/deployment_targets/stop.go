@@ -9,7 +9,7 @@ import (
 
 func Stop(targetId string) {
 	client := client.NewDeploymentTargetsV1AlphaApi()
-	successful, err := client.Stop(targetId)
+	successful, err := client.Deactivate(targetId)
 	utils.Check(err)
 	if successful {
 		fmt.Printf("Target [%s] was stopped successfully\n", targetId)

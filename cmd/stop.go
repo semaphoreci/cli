@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	client "github.com/semaphoreci/cli/api/client"
-	"github.com/semaphoreci/cli/cmd/deployment_targets"
 	"github.com/semaphoreci/cli/cmd/pipelines"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/semaphoreci/cli/cmd/workflows"
@@ -63,24 +62,10 @@ var StopWfCmd = &cobra.Command{
 	},
 }
 
-var stopTargetCmd = &cobra.Command{
-	Use:     "deployment_target [id]",
-	Short:   "Block deployment target in the workflow.",
-	Long:    ``,
-	Aliases: []string{"deployment_target", "dt", "target", "targets", "tgt", "targ"},
-	Args:    cobra.ExactArgs(1),
-
-	Run: func(cmd *cobra.Command, args []string) {
-		targetId := args[0]
-		deployment_targets.Stop(targetId)
-	},
-}
-
 func init() {
 	RootCmd.AddCommand(stopCmd)
 
 	stopCmd.AddCommand(StopPplCmd)
 	stopCmd.AddCommand(StopJobCmd)
 	stopCmd.AddCommand(StopWfCmd)
-	stopCmd.AddCommand(stopTargetCmd)
 }

@@ -7,6 +7,8 @@ import (
 	"text/tabwriter"
 
 	client "github.com/semaphoreci/cli/api/client"
+	models "github.com/semaphoreci/cli/api/models"
+	"github.com/semaphoreci/cli/api/uuid"
 	"github.com/semaphoreci/cli/cmd/deployment_targets"
 	"github.com/semaphoreci/cli/cmd/pipelines"
 	"github.com/semaphoreci/cli/cmd/utils"
@@ -336,32 +338,40 @@ var GetWfCmd = &cobra.Command{
 }
 
 var GetDTCmd = &cobra.Command{
-	Use:     "deployment_targets [id]",
+	Use:     "deployment_targets [id or name]",
 	Short:   "Get deployment targets.",
 	Long:    ``,
-	Aliases: []string{"deployment_target", "dt", "target", "targets", "tgt", "targ"},
+	Aliases: models.DeploymentTargetCmdAliases,
 	Args:    cobra.RangeArgs(0, 1),
 
 	Run: func(cmd *cobra.Command, args []string) {
+		getHistory, err := cmd.Flags().GetBool("history")
+		utils.Check(err)
+		targetName, err := cmd.Flags().GetString("name")
+		utils.Check(err)
+		targetId, err := cmd.Flags().GetString("id")
+		utils.Check(err)
 		if len(args) == 1 {
-			projectId := args[0]
-			deployment_targets.List(projectId)
-		} else {
-			targetId, err := cmd.Flags().GetString("target-id")
-			utils.Check(err)
-			projectId := ""
-
-			targetName, err := cmd.Flags().GetString("target-name")
-			utils.Check(err)
-			if targetId == "" && targetName != "" {
-				projectId = getPrj(cmd)
-			}
-			getHistory, err := cmd.Flags().GetBool("history")
-			utils.Check(err)
-			if getHistory {
-				deployment_targets.History(targetId, projectId)
+			if uuid.IsValid(args[0]) {
+				targetId = args[0]
 			} else {
-				deployment_targets.Describe(targetId, targetName, projectId)
+				targetName = args[0]
+			}
+		}
+		if getHistory {
+
+			if targetId != "" {
+				deployment_targets.History(targetId)
+			} else if targetName != "" {
+				deployment_targets.HistoryByName(targetName, getPrj(cmd))
+			}
+		} else {
+			if targetId != "" {
+				deployment_targets.Describe(targetId)
+			} else if targetName != "" {
+				deployment_targets.DescribeByname(targetName, getPrj(cmd))
+			} else {
+				deployment_targets.List(getPrj(cmd))
 			}
 		}
 	},
@@ -445,8 +455,8 @@ func init() {
 		"project name; if not specified will be inferred from git origin")
 	GetDTCmd.Flags().StringP("project-id", "i", "",
 		"project id; if not specified will be inferred from git origin")
-	GetDTCmd.Flags().StringP("target-id", "t", "", "target id")
-	GetDTCmd.Flags().StringP("target-name", "n", "", "target name")
-	GetDTCmd.Flags().BoolP("history", "x", false, "get deployment target history")
+	GetDTCmd.Flags().StringP("id", "t", "", "target id")
+	GetDTCmd.Flags().StringP("name", "n", "", "target name")
+	GetDTCmd.Flags().BoolP("history", "s", false, "get deployment target history")
 	GetDTCmd.Flags().Lookup("history").NoOptDefVal = "true"
 }

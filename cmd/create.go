@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -28,9 +29,7 @@ var createCmd = &cobra.Command{
 		data, err := ioutil.ReadFile(path)
 
 		utils.CheckWithMessage(err, "Failed to read from resource file.")
-
 		_, kind, err := utils.ParseYamlResourceHeaders(data)
-
 		utils.Check(err)
 
 		switch kind {
@@ -118,19 +117,23 @@ var createCmd = &cobra.Command{
 			utils.Check(err)
 			fmt.Printf("%s", y)
 		case models.DeploymentTargetKindV1Alpha:
-			request, err := models.NewDeploymentTargetCreateRequestV1AlphaFromYaml(data)
+			target, err := models.NewDeploymentTargetV1AlphaFromYaml(data)
 			utils.Check(err)
-
-			c := client.NewDeploymentTargetsV1AlphaApi()
-			for _, file := range request.Files {
-				utils.Check(file.LoadContent())
+			if target == nil {
+				utils.Check(errors.New("deployment target in the file is empty"))
+				return
 			}
-			newDeploymentTarget, err := c.Create(request)
+			createRequest := &models.DeploymentTargetCreateRequestV1Alpha{
+				DeploymentTargetV1Alpha: *target,
+			}
+			utils.Check(createRequest.LoadFiles())
+			c := client.NewDeploymentTargetsV1AlphaApi()
+			createdDeploymentTarget, err := c.Create(createRequest)
 			utils.Check(err)
 
-			y, err := newDeploymentTarget.ToYaml()
+			y, err := createdDeploymentTarget.ToYaml()
 			utils.Check(err)
-			fmt.Printf("Deployment target created:\n%s", y)
+			fmt.Printf("Deployment target '%s' (%s) created:\n%s\n", createdDeploymentTarget.Id, createdDeploymentTarget.Name, y)
 		default:
 			utils.Fail(fmt.Sprintf("Unsupported resource kind '%s'", kind))
 		}

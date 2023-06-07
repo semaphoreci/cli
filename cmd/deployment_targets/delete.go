@@ -7,10 +7,10 @@ import (
 	"github.com/semaphoreci/cli/cmd/utils"
 )
 
-func Delete(targetId, projectId string) {
+func Delete(targetId string) {
 	c := client.NewDeploymentTargetsV1AlphaApi()
 
-	err := c.Delete(targetId, projectId)
+	err := c.Delete(targetId)
 	utils.Check(err)
 
 	fmt.Printf("Deployment target '%s' deleted.\n", targetId)
