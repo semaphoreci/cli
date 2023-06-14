@@ -31,7 +31,6 @@ func Test__CreateDeploymentTarget__WithSubcommand__Response200(t *testing.T) {
 			body, _ := ioutil.ReadAll(req.Body)
 
 			received = string(body)
-			fmt.Printf("received:'%s'\n", received)
 
 			return httpmock.NewStringResponse(200, received), nil
 		},
@@ -42,9 +41,16 @@ func Test__CreateDeploymentTarget__WithSubcommand__Response200(t *testing.T) {
 		"dt",
 		"-i", "00000000-0000-0000-000000000000",
 		"-e", "FOO=BAR",
-		"-e", "ZEZ=Hello World",
+		"--env", "ZEZ=Hello World",
 		"--file", "/tmp/docker:.config/docker",
-		"--file", "/tmp/gcloud:.config/gcloud",
+		"-f", "/tmp/gcloud:.config/gcloud",
+		"-s", "any",
+		"--subject-rule", "user,mock_user_321",
+		"-s", "role,contributor",
+		"--object-rule", "branch,exact,main",
+		"-o", `tag,pattern,.*feat.*`,
+		"-b", "book 1",
+		"--url", "mock_url_321.zyx",
 		"abc",
 	})
 
@@ -53,7 +59,7 @@ func Test__CreateDeploymentTarget__WithSubcommand__Response200(t *testing.T) {
 	file1 := base64.StdEncoding.EncodeToString([]byte(content1))
 	file2 := base64.StdEncoding.EncodeToString([]byte(content2))
 
-	expected := fmt.Sprintf(`{"id":"","name":"abc","project_id":"00000000-0000-0000-000000000000","organization_id":"","description":"","url":"","state":"","state_message":"","subject_rules":null,"object_rules":null,"active":false,"bookmark_parameter1":"","bookmark_parameter2":"","bookmark_parameter3":"","env_vars":[{"name":"FOO","value":"BAR"},{"name":"ZEZ","value":"Hello World"}],"files":[{"path":".config/docker","content":"%s"},{"path":".config/gcloud","content":"%s"}],"unique_token":"00020406-090b-4e10-9315-181a1c1e2022"}`, file1, file2)
+	expected := fmt.Sprintf(`{"id":"","name":"abc","project_id":"00000000-0000-0000-000000000000","organization_id":"","description":"","url":"mock_url_321.zyx","state":"","state_message":"","subject_rules":[{"type":"ANY"},{"type":"USER","git_login":"mock_user_321"},{"type":"ROLE","subject_id":"contributor"}],"object_rules":[{"type":"branch","match_mode":"exact","pattern":"main"},{"type":"tag","match_mode":"pattern","pattern":".*feat.*"}],"active":false,"bookmark_parameter1":"book 1","bookmark_parameter2":"","bookmark_parameter3":"","env_vars":[{"name":"FOO","value":"BAR"},{"name":"ZEZ","value":"Hello World"}],"files":[{"path":".config/docker","content":"%s"},{"path":".config/gcloud","content":"%s"}],"unique_token":"00020406-090b-4e10-9315-181a1c1e2022"}`, file1, file2)
 
 	assert.Equal(t, received, expected)
 }
