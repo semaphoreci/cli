@@ -36,7 +36,6 @@ func NewProjectV1AlphaApiWithCustomClient(client BaseClient) ProjectApiV1AlphaAp
 
 func (c *ProjectApiV1AlphaApi) ListProjects() (*models.ProjectListV1Alpha, error) {
 	body, status, err := c.BaseClient.List(c.ResourceNamePlural)
-
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
 	}
