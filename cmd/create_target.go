@@ -84,19 +84,44 @@ func NewCreateDeploymentTargetCmd() *cobra.Command {
 				}
 			}
 
-			subjectRulesStrs, err := utils.CSVArrayFlag(cmd, "subject_rules", true)
+			parsedSubjectRules, err := utils.CSVArrayFlag(cmd, "subject-rule", true)
 			utils.Check(err)
-			for _, subjectRuleStr := range subjectRulesStrs {
-				if len(subjectRuleStr) != 2 {
-					utils.Check(fmt.Errorf("invalid subject rule: %s, must be in format TYPE,SUBJECT_ID", subjectRuleStr))
+
+			createSubjectRule := func(parsedSubjRule []string) (*models.SubjectRuleV1Alpha, error) {
+				if len(parsedSubjRule) == 0 || len(parsedSubjRule) > 2 {
+					return nil, fmt.Errorf("invalid subject rule: %q, must be ANY or AUTO or in format TYPE,SUBJECT", parsedSubjRule)
 				}
-				createRequest.SubjectRules = append(createRequest.SubjectRules, &models.SubjectRuleV1Alpha{
-					Type:      subjectRuleStr[0],
-					SubjectId: subjectRuleStr[1],
-				})
+				rule := &models.SubjectRuleV1Alpha{
+					Type: strings.ToUpper(strings.TrimSpace(parsedSubjRule[0])),
+				}
+				switch rule.Type {
+				case "ANY", "AUTO":
+					return rule, nil
+				case "USER":
+					if len(parsedSubjRule) == 2 {
+						rule.GitLogin = parsedSubjRule[1]
+					} else {
+						return nil, errors.New("invalid user subject rule: must be in format USER,GIT_LOGIN")
+					}
+				case "ROLE":
+					if len(parsedSubjRule) == 2 {
+						rule.SubjectId = parsedSubjRule[1]
+					} else {
+						return nil, errors.New(`invalid role subject rule: must be in format ROLE,ROLE_ID`)
+					}
+				default:
+					return nil, fmt.Errorf(`invalid subject rule type: %s, must be one of: ANY, USER, ROLE, AUTO`, rule.Type)
+				}
+				return rule, nil
+			}
+			for _, parsedSubjectRule := range parsedSubjectRules {
+				subjectRule, err := createSubjectRule(parsedSubjectRule)
+				utils.Check(err)
+
+				createRequest.SubjectRules = append(createRequest.SubjectRules, subjectRule)
 			}
 
-			objectRulesStrs, err := utils.CSVArrayFlag(cmd, "object_rules", true)
+			objectRulesStrs, err := utils.CSVArrayFlag(cmd, "object-rule", true)
 			utils.Check(err)
 			for _, objectRuleStr := range objectRulesStrs {
 				if len(objectRuleStr) != 3 {
@@ -137,8 +162,8 @@ func NewCreateDeploymentTargetCmd() *cobra.Command {
 		"Environment Variables given in the format VAR=VALUE",
 	)
 	cmd.Flags().StringArrayP("bookmark", "b", []string{}, "Bookmarks for deployment target")
-	cmd.Flags().StringArrayP("subject_rules", "s", []string{}, "Subject rules for deployment target")
-	cmd.Flags().StringArrayP("object_rules", "o", []string{}, "Object rules for deployment target")
+	cmd.Flags().StringArrayP("subject-rule", "s", []string{}, "Subject rules for deployment target")
+	cmd.Flags().StringArrayP("object-rule", "o", []string{}, "Object rules for deployment target")
 	cmd.Flags().StringP("project-name", "p", "", "project name; if not specified will be inferred from git origin")
 	cmd.Flags().StringP("project-id", "i", "", "project id; if not specified will be inferred from git origin")
 

@@ -18,8 +18,8 @@ type DeploymentTargetsApiV1AlphaApi struct {
 }
 
 const (
-	CordonOpName   = "deactivate"
-	UncordonOpName = "activate"
+	DeactivateOpName = "deactivate"
+	ActivateOpName   = "activate"
 )
 
 func NewDeploymentTargetsV1AlphaApi() DeploymentTargetsApiV1AlphaApi {
@@ -58,7 +58,7 @@ func (c *DeploymentTargetsApiV1AlphaApi) DescribeByName(targetName, projectId st
 		return nil, err
 	}
 	if targets == nil || len(*targets) == 0 {
-		return nil, fmt.Errorf("target with name '%s' doesn't exist in the project '%s'", targetName, projectId)
+		return nil, fmt.Errorf("target with the name '%s' doesn't exist in the project '%s'", targetName, projectId)
 	}
 	return (*targets)[0], nil
 }
@@ -110,7 +110,7 @@ func (c *DeploymentTargetsApiV1AlphaApi) list(projectId string, targetNames ...s
 }
 
 func (c *DeploymentTargetsApiV1AlphaApi) Delete(targetId string) error {
-	unique_token, err := uuid.NewUUID()
+	unique_token, err := uuid.NewUUIDv4()
 	if err != nil {
 		return fmt.Errorf("unique token generation failed: %s", err)
 	}
@@ -136,7 +136,7 @@ func (c *DeploymentTargetsApiV1AlphaApi) Create(createRequest *models.Deployment
 	if err != nil {
 		return nil, err
 	}
-	unique_token, err := uuid.NewUUID()
+	unique_token, err := uuid.NewUUIDv4()
 	if err != nil {
 		return nil, fmt.Errorf("unique token generation failed: %s", err)
 	}
@@ -168,7 +168,7 @@ func (c *DeploymentTargetsApiV1AlphaApi) Update(updateRequest *models.Deployment
 	if updateRequest.ProjectId == "" {
 		return nil, errors.New("update request project id must not be empty")
 	}
-	unique_token, err := uuid.NewUUID()
+	unique_token, err := uuid.NewUUIDv4()
 	if err != nil {
 		return nil, fmt.Errorf("unique token generation failed: %s", err)
 	}
@@ -192,11 +192,11 @@ func (c *DeploymentTargetsApiV1AlphaApi) Update(updateRequest *models.Deployment
 }
 
 func (c *DeploymentTargetsApiV1AlphaApi) Activate(targetId string) (bool, error) {
-	return c.cordon(targetId, UncordonOpName)
+	return c.cordon(targetId, ActivateOpName)
 }
 
 func (c *DeploymentTargetsApiV1AlphaApi) Deactivate(targetId string) (bool, error) {
-	return c.cordon(targetId, CordonOpName)
+	return c.cordon(targetId, DeactivateOpName)
 }
 
 func (c *DeploymentTargetsApiV1AlphaApi) cordon(targetId, opName string) (bool, error) {
@@ -217,11 +217,12 @@ func (c *DeploymentTargetsApiV1AlphaApi) cordon(targetId, opName string) (bool, 
 	if response.TargetId != targetId {
 		return false, fmt.Errorf("wrong target id in the response")
 	}
-	if response.Cordoned != (opName == CordonOpName) {
+	shouldBeCordoned := opName == DeactivateOpName
+	if response.Cordoned != shouldBeCordoned {
 		if response.Cordoned {
-			return false, fmt.Errorf("target wasn't rebuilt successfully")
+			return false, fmt.Errorf("failed to activate deployment target")
 		}
-		return false, fmt.Errorf("target wasn't stopped successfully")
+		return false, fmt.Errorf("failed to deactivate deployment target")
 	}
 	return true, nil
 }

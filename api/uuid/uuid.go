@@ -5,10 +5,16 @@ import "github.com/google/uuid"
 type generator func() (uuid.UUID, error)
 
 var googleGenerator = uuid.NewUUID
+var googleGeneratorV4 = uuid.NewRandom
 var currentGenerator generator
+var currentGeneratorV4 generator
 
 func NewUUID() (uuid.UUID, error) {
 	return currentGenerator()
+}
+
+func NewUUIDv4() (uuid.UUID, error) {
+	return currentGeneratorV4()
 }
 
 func mockGenerator() (uuid.UUID, error) {
@@ -22,12 +28,15 @@ func IsValid(s string) bool {
 
 func Mock() {
 	currentGenerator = mockGenerator
+	currentGeneratorV4 = mockGenerator
 }
 
 func Unmock() {
 	currentGenerator = googleGenerator
+	currentGeneratorV4 = googleGeneratorV4
 }
 
 func init() {
 	currentGenerator = googleGenerator
+	currentGeneratorV4 = googleGeneratorV4
 }

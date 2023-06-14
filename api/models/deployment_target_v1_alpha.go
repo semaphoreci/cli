@@ -15,7 +15,7 @@ const (
 	DeploymentTargetKindV1Alpha = "DeploymentTarget"
 )
 
-var DeploymentTargetCmdAliases = []string{"deployment_target", "dt", "deployment", "deployments", "deps", "dts"}
+var DeploymentTargetCmdAliases = []string{"deployment-target", "deployment-targets", "dt", "deployment", "deployments", "deps", "dts"}
 
 type DeploymentTargetListV1Alpha []*DeploymentTargetV1Alpha
 
