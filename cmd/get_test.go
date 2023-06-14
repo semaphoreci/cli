@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -336,13 +337,13 @@ func Test__GetPipeline__Response200(t *testing.T) {
 			received = true
 
 			p := `{
-  			"pipeline": {
+				"pipeline": {
 					"ppl_id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
 					"name": "snapshot test",
-			    "state": "done",
-			    "result": "passed",
+				"state": "done",
+				"result": "passed",
 					"result_reason": "test",
-			    "error_description": ""
+				"error_description": ""
 				}
 			}`
 
@@ -354,6 +355,125 @@ func Test__GetPipeline__Response200(t *testing.T) {
 	RootCmd.Execute()
 
 	assert.True(t, received, "Expected the API to receive GET pipelines/:id")
+}
+
+func Test__GetDeploymentTargetByName__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	projectId := "494b76aa-f3f0-4ecf-b5ef-c389591a01be"
+	targetName := "dep target test"
+	getURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets?project_id=%s&target_name=%s", projectId, url.PathEscape(targetName))
+
+	httpmock.RegisterResponder(http.MethodGet, getURL,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `[{
+						"id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+					"name": "dep target test",
+					"url": "https://semaphoreci.xyz/target",
+					"project_id": "proj_id"
+			}]
+			`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"get", "dt", targetName, "-i", projectId})
+	RootCmd.Execute()
+
+	assert.True(t, received, "Expected the API to receive GET deployment_targets")
+}
+
+func Test__GetDeploymentTarget__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	targetId := "494b76aa-f3f0-4ecf-b5ef-c389591a01be"
+	getURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s", targetId)
+	httpmock.RegisterResponder(http.MethodGet, getURL,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `{
+						"id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+					"name": "dep target test",
+					"url": "https://semaphoreci.xyz/target",
+					"project_id": "proj_id"
+			}
+			`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"get", "dt", targetId})
+	RootCmd.Execute()
+
+	assert.True(t, received, "Expected the API to receive GET deployment_targets/:id")
+}
+
+func Test__GetDeploymentTargetsList__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	projectId := "proj_id"
+	getURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets?project_id=%s", projectId)
+	httpmock.RegisterResponder(http.MethodGet, getURL,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `[{
+						"id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+					"name": "dep target test",
+					"url": "https://semaphoreci.xyz/target",
+					"project_id": "proj_id"
+			}]
+			`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"get", "dt", "--project-id", projectId})
+	RootCmd.Execute()
+
+	assert.True(t, received, "Expected the API to receive GET deployment_targets/:id")
+}
+
+func Test__GetDeploymentTargetHistory__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	targetId := "494b76aa-f3f0-4ecf-b5ef-c389591a01be"
+	getURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s/history", targetId)
+	httpmock.RegisterResponder(http.MethodGet, getURL,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `{"deployments":[{
+						"id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+					"target_id": "target_id123",
+					"pipeline_id": "pipeline_id"
+			}]}`
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"get", "dt", targetId, "-s"})
+	RootCmd.Execute()
+
+	assert.True(t, received, "Expected the API to receive GET deployment_targets/:id/history")
 }
 
 func Test__GetWorkflows__Response200(t *testing.T) {
@@ -386,8 +506,8 @@ func Test__GetWorkflows__Response200(t *testing.T) {
 				"project_id": "758cb945-7495-4e40-a9a1-4b3991c6a8fe",
 				"initial_ppl_id": "92f81b82-3584-4852-ab28-4866624bed1e",
 				"created_at": {
-				  "seconds": 1533833523,
-				  "nanos": 537460000
+					"seconds": 1533833523,
+					"nanos": 537460000
 				}
 			}]`
 

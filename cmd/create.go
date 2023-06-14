@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -28,9 +29,7 @@ var createCmd = &cobra.Command{
 		data, err := ioutil.ReadFile(path)
 
 		utils.CheckWithMessage(err, "Failed to read from resource file.")
-
 		_, kind, err := utils.ParseYamlResourceHeaders(data)
-
 		utils.Check(err)
 
 		switch kind {
@@ -117,6 +116,24 @@ var createCmd = &cobra.Command{
 			y, err := newAgentType.ToYaml()
 			utils.Check(err)
 			fmt.Printf("%s", y)
+		case models.DeploymentTargetKindV1Alpha:
+			target, err := models.NewDeploymentTargetV1AlphaFromYaml(data)
+			utils.Check(err)
+			if target == nil {
+				utils.Check(errors.New("deployment target in the file is empty"))
+				return
+			}
+			createRequest := &models.DeploymentTargetCreateRequestV1Alpha{
+				DeploymentTargetV1Alpha: *target,
+			}
+			utils.Check(createRequest.LoadFiles())
+			c := client.NewDeploymentTargetsV1AlphaApi()
+			createdDeploymentTarget, err := c.Create(createRequest)
+			utils.Check(err)
+
+			y, err := createdDeploymentTarget.ToYaml()
+			utils.Check(err)
+			fmt.Printf("Deployment target '%s' (%s) created:\n%s\n", createdDeploymentTarget.Id, createdDeploymentTarget.Name, y)
 		default:
 			utils.Fail(fmt.Sprintf("Unsupported resource kind '%s'", kind))
 		}
@@ -230,6 +247,7 @@ func init() {
 	createCmd.AddCommand(CreateWorkflowCmd)
 	createCmd.AddCommand(createNotificationCmd)
 	createCmd.AddCommand(CreateAgentTypeCmd)
+	createCmd.AddCommand(NewCreateDeploymentTargetCmd())
 
 	// Create Flags
 

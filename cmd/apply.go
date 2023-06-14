@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 
@@ -90,7 +91,7 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 		fmt.Printf("Notification '%s' updated.\n", notif.Metadata.Name)
 	case "Project":
-		proj , err := models.NewProjectV1AlphaFromYaml(data)
+		proj, err := models.NewProjectV1AlphaFromYaml(data)
 
 		utils.Check(err)
 
@@ -101,6 +102,23 @@ func RunApply(cmd *cobra.Command, args []string) {
 		utils.Check(err)
 
 		fmt.Printf("Project '%s' updated.\n", proj.Metadata.Name)
+	case models.DeploymentTargetKindV1Alpha:
+		target, err := models.NewDeploymentTargetV1AlphaFromYaml(data)
+		utils.Check(err)
+		if target == nil {
+			utils.Check(errors.New("deployment target in the file is empty"))
+			return
+		}
+		updateRequest := &models.DeploymentTargetUpdateRequestV1Alpha{
+			DeploymentTargetV1Alpha: *target,
+		}
+		utils.Check(updateRequest.LoadFiles())
+
+		c := client.NewDeploymentTargetsV1AlphaApi()
+		updatedDeploymentTarget, err := c.Update(updateRequest)
+		utils.Check(err)
+
+		fmt.Printf("Deployment target '%s' ('%s') updated.\n", updatedDeploymentTarget.Id, updatedDeploymentTarget.Name)
 	default:
 		utils.Fail(fmt.Sprintf("Unsuported resource kind '%s'", kind))
 	}
