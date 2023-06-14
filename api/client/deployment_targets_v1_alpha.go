@@ -33,9 +33,17 @@ func NewDeploymentTargetsV1AlphaApi() DeploymentTargetsApiV1AlphaApi {
 	}
 }
 
-func (c *DeploymentTargetsApiV1AlphaApi) Describe(targetId string, includeSecrets ...bool) (*models.DeploymentTargetV1Alpha, error) {
+func (c *DeploymentTargetsApiV1AlphaApi) Describe(targetId string) (*models.DeploymentTargetV1Alpha, error) {
+	return c.describe(targetId, false)
+}
+
+func (c *DeploymentTargetsApiV1AlphaApi) DescribeWithSecrets(targetId string) (*models.DeploymentTargetV1Alpha, error) {
+	return c.describe(targetId, true)
+}
+
+func (c *DeploymentTargetsApiV1AlphaApi) describe(targetId string, withSecrets bool) (*models.DeploymentTargetV1Alpha, error) {
 	var resource string
-	if len(includeSecrets) > 0 && includeSecrets[0] {
+	if withSecrets {
 		resource = fmt.Sprintf("%s?include_secrets=true", targetId)
 	} else {
 		resource = targetId

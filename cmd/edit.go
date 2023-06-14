@@ -219,12 +219,12 @@ var EditDeploymentTargetCmd = &cobra.Command{
 		var target *models.DeploymentTargetV1Alpha
 		if targetId != "" {
 			if !shouldActivate && !shouldDeactivate {
-				target, err = c.Describe(targetId, true)
+				target, err = c.DescribeWithSecrets(targetId)
 			}
 		} else if targetName != "" {
 			target, err = c.DescribeByName(targetName, getPrj(cmd))
 			if err == nil && target != nil {
-				target, err = c.Describe(target.Id, true)
+				target, err = c.DescribeWithSecrets(target.Id)
 			}
 		} else {
 			err = errors.New("target id or target name must be provided")
