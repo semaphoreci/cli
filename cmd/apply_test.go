@@ -221,7 +221,7 @@ spec:
 	RootCmd.SetArgs([]string{"apply", "-f", yaml_file_path})
 	RootCmd.Execute()
 
-	expected := `{"id":"a13949b7-b2f6-4286-8f26-3962d7e97828","name":"TestDT","project_id":"a13949b7-b2f6-4286-8f26-000000000000","organization_id":"","description":"","url":"someurl321.zyx","state":"","state_message":"","subject_rules":[{"type":"ANY"},{"type":"USER","subject_id":"00000000-0000-0000-0000-000000000000"}],"object_rules":[{"type":"BRANCH","match_mode":"ALL","pattern":""},{"type":"TAG","match_mode":"ALL","pattern":""}],"active":false,"bookmark_parameter1":"book 1","bookmark_parameter2":"","bookmark_parameter3":"","env_vars":[{"name":"X","value":"123"}],"unique_token":"00020406-090b-0e10-1315-181a1c1e2022"}`
+	expected := `{"id":"a13949b7-b2f6-4286-8f26-3962d7e97828","name":"TestDT","project_id":"a13949b7-b2f6-4286-8f26-000000000000","organization_id":"","description":"","url":"someurl321.zyx","state":"","state_message":"","subject_rules":[{"type":"ANY"},{"type":"USER","subject_id":"00000000-0000-0000-0000-000000000000"}],"object_rules":[{"type":"BRANCH","match_mode":"ALL","pattern":""},{"type":"TAG","match_mode":"ALL","pattern":""}],"active":false,"bookmark_parameter1":"book 1","bookmark_parameter2":"","bookmark_parameter3":"","env_vars":[{"name":"X","value":"123"}],"unique_token":"00020406-090b-4e10-9315-181a1c1e2022"}`
 
 	if received != expected {
 		t.Errorf("Expected the API to receive PATCH deployment target with: %s, got: %s", expected, received)
