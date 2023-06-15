@@ -19,21 +19,21 @@ func NewAgentApiV1AlphaApi() AgentApiV1AlphaApi {
 
 	return AgentApiV1AlphaApi{
 		BaseClient:           baseClient,
-		ResourceNamePlural:   "self_hosted_agents",
-		ResourceNameSingular: "self_hosted_agent",
+		ResourceNamePlural:   "agents",
+		ResourceNameSingular: "agent",
 	}
 }
 
-func (c *AgentApiV1AlphaApi) ListAgents(agentType string, next int64) (*models.AgentListV1Alpha, error) {
+func (c *AgentApiV1AlphaApi) ListAgents(agentType string, cursor string) (*models.AgentListV1Alpha, error) {
 	query := url.Values{}
-	query.Add("count", "200")
+	query.Add("page_size", "200")
 
 	if agentType != "" {
 		query.Add("agent_type", agentType)
 	}
 
-	if next > 0 {
-		query.Add("next", fmt.Sprintf("%d", next))
+	if cursor != "" {
+		query.Add("cursor", cursor)
 	}
 
 	body, status, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)

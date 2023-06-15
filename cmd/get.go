@@ -247,20 +247,20 @@ var GetAgentsCmd = &cobra.Command{
 
 func getAllAgents(client client.AgentApiV1AlphaApi, agentType string) ([]models.AgentV1Alpha, error) {
 	agents := []models.AgentV1Alpha{}
-	next := int64(0)
+	cursor := ""
 
 	for {
-		agentList, err := client.ListAgents(agentType, next)
+		agentList, err := client.ListAgents(agentType, cursor)
 		if err != nil {
 			return nil, err
 		}
 
 		agents = append(agents, agentList.Agents...)
-		if agentList.Next == 0 {
+		if agentList.Cursor == "" {
 			break
 		}
 
-		next = agentList.Next
+		cursor = agentList.Cursor
 	}
 
 	return agents, nil

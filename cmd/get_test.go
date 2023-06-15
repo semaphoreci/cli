@@ -331,7 +331,7 @@ func Test__GetAgent__Response200(t *testing.T) {
 
 	received := false
 
-	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/self_hosted_agents/asdfasdfadsf",
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/agents/asdfasdfadsf",
 		func(req *http.Request) (*http.Response, error) {
 			received = true
 
@@ -355,7 +355,7 @@ func Test__GetAgent__Response200(t *testing.T) {
 	RootCmd.Execute()
 
 	if received == false {
-		t.Error("Expected the API to receive GET self_hosted_agents/asdfasdfadsf")
+		t.Error("Expected the API to receive GET agents/asdfasdfadsf")
 	}
 }
 

@@ -4,7 +4,7 @@ import "encoding/json"
 
 type AgentListV1Alpha struct {
 	Agents []AgentV1Alpha `json:"agents" yaml:"agents"`
-	Next   int64          `json:"next" yaml:"next"`
+	Cursor string         `json:"cursor" yaml:"cursor"`
 }
 
 func NewAgentListV1AlphaFromJson(data []byte) (*AgentListV1Alpha, error) {
