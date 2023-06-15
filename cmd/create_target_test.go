@@ -31,7 +31,6 @@ func Test__CreateDeploymentTarget__WithSubcommand__Response200(t *testing.T) {
 			body, _ := ioutil.ReadAll(req.Body)
 
 			received = string(body)
-			fmt.Printf("RECEIVED:%s\n", received)
 
 			return httpmock.NewStringResponse(200, received), nil
 		},
