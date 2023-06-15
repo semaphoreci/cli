@@ -232,11 +232,11 @@ var GetAgentsCmd = &cobra.Command{
 		} else {
 			name := args[0]
 
-			secret, err := c.GetAgent(name)
+			agent, err := c.GetAgent(name)
 
 			utils.Check(err)
 
-			y, err := secret.ToYaml()
+			y, err := agent.ToYaml()
 
 			utils.Check(err)
 
