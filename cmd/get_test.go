@@ -325,6 +325,40 @@ func Test__GetAgentType__Response200(t *testing.T) {
 	}
 }
 
+func Test__GetAgent__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/agents/asdfasdfadsf",
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			a1 := `{
+				"metadata":{
+					"name":"s1-testing",
+					"type":"asdfasdfadsf",
+					"connected_at":1536673464,
+					"disabled_at":1536674946
+				},
+				"status":{
+					"state":"waiting_for_job"
+				}
+			}`
+
+			return httpmock.NewStringResponse(200, a1), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"get", "agent", "asdfasdfadsf"})
+	RootCmd.Execute()
+
+	if received == false {
+		t.Error("Expected the API to receive GET agents/asdfasdfadsf")
+	}
+}
+
 func Test__GetPipeline__Response200(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
