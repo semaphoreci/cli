@@ -456,7 +456,7 @@ func Test__GetDeploymentTargetHistory__Response200(t *testing.T) {
 	received := false
 
 	targetId := "494b76aa-f3f0-4ecf-b5ef-c389591a01be"
-	getURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s/history", targetId)
+	getURL := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/deployment_targets/%s/history?cursor_type=AFTER&cursor_value=123123123123&git_ref_label=main&git_ref_type=branch&triggered_by=event", targetId)
 	httpmock.RegisterResponder(http.MethodGet, getURL,
 		func(req *http.Request) (*http.Response, error) {
 			received = true
@@ -470,7 +470,14 @@ func Test__GetDeploymentTargetHistory__Response200(t *testing.T) {
 		},
 	)
 
-	RootCmd.SetArgs([]string{"get", "dt", targetId, "-s"})
+	RootCmd.SetArgs([]string{"get", "dt", targetId,
+		"--history",
+		"-a", "123123123123",
+		"--triggered-by", "event",
+		"--git-ref-type", "branch",
+		"--git-ref-label", "main",
+		"-p", "bookmark 1",
+	})
 	RootCmd.Execute()
 
 	assert.True(t, received, "Expected the API to receive GET deployment_targets/:id/history")

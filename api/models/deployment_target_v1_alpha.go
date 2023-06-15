@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"strings"
 	"time"
 
@@ -13,9 +14,21 @@ import (
 
 const (
 	DeploymentTargetKindV1Alpha = "DeploymentTarget"
+
+	ObjectRuleTypeBranchV1Alpha      = "BRANCH"
+	ObjectRuleTypeTagV1Alpha         = "TAG"
+	ObjectRuleTypePullRequestV1Alpha = "PR"
+
+	ObjectRuleMatchModeAllV1Alpha   = "ALL"
+	ObjectRuleMatchModeExactV1Alpha = "EXACT"
+	ObjectRuleMatchModeRegexV1Alpha = "REGEX"
+
+	HistoryRequestCursorTypeFirstV1Alpha  = "FIRST"
+	HistoryRequestCursorTypeAfterV1Alpha  = "AFTER"
+	HistoryRequestCursorTypeBeforeV1Alpha = "BEFORE"
 )
 
-var DeploymentTargetCmdAliases = []string{"deployment-target", "deployment-targets", "dt", "deployment", "deployments", "deps", "dts"}
+var DeploymentTargetCmdAliases = []string{"deployment-target", "deployment-targets", "dt", "dts", "deployment", "deployments"}
 
 type DeploymentTargetListV1Alpha []*DeploymentTargetV1Alpha
 
@@ -67,8 +80,10 @@ type DeploymentV1Alpha struct {
 	TargetName     string                    `json:"target_name" yaml:"target_name"`
 	EnvVars        *DeploymentEnvVarsV1Alpha `json:"env_vars,omitempty" yaml:"env_vars,omitempty"`
 }
-type DeploymentsV1Alpha struct {
-	Deployments []DeploymentV1Alpha `json:"deployments,omitempty" yaml:"deployments,omitempty"`
+type DeploymentsHistoryV1Alpha struct {
+	Deployments  []DeploymentV1Alpha `json:"deployments,omitempty" yaml:"deployments,omitempty"`
+	CursorBefore int64               `json:"cursor_before,omitempty" yaml:"cursor_before,omitempty"`
+	CursorAfter  int64               `json:"cursor_after,omitempty" yaml:"cursor_after,omitempty"`
 }
 
 type DeploymentEnvVarsV1Alpha []*DeploymentEnvVarV1Alpha
@@ -90,7 +105,9 @@ type ObjectRuleV1Alpha struct {
 	Pattern   string `json:"pattern" yaml:"pattern"`
 }
 
-type HistoryRequest_FiltersV1Alpha struct {
+type HistoryRequestFiltersV1Alpha struct {
+	CursorType  string `json:"cursor_type,omitempty" yaml:"cursor_type,omitempty"`
+	CursorValue string `json:"cursor_value,omitempty" yaml:"cursor_value,omitempty"`
 	GitRefType  string `json:"git_ref_type,omitempty" yaml:"git_ref_type,omitempty"`
 	GitRefLabel string `json:"git_ref_label,omitempty" yaml:"git_ref_label,omitempty"`
 	TriggeredBy string `json:"triggered_by,omitempty" yaml:"triggered_by,omitempty"`
@@ -200,8 +217,8 @@ func NewCordonResponseV1AlphaFromJson(data []byte) (*CordonResponseV1Alpha, erro
 	return &cordonResponse, nil
 }
 
-func NewDeploymentsV1AlphaFromJson(data []byte) (*DeploymentsV1Alpha, error) {
-	deployments := DeploymentsV1Alpha{}
+func NewDeploymentsHistoryV1AlphaFromJson(data []byte) (*DeploymentsHistoryV1Alpha, error) {
+	deployments := DeploymentsHistoryV1Alpha{}
 
 	err := json.Unmarshal(data, &deployments)
 
@@ -212,7 +229,7 @@ func NewDeploymentsV1AlphaFromJson(data []byte) (*DeploymentsV1Alpha, error) {
 	return &deployments, nil
 }
 
-func (d *DeploymentsV1Alpha) ToYaml() ([]byte, error) {
+func (d *DeploymentsHistoryV1Alpha) ToYaml() ([]byte, error) {
 	return yaml.Marshal(d)
 }
 
@@ -314,4 +331,21 @@ func (f *DeploymentTargetFileV1Alpha) LoadContent() error {
 
 	f.Content = HashedContent(base64.StdEncoding.EncodeToString(content))
 	return nil
+}
+
+func (hr HistoryRequestFiltersV1Alpha) ToURLValues() (values url.Values, err error) {
+	data, err := json.Marshal(hr)
+	if err != nil {
+		return nil, err
+	}
+	var m map[string]string
+	err = json.Unmarshal(data, &m)
+	if err != nil {
+		return nil, err
+	}
+	values = url.Values{}
+	for k, v := range m {
+		values.Add(k, v)
+	}
+	return
 }

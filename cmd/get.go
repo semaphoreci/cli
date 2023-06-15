@@ -359,11 +359,10 @@ var GetDTCmd = &cobra.Command{
 			}
 		}
 		if getHistory {
-
 			if targetId != "" {
-				deployment_targets.History(targetId)
+				deployment_targets.History(targetId, cmd)
 			} else if targetName != "" {
-				deployment_targets.HistoryByName(targetName, getPrj(cmd))
+				deployment_targets.HistoryByName(targetName, getPrj(cmd), cmd)
 			}
 		} else {
 			if targetId != "" {
@@ -459,4 +458,10 @@ func init() {
 	GetDTCmd.Flags().StringP("name", "n", "", "target name")
 	GetDTCmd.Flags().BoolP("history", "s", false, "get deployment target history")
 	GetDTCmd.Flags().Lookup("history").NoOptDefVal = "true"
+	GetDTCmd.Flags().StringP("after", "a", "", "show deployment history after the timestamp")
+	GetDTCmd.Flags().StringP("before", "b", "", "show deployment history before the timestamp")
+	GetDTCmd.Flags().StringP("git-ref-type", "g", "", "git reference type: branch, tag, pr")
+	GetDTCmd.Flags().StringP("git-ref-label", "l", "", "git reference label: branch or tag name")
+	GetDTCmd.Flags().StringArrayP("parameter", "q", []string{}, "show deployment history of deployment targets with provided bookmark parameters")
+	GetDTCmd.Flags().StringP("triggered-by", "u", "", "show deployment history triggered by specific user or promotion")
 }

@@ -71,11 +71,19 @@ func (c *DeploymentTargetsApiV1AlphaApi) DescribeByName(targetName, projectId st
 	return (*targets)[0], nil
 }
 
-func (c *DeploymentTargetsApiV1AlphaApi) History(targetId string) (*models.DeploymentsV1Alpha, error) {
+func (c *DeploymentTargetsApiV1AlphaApi) History(targetId string, historyRequest models.HistoryRequestFiltersV1Alpha) (*models.DeploymentsHistoryV1Alpha, error) {
 	if targetId == "" {
 		return nil, errors.New("target id must be provided")
 	}
+	values, err := historyRequest.ToURLValues()
+	if err != nil {
+		return nil, err
+	}
 	query := fmt.Sprintf("%s/history", targetId)
+	if len(values) != 0 {
+		query = fmt.Sprintf("%s/history?%s", targetId, values.Encode())
+	}
+
 	body, status, err := c.BaseClient.Get(c.ResourceNamePlural, query)
 	if err != nil {
 		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
@@ -85,7 +93,7 @@ func (c *DeploymentTargetsApiV1AlphaApi) History(targetId string) (*models.Deplo
 		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
 	}
 
-	return models.NewDeploymentsV1AlphaFromJson(body)
+	return models.NewDeploymentsHistoryV1AlphaFromJson(body)
 }
 
 func (c *DeploymentTargetsApiV1AlphaApi) List(projectId string) (*models.DeploymentTargetListV1Alpha, error) {

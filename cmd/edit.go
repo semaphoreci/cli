@@ -294,9 +294,9 @@ func init() {
 	editCmd.AddCommand(EditProjectCmd)
 
 	EditDeploymentTargetCmd.Flags().StringP("project-name", "p", "",
-		"project name; if specified will edit project level secret, otherwise organization secret")
+		"project name; if not specified will be inferred from git origin")
 	EditDeploymentTargetCmd.Flags().StringP("project-id", "i", "",
-		"project id; if specified will edit project level secret, otherwise organization secret")
+		"project id; if not specified will be inferred from git origin")
 	EditDeploymentTargetCmd.Flags().StringP("name", "n", "", "target name")
 	EditDeploymentTargetCmd.Flags().StringP("id", "t", "", "target id")
 	EditDeploymentTargetCmd.Flags().BoolP("activate", "a", false, "activates/uncordon the deployment target")

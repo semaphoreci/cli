@@ -64,8 +64,6 @@ func NewCreateDeploymentTargetCmd() *cobra.Command {
 				})
 			}
 
-			c := client.NewDeploymentTargetsV1AlphaApi()
-
 			createRequest.Name = args[0]
 			createRequest.Description, err = cmd.Flags().GetString("desc")
 			utils.Check(err)
@@ -123,17 +121,52 @@ func NewCreateDeploymentTargetCmd() *cobra.Command {
 
 			objectRulesStrs, err := utils.CSVArrayFlag(cmd, "object-rule", true)
 			utils.Check(err)
-			for _, objectRuleStr := range objectRulesStrs {
-				if len(objectRuleStr) != 3 {
-					utils.Check(fmt.Errorf("invalid object rule: %s, must be in format TYPE,MODE,PATTERN", objectRuleStr))
+
+			createObjectRule := func(parsedObjRule []string) (*models.ObjectRuleV1Alpha, error) {
+				if len(parsedObjRule) == 0 || len(parsedObjRule) > 3 {
+					return nil, fmt.Errorf("invalid object rule: %q, must be PR or TYPE,ALL or TYPE,MODE,PATTERN", parsedObjRule)
 				}
-				createRequest.ObjectRules = append(createRequest.ObjectRules, &models.ObjectRuleV1Alpha{
-					Type:      objectRuleStr[0],
-					MatchMode: objectRuleStr[1],
-					Pattern:   objectRuleStr[2],
-				})
+				rule := &models.ObjectRuleV1Alpha{
+					Type:      strings.ToUpper(strings.TrimSpace(parsedObjRule[0])),
+					MatchMode: models.ObjectRuleMatchModeAllV1Alpha,
+				}
+				switch rule.Type {
+				case models.ObjectRuleTypePullRequestV1Alpha:
+					return rule, nil
+				case models.ObjectRuleTypeBranchV1Alpha, models.ObjectRuleTypeTagV1Alpha:
+					if len(parsedObjRule) == 1 {
+						err := fmt.Errorf("invalid object rule: must be %s,ALL or %s,EXACT,<PATTERN> or %s,REGEX,<EXPRESSION>", rule.Type, rule.Type, rule.Type)
+						return nil, err
+					}
+					matchMode := strings.ToUpper(strings.TrimSpace(parsedObjRule[1]))
+					switch matchMode {
+					case models.ObjectRuleMatchModeAllV1Alpha:
+						return rule, nil
+					case models.ObjectRuleMatchModeRegexV1Alpha, models.ObjectRuleMatchModeExactV1Alpha:
+						if len(parsedObjRule) == 2 {
+							if matchMode == models.ObjectRuleMatchModeRegexV1Alpha {
+								return nil, fmt.Errorf("invalid object rule: must be %s,REGEX,<EXPRESSION>", rule.Type)
+							}
+							return nil, fmt.Errorf("invalid object rule: must be %s,EXACT,<PATTERN>", rule.Type)
+						}
+						rule.MatchMode = matchMode
+						rule.Pattern = parsedObjRule[2]
+						return rule, nil
+					default:
+						return nil, fmt.Errorf("invalid object rule match mode: %s, must be ALL, EXACT or REGEX", matchMode)
+					}
+				default:
+					return nil, fmt.Errorf("invalid object rule type: %s, must be BRANCH, TAG or PR", rule.Type)
+				}
+			}
+			for _, parsedObjectRule := range objectRulesStrs {
+				objectRule, err := createObjectRule(parsedObjectRule)
+				utils.Check(err)
+
+				createRequest.ObjectRules = append(createRequest.ObjectRules, objectRule)
 			}
 
+			c := client.NewDeploymentTargetsV1AlphaApi()
 			createdTarget, err := c.Create(&createRequest)
 			utils.Check(err)
 			if createdTarget == nil {
