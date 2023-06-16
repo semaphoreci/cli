@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
 	client "github.com/semaphoreci/cli/api/client"
 	models "github.com/semaphoreci/cli/api/models"
+	"github.com/semaphoreci/cli/api/uuid"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
 )
@@ -189,6 +191,96 @@ var EditProjectCmd = &cobra.Command{
 	},
 }
 
+var EditDeploymentTargetCmd = &cobra.Command{
+	Use:     "deployment_target [id or name]",
+	Short:   "Edit a deployment target.",
+	Long:    ``,
+	Aliases: models.DeploymentTargetCmdAliases,
+	Args:    cobra.RangeArgs(0, 1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		c := client.NewDeploymentTargetsV1AlphaApi()
+		targetName, err := cmd.Flags().GetString("name")
+		utils.Check(err)
+		targetId, err := cmd.Flags().GetString("id")
+		utils.Check(err)
+		if len(args) == 1 {
+			if uuid.IsValid(args[0]) {
+				targetId = args[0]
+			} else {
+				targetName = args[0]
+			}
+		}
+		shouldActivate, err := cmd.Flags().GetBool("activate")
+		utils.Check(err)
+		shouldDeactivate, err := cmd.Flags().GetBool("deactivate")
+		utils.Check(err)
+
+		var target *models.DeploymentTargetV1Alpha
+		if targetId != "" {
+			if !shouldActivate && !shouldDeactivate {
+				target, err = c.DescribeWithSecrets(targetId)
+			}
+		} else if targetName != "" {
+			target, err = c.DescribeByName(targetName, getPrj(cmd))
+			if err == nil && target != nil {
+				target, err = c.DescribeWithSecrets(target.Id)
+			}
+		} else {
+			err = errors.New("target id or target name must be provided")
+		}
+		utils.Check(err)
+		if target != nil {
+			targetId = target.Id
+		}
+		if shouldActivate {
+			succeeded, err := c.Activate(targetId)
+			utils.Check(err)
+			if !succeeded {
+				utils.Check(errors.New("the deployment target wasn't activated successfully"))
+			} else {
+				fmt.Printf("The deployment target '%s' is active.\n", targetId)
+				return
+			}
+		} else if shouldDeactivate {
+			succeeded, err := c.Deactivate(targetId)
+			utils.Check(err)
+			if !succeeded {
+				utils.Check(errors.New("the deployment target wasn't deactivated successfully"))
+			} else {
+				fmt.Printf("The deployment target '%s' is inactive.\n", targetId)
+				return
+			}
+		}
+		if target == nil {
+			utils.Check(errors.New("valid target could not be retrieved"))
+		}
+		// TODO: Load secrets for deployment target to avoid requiring clients
+		// to provide them every time they edit the request.
+		request := models.DeploymentTargetUpdateRequestV1Alpha{
+			DeploymentTargetV1Alpha: *target,
+		}
+		content, err := request.ToYaml()
+		utils.Check(err)
+
+		new_content, err := utils.EditYamlInEditor(request.ObjectName(), string(content))
+		utils.Check(err)
+
+		changedTarget, err := models.NewDeploymentTargetV1AlphaFromYaml([]byte(new_content))
+		utils.Check(err)
+		utils.Check(changedTarget.LoadFiles())
+
+		updateRequest := &models.DeploymentTargetUpdateRequestV1Alpha{
+			DeploymentTargetV1Alpha: *changedTarget,
+		}
+
+		updatedTarget, err := c.Update(updateRequest)
+		utils.Check(err)
+
+		fmt.Printf("Deployment target '%s' updated.\n", updatedTarget.Name)
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(editCmd)
 
@@ -200,4 +292,14 @@ func init() {
 	editCmd.AddCommand(EditDashboardCmd)
 	editCmd.AddCommand(EditNotificationCmd)
 	editCmd.AddCommand(EditProjectCmd)
+
+	EditDeploymentTargetCmd.Flags().StringP("project-name", "p", "",
+		"project name; if not specified will be inferred from git origin")
+	EditDeploymentTargetCmd.Flags().StringP("project-id", "i", "",
+		"project id; if not specified will be inferred from git origin")
+	EditDeploymentTargetCmd.Flags().StringP("name", "n", "", "target name")
+	EditDeploymentTargetCmd.Flags().StringP("id", "t", "", "target id")
+	EditDeploymentTargetCmd.Flags().BoolP("activate", "a", false, "activates/uncordon the deployment target")
+	EditDeploymentTargetCmd.Flags().BoolP("deactivate", "d", false, "deactivates/cordon the deployment target")
+	editCmd.AddCommand(EditDeploymentTargetCmd)
 }

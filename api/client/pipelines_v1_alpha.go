@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	uuid "github.com/google/uuid"
 	models "github.com/semaphoreci/cli/api/models"
+	"github.com/semaphoreci/cli/api/uuid"
 )
 
 type PipelinesApiV1AlphaApi struct {
@@ -78,10 +78,10 @@ func (c *PipelinesApiV1AlphaApi) PartialRebuildPpl(id string) ([]byte, error) {
 }
 
 func (c *PipelinesApiV1AlphaApi) ListPplByWfID(projectID, wfID string) ([]byte, error) {
-  detailed := fmt.Sprintf("%s?project_id=%s&wf_id=%s", c.ResourceNamePlural, projectID, wfID)
+	detailed := fmt.Sprintf("%s?project_id=%s&wf_id=%s", c.ResourceNamePlural, projectID, wfID)
 	body, status, err := c.BaseClient.List(detailed)
 
-  if err != nil {
+	if err != nil {
 		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
 	}
 
@@ -93,10 +93,10 @@ func (c *PipelinesApiV1AlphaApi) ListPplByWfID(projectID, wfID string) ([]byte, 
 }
 
 func (c *PipelinesApiV1AlphaApi) ListPpl(projectID string) ([]byte, error) {
-  detailed := fmt.Sprintf("%s?project_id=%s", c.ResourceNamePlural, projectID)
+	detailed := fmt.Sprintf("%s?project_id=%s", c.ResourceNamePlural, projectID)
 	body, status, err := c.BaseClient.List(detailed)
 
-  if err != nil {
+	if err != nil {
 		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
 	}
 
