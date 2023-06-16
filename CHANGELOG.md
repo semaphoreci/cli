@@ -1,5 +1,27 @@
 # Changelog
 
+### v0.28.1
+
+- feat: add troubleshoot command
+
+### v0.28.0
+
+- feat: add project level secrets
+
+### v0.27.0
+
+- feat: add secret organization access policy configurability
+- fix: Use create debug project instead of create job from job api
+
+### v0.26.6
+
+- feat: add optional paused field to project API
+- fix: exit status 255 issue with port forwarding
+
+### v0.26.5
+
+- build: update get.template.sh
+
 ### v0.26.4
 
 - Add get/create/delete commands for agent types

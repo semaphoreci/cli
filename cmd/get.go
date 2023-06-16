@@ -194,6 +194,80 @@ var GetAgentTypeCmd = &cobra.Command{
 	},
 }
 
+var GetAgentsCmd = &cobra.Command{
+	Use:     "agents",
+	Short:   "Get self-hosted agents.",
+	Long:    ``,
+	Aliases: []string{"agent"},
+	Args:    cobra.RangeArgs(0, 1),
+	Run: func(cmd *cobra.Command, args []string) {
+		c := client.NewAgentApiV1AlphaApi()
+
+		if len(args) == 0 {
+			agentType, err := cmd.Flags().GetString("agent-type")
+			utils.Check(err)
+
+			agents, err := getAllAgents(c, agentType)
+			utils.Check(err)
+
+			if len(agents) == 0 {
+				fmt.Fprintln(os.Stdout, "No agents found")
+				return
+			}
+
+			const padding = 3
+			w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
+
+			fmt.Fprintln(w, "NAME\tTYPE\tSTATE\tAGE")
+			for _, a := range agents {
+				connectedAt, err := a.Metadata.ConnectedAt.Int64()
+				utils.Check(err)
+				fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
+					a.Metadata.Name,
+					a.Metadata.Type,
+					a.Status.State,
+					utils.RelativeAgeForHumans(connectedAt),
+				)
+			}
+
+			w.Flush()
+		} else {
+			name := args[0]
+
+			agent, err := c.GetAgent(name)
+
+			utils.Check(err)
+
+			y, err := agent.ToYaml()
+
+			utils.Check(err)
+
+			fmt.Printf("%s", y)
+		}
+	},
+}
+
+func getAllAgents(client client.AgentApiV1AlphaApi, agentType string) ([]models.AgentV1Alpha, error) {
+	agents := []models.AgentV1Alpha{}
+	cursor := ""
+
+	for {
+		agentList, err := client.ListAgents(agentType, cursor)
+		if err != nil {
+			return nil, err
+		}
+
+		agents = append(agents, agentList.Agents...)
+		if agentList.Cursor == "" {
+			break
+		}
+
+		cursor = agentList.Cursor
+	}
+
+	return agents, nil
+}
+
 var GetProjectCmd = &cobra.Command{
 	Use:     "projects [name]",
 	Short:   "Get projects.",
@@ -425,6 +499,10 @@ func init() {
 	getCmd.AddCommand(getNotificationCmd)
 	getCmd.AddCommand(GetProjectCmd)
 	getCmd.AddCommand(GetAgentTypeCmd)
+
+	GetAgentsCmd.Flags().StringP("agent-type", "t", "",
+		"agent type; if specified, returns only agents for this agent type")
+	getCmd.AddCommand(GetAgentsCmd)
 
 	GetSecretCmd.Flags().StringP("project-name", "p", "",
 		"project name; if specified will get secret from project level, otherwise organization secret")
