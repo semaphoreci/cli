@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/uuid"
 	models "github.com/semaphoreci/cli/api/models"
+	"github.com/semaphoreci/cli/api/uuid"
 )
 
 type WorkflowApiV1AlphaApi struct {
