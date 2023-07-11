@@ -18,6 +18,7 @@ type Scheduler struct {
 
 type ForkedPullRequests struct {
 	AllowedSecrets []string `json:"allowed_secrets,omitempty" yaml:"allowed_secrets,omitempty"`
+	AllowedContributors []string `json:"allowed_contributors,omitempty" yaml:"allowed_contributors,omitempty"`
 }
 
 type Status struct {
