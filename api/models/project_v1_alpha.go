@@ -16,8 +16,27 @@ type Scheduler struct {
 	Status       string `json:"status,omitempty" yaml:"status,omitempty"`
 }
 
+type Task struct {
+	Name         string          `json:"name"`
+	Recurring    bool            `json:"recurring"`
+	Id           string          `json:"id,omitempty"`
+	Branch       string          `json:"branch,omitempty"`
+	At           string          `json:"at,omitempty"`
+	PipelineFile string          `json:"pipeline_file" yaml:"pipeline_file,omitempty"`
+	Status       string          `json:"status,omitempty" yaml:"status,omitempty"`
+	Parameters   []TaskParameter `json:"parameters,omitempty" yaml:"parameters,omitempty"`
+}
+
+type TaskParameter struct {
+	Name         string   `json:"name"`
+	Required     bool     `json:"required"`
+	Description  string   `json:"description,omitempty" yaml:"description,omitempty"`
+	DefaultValue string   `json:"default_value,omitempty" yaml:"default_value,omitempty"`
+	Options      []string `json:"options,omitempty" yaml:"options,omitempty"`
+}
+
 type ForkedPullRequests struct {
-	AllowedSecrets []string `json:"allowed_secrets,omitempty" yaml:"allowed_secrets,omitempty"`
+	AllowedSecrets      []string `json:"allowed_secrets,omitempty" yaml:"allowed_secrets,omitempty"`
 	AllowedContributors []string `json:"allowed_contributors,omitempty" yaml:"allowed_contributors,omitempty"`
 }
 
@@ -56,6 +75,7 @@ type ProjectV1Alpha struct {
 			IntegrationType    string             `json:"integration_type" yaml:"integration_type"`
 		} `json:"repository,omitempty"`
 		Schedulers        []Scheduler `json:"schedulers,omitempty" yaml:"schedulers,omitempty"`
+		Tasks             []Task      `json:"tasks,omitempty" yaml:"tasks,omitempty"`
 		CustomPermissions *bool       `json:"custom_permissions,omitempty" yaml:"custom_permissions,omitempty"`
 		DebugPermissions  []string    `json:"debug_permissions,omitempty" yaml:"debug_permissions,omitempty"`
 		AttachPermissions []string    `json:"attach_permissions,omitempty" yaml:"attach_permissions,omitempty"`

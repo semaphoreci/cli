@@ -218,6 +218,94 @@ func Test__EditProject__Response200(t *testing.T) {
 	assert.Equal(t, scheduler.PipelineFile, ".semaphore/cron.yml")
 }
 
+func Test__EditProject__WithTasks__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	dash := `{
+		"metadata":{
+			"name":"hello",
+			"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+			"description":"Just saying hi!"
+		},
+		"spec":{
+			"repository":{
+				"url":"git@github.com/renderextext/hello",
+				"run_on":["tags", "branches"],
+				"forked_pull_requests":{
+					"allowed_secrets":["foo"]
+				},
+				"pipeline_file": ""
+			},
+			"tasks":[
+				{
+					"name":"cron",
+					"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
+					"recurring":false,
+					"branch":"master",
+					"pipeline_file":".semaphore/cron.yml",
+					"parameters":[
+						{
+							"name":"param1",
+							"required":true,
+							"description":"param1 description",
+							"default_value":"option1",
+							"options":["option1", "option2"]
+						}
+					]
+				}
+			]
+		}
+	}`
+
+	var received *models.ProjectV1Alpha
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects/hello",
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(200, dash), nil
+		},
+	)
+
+	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			received, _ = models.NewProjectV1AlphaFromJson(body)
+
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"edit", "project", "hello"})
+	RootCmd.Execute()
+
+	assert.Equal(t, received.Metadata.Name, "hello")
+	assert.Equal(t, received.Metadata.Description, "Just saying hi!")
+
+	repo := received.Spec.Repository
+
+	assert.Equal(t, repo.Url, "git@github.com/renderextext/hello")
+	assert.Equal(t, repo.RunOn, []string{"tags", "branches"})
+
+	forked_pull_requests := received.Spec.Repository.ForkedPullRequests
+
+	assert.Equal(t, forked_pull_requests.AllowedSecrets, []string{"foo"})
+
+	task := received.Spec.Tasks[0]
+
+	assert.Equal(t, task.Name, "cron")
+	assert.Equal(t, task.Branch, "master")
+	assert.Equal(t, task.Recurring, false)
+	assert.Equal(t, task.PipelineFile, ".semaphore/cron.yml")
+
+	task_parameter := task.Parameters[0]
+
+	assert.Equal(t, task_parameter.Name, "param1")
+	assert.Equal(t, task_parameter.Required, true)
+	assert.Equal(t, task_parameter.Description, "param1 description")
+	assert.Equal(t, task_parameter.DefaultValue, "option1")
+	assert.Equal(t, task_parameter.Options, []string{"option1", "option2"})
+}
+
 func Test__EditDeploymentTarget__Response200(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
