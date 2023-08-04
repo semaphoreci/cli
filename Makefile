@@ -8,29 +8,22 @@ install.goreleaser:
 	tar -xf /tmp/goreleaser.tar.gz -C /tmp
 	sudo mv /tmp/goreleaser /usr/bin/goreleaser
 
-go.install:
-	cd /tmp
-	sudo curl -O https://dl.google.com/go/go1.17.13.linux-amd64.tar.gz
-	sudo tar -xf go1.17.13.linux-amd64.tar.gz
-	sudo mv go /usr/local
-	cd -
-
 gsutil.configure:
 	gcloud auth activate-service-account $(GCP_REGISTRY_WRITER_EMAIL) --key-file ~/gce-registry-writer-key.json
 	gcloud --quiet auth configure-docker
 	gcloud --quiet config set project semaphore2-prod
 
 go.get:
-	go get
+	docker-compose run --rm cli go get
 
 go.fmt:
-	go fmt ./...
+	docker-compose run --rm cli go fmt ./...
 
 test:
-	go test -v ./...
+	docker-compose run --rm cli gotestsum --format short-verbose --junitfile results.xml --packages="./..." -- -p 1
 
 build:
-	env GOOS=$(OS) GOARCH=$(ARCH) go build -ldflags "-s -w -X cmd.VERSION=$(shell git describe --tags --abbrev=0)" -o sem
+	docker-compose run --rm cli env GOOS=$(OS) GOARCH=$(ARCH) go build -ldflags "-s -w -X cmd.VERSION=$(shell git describe --tags --abbrev=0)" -o sem
 	tar -czvf /tmp/sem.tar.gz sem
 
 # Automation of CLI tagging.
