@@ -33,6 +33,7 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 	utils.CheckWithMessage(err, "Path not provided")
 
+	// #nosec
 	data, err := ioutil.ReadFile(path)
 
 	utils.CheckWithMessage(err, "Failed to read from resource file.")

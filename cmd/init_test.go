@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	httpmock "gopkg.in/jarcoal/httpmock.v1"
+	httpmock "github.com/jarcoal/httpmock"
 )
 
 func TestRunInit__NoParams(t *testing.T) {

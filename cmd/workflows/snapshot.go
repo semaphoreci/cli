@@ -45,6 +45,7 @@ func createArchive() (string, error) {
 
 	args := append([]string{"czf", archiveFileName}, files...)
 
+	// #nosec
 	cmd = exec.Command("/bin/tar", args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {

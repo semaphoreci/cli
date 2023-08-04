@@ -55,7 +55,8 @@ var attachCmd = &cobra.Command{
 		utils.Check(err)
 		defer conn.Close()
 
-		conn.Session()
+		err = conn.Session()
+		utils.Check(err)
 	},
 }
 

@@ -25,6 +25,7 @@ func ParseFileFlag(raw string) (string, string, error) {
 	localPath := flagPaths[0]
 	remotePath := flagPaths[1]
 
+	// #nosec
 	content, err := ioutil.ReadFile(localPath)
 
 	if err != nil {

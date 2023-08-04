@@ -96,7 +96,9 @@ func SetHost(token string) {
 
 func Set(key string, value string) {
 	viper.Set(key, value)
-	viper.WriteConfig()
+	if err := viper.WriteConfig(); err != nil {
+		fmt.Printf("Error writing config: %v.\n", err)
+	}
 }
 
 func Get(key string) string {

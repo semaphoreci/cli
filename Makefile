@@ -2,18 +2,29 @@
 
 REL_VERSION=$(shell git rev-parse HEAD)
 REL_BUCKET=sem-cli-releases
+SECURITY_TOOLBOX_BRANCH ?= master
+SECURITY_TOOLBOX_TMP_DIR ?= /tmp/security-toolbox
+
+check.prepare:
+	rm -rf $(SECURITY_TOOLBOX_TMP_DIR)
+	git clone git@github.com:renderedtext/security-toolbox.git $(SECURITY_TOOLBOX_TMP_DIR) && (cd $(SECURITY_TOOLBOX_TMP_DIR) && git checkout $(SECURITY_TOOLBOX_BRANCH) && cd -)
+
+check.static: check.prepare
+	docker run -it -v $$(pwd):/app \
+		-v $(SECURITY_TOOLBOX_TMP_DIR):$(SECURITY_TOOLBOX_TMP_DIR) \
+		registry.semaphoreci.com/ruby:2.7 \
+		bash -c 'cd /app && $(SECURITY_TOOLBOX_TMP_DIR)/code --language go -d'
+
+check.deps: check.prepare
+	docker run -it -v $$(pwd):/app \
+		-v $(SECURITY_TOOLBOX_TMP_DIR):$(SECURITY_TOOLBOX_TMP_DIR) \
+		registry.semaphoreci.com/ruby:2.7 \
+		bash -c 'cd /app && $(SECURITY_TOOLBOX_TMP_DIR)/dependencies --language go -d'
 
 install.goreleaser:
 	curl -L https://github.com/goreleaser/goreleaser/releases/download/v1.14.1/goreleaser_Linux_x86_64.tar.gz -o /tmp/goreleaser.tar.gz
 	tar -xf /tmp/goreleaser.tar.gz -C /tmp
 	sudo mv /tmp/goreleaser /usr/bin/goreleaser
-
-go.install:
-	cd /tmp
-	sudo curl -O https://dl.google.com/go/go1.17.13.linux-amd64.tar.gz
-	sudo tar -xf go1.17.13.linux-amd64.tar.gz
-	sudo mv go /usr/local
-	cd -
 
 gsutil.configure:
 	gcloud auth activate-service-account $(GCP_REGISTRY_WRITER_EMAIL) --key-file ~/gce-registry-writer-key.json
@@ -21,16 +32,16 @@ gsutil.configure:
 	gcloud --quiet config set project semaphore2-prod
 
 go.get:
-	go get
+	docker-compose run --rm cli go get
 
 go.fmt:
-	go fmt ./...
+	docker-compose run --rm cli go fmt ./...
 
 test:
-	go test -v ./...
+	docker-compose run --rm cli gotestsum --format short-verbose --junitfile results.xml --packages="./..." -- -p 1
 
 build:
-	env GOOS=$(OS) GOARCH=$(ARCH) go build -ldflags "-s -w -X cmd.VERSION=$(shell git describe --tags --abbrev=0)" -o sem
+	docker-compose run --rm cli env GOOS=$(OS) GOARCH=$(ARCH) go build -ldflags "-s -w -X cmd.VERSION=$(shell git describe --tags --abbrev=0)" -o sem
 	tar -czvf /tmp/sem.tar.gz sem
 
 # Automation of CLI tagging.

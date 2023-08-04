@@ -61,7 +61,9 @@ func NewConnectionForJob(job *models.JobV1Alpha, sshKeyPath string) (*Connection
 }
 
 func (c *Connection) Close() {
-	os.Remove(c.SSHKeyFile.Name()) // clean up
+	if err := os.Remove(c.SSHKeyFile.Name()); err != nil {
+		fmt.Printf("Error removing %s: %v\n", c.SSHKeyFile.Name(), err)
+	}
 }
 
 func (c *Connection) WaitUntilReady(attempts int, callback func()) error {
@@ -154,6 +156,7 @@ func (c *Connection) sshCommand(directive string, interactive bool) (*exec.Cmd, 
 	identitiesOnlyFlag := "-oIdentitiesOnly=yes"
 	userAndIp := fmt.Sprintf("%s@%s", c.Username, c.IP)
 
+	// #nosec
 	cmd := exec.Command(
 		path,
 		identitiesOnlyFlag,

@@ -56,7 +56,8 @@ var logsCmd = &cobra.Command{
 		body, err := ioutil.ReadAll(resp.Body)
 
 		events := Events{}
-		json.Unmarshal(body, &events)
+		err = json.Unmarshal(body, &events)
+		utils.Check(err)
 
 		for _, e := range events.Events {
 			if e.Type == "cmd_output" {

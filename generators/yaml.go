@@ -81,13 +81,14 @@ func GeneratePipelineYaml() error {
 	path := ".semaphore/semaphore.yml"
 
 	if _, err := os.Stat(".semaphore"); err != nil {
-		err := os.Mkdir(".semaphore", 0755)
+		err := os.Mkdir(".semaphore", 0750)
 
 		if err != nil {
 			return errors.New(fmt.Sprintf("failed to create .semaphore directory '%s'", err))
 		}
 	}
 
+	// #nosec
 	err := ioutil.WriteFile(".semaphore/semaphore.yml", []byte(semaphore_yaml_template), 0644)
 
 	if err == nil {

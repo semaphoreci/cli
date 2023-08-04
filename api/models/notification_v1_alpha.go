@@ -38,11 +38,11 @@ type NotificationV1AlphaSpecRuleNotify struct {
 	} `json:"email,omitempty" yaml:"email,omitempty"`
 
 	Webhook struct {
-		Endpoint  string   `json:"endpoint,omitempty" yaml:"endpoint,omitempty"`
-		Timeout   int32    `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-		Action    string   `json:"action,omitempty" yaml:"action,omitempty"`
-		Retries   int32    `json:"retries,omitempty" yaml:"retries,omitempty"`
-		Secret    string   `json:"secret,omitempty" yaml:"secret,omitempty"`
+		Endpoint string `json:"endpoint,omitempty" yaml:"endpoint,omitempty"`
+		Timeout  int32  `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Action   string `json:"action,omitempty" yaml:"action,omitempty"`
+		Retries  int32  `json:"retries,omitempty" yaml:"retries,omitempty"`
+		Secret   string `json:"secret,omitempty" yaml:"secret,omitempty"`
 	} `json:"webhook,omitempty" yaml:"webhook,omitempty"`
 }
 
