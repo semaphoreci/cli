@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
+	httpmock "github.com/jarcoal/httpmock"
 	models "github.com/semaphoreci/cli/api/models"
-	httpmock "gopkg.in/jarcoal/httpmock.v1"
 
 	assert "github.com/stretchr/testify/assert"
 )

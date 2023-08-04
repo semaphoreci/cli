@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
+	httpmock "github.com/jarcoal/httpmock"
 	assert "github.com/stretchr/testify/assert"
-	httpmock "gopkg.in/jarcoal/httpmock.v1"
 )
 
 func Test__StopPipeline__Response200(t *testing.T) {

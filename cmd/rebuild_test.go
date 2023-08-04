@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	httpmock "gopkg.in/jarcoal/httpmock.v1"
+	httpmock "github.com/jarcoal/httpmock"
 )
 
 func Test__RebuildPipeline__Response200(t *testing.T) {

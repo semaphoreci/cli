@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/semaphoreci/cli/cmd/jobs"
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type JobV1AlphaMetadata struct {
