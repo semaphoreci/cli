@@ -19,7 +19,7 @@ check.deps: check.prepare
 	docker run -it -v $$(pwd):/app \
 		-v $(SECURITY_TOOLBOX_TMP_DIR):$(SECURITY_TOOLBOX_TMP_DIR) \
 		registry.semaphoreci.com/ruby:2.7 \
-		bash -c 'cd /app && $(SECURITY_TOOLBOX_TMP_DIR)/dependencies --language go -d'
+		bash -c 'cd /app && $(SECURITY_TOOLBOX_TMP_DIR)/dependencies --language go --ignore-policy security-ignore-policy.rego -d'
 
 install.goreleaser:
 	curl -L https://github.com/goreleaser/goreleaser/releases/download/v1.14.1/goreleaser_Linux_x86_64.tar.gz -o /tmp/goreleaser.tar.gz
