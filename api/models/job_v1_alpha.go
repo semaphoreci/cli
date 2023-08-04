@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/semaphoreci/cli/cmd/jobs"
-	yaml "gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type JobV1AlphaMetadata struct {
@@ -115,7 +115,7 @@ func NewJobV1AlphaFromJson(data []byte) (*JobV1Alpha, error) {
 func NewJobV1AlphaFromYaml(data []byte) (*JobV1Alpha, error) {
 	j := JobV1Alpha{}
 
-	err := yaml.Unmarshal(data, &j)
+	err := yaml.UnmarshalStrict(data, &j)
 
 	if err != nil {
 		return nil, err

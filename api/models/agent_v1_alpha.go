@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	yaml "gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type AgentV1Alpha struct {
@@ -53,7 +53,7 @@ func NewAgentV1AlphaFromJson(data []byte) (*AgentV1Alpha, error) {
 func NewAgentV1AlphaFromYaml(data []byte) (*AgentV1Alpha, error) {
 	a := AgentV1Alpha{}
 
-	err := yaml.Unmarshal(data, &a)
+	err := yaml.UnmarshalStrict(data, &a)
 	if err != nil {
 		return nil, err
 	}

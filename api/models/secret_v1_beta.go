@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	yaml "gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type SecretV1Beta struct {
@@ -73,7 +73,7 @@ func NewSecretV1BetaFromJson(data []byte) (*SecretV1Beta, error) {
 func NewSecretV1BetaFromYaml(data []byte) (*SecretV1Beta, error) {
 	s := SecretV1Beta{}
 
-	err := yaml.Unmarshal(data, &s)
+	err := yaml.UnmarshalStrict(data, &s)
 
 	if err != nil {
 		return nil, err

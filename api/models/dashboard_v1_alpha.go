@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	yaml "gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type DashboardV1Alpha struct {
@@ -53,7 +53,7 @@ func NewDashboardV1AlphaFromJson(data []byte) (*DashboardV1Alpha, error) {
 func NewDashboardV1AlphaFromYaml(data []byte) (*DashboardV1Alpha, error) {
 	d := DashboardV1Alpha{}
 
-	err := yaml.Unmarshal(data, &d)
+	err := yaml.UnmarshalStrict(data, &d)
 
 	if err != nil {
 		return nil, err

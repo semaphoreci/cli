@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	yaml "gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type Scheduler struct {
@@ -88,7 +88,7 @@ func NewProjectV1AlphaFromJson(data []byte) (*ProjectV1Alpha, error) {
 func NewProjectV1AlphaFromYaml(data []byte) (*ProjectV1Alpha, error) {
 	p := ProjectV1Alpha{}
 
-	err := yaml.Unmarshal(data, &p)
+	err := yaml.UnmarshalStrict(data, &p)
 
 	if err != nil {
 		return nil, err

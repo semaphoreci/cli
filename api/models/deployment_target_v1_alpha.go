@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	yaml "gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v2"
 )
 
 const (
@@ -160,7 +160,7 @@ func NewDeploymentTargetV1AlphaFromJson(data []byte) (*DeploymentTargetV1Alpha, 
 func NewDeploymentTargetV1AlphaFromYaml(data []byte) (*DeploymentTargetV1Alpha, error) {
 	dt := DeploymentTargetV1Alpha{}
 
-	err := yaml.Unmarshal(data, &dt)
+	err := yaml.UnmarshalStrict(data, &dt)
 
 	if err != nil {
 		return nil, err
@@ -295,7 +295,7 @@ func (f *DeploymentTargetFilesV1Alpha) Load() error {
 func NewDeploymentTargetCreateRequestV1AlphaFromYaml(data []byte) (*DeploymentTargetCreateRequestV1Alpha, error) {
 	deploymentTarget := DeploymentTargetCreateRequestV1Alpha{}
 
-	err := yaml.Unmarshal(data, &deploymentTarget)
+	err := yaml.UnmarshalStrict(data, &deploymentTarget)
 
 	if err != nil {
 		return nil, err
@@ -309,7 +309,7 @@ func NewDeploymentTargetCreateRequestV1AlphaFromYaml(data []byte) (*DeploymentTa
 func NewDeploymentTargetUpdateRequestV1AlphaFromYaml(data []byte) (*DeploymentTargetUpdateRequestV1Alpha, error) {
 	deploymentTargetUpdate := DeploymentTargetUpdateRequestV1Alpha{}
 
-	err := yaml.Unmarshal(data, &deploymentTargetUpdate)
+	err := yaml.UnmarshalStrict(data, &deploymentTargetUpdate)
 
 	if err != nil {
 		return nil, err

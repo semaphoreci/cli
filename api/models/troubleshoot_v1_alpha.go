@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 
-	yaml "gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type TroubleshootV1Alpha struct {

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	yaml "gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type ProjectSecretV1 struct {
@@ -66,7 +66,7 @@ func NewProjectSecretV1FromJson(data []byte) (*ProjectSecretV1, error) {
 func NewProjectSecretV1FromYaml(data []byte) (*ProjectSecretV1, error) {
 	s := ProjectSecretV1{}
 
-	err := yaml.Unmarshal(data, &s)
+	err := yaml.UnmarshalStrict(data, &s)
 
 	if err != nil {
 		return nil, err

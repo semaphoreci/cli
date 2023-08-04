@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	yaml "gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type NotificationV1AlphaMetadata struct {
@@ -100,7 +100,7 @@ func NewNotificationV1AlphaFromJson(data []byte) (*NotificationV1Alpha, error) {
 func NewNotificationV1AlphaFromYaml(data []byte) (*NotificationV1Alpha, error) {
 	n := NotificationV1Alpha{}
 
-	err := yaml.Unmarshal(data, &n)
+	err := yaml.UnmarshalStrict(data, &n)
 
 	if err != nil {
 		return nil, err
