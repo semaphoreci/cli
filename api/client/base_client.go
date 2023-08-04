@@ -248,6 +248,7 @@ func (c *BaseClient) Patch(kind string, name string, resource []byte) ([]byte, i
 }
 
 func newfileUploadRequest(uri string, args map[string]string, fileArgName, path string) (*http.Request, error) {
+	// #nosec
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err

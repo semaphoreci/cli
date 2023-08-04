@@ -34,6 +34,7 @@ func EditYamlInEditor(objectName string, content string) (string, error) {
 
 	// remove '/' from filename
 	filename := strings.Replace(fmt.Sprintf("%s.yml", objectName), "/", "-", -1)
+	// #nosec
 	tmpfile, err := os.Create(filepath.Join(dir, filename))
 
 	if err != nil {

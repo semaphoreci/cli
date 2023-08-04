@@ -75,7 +75,7 @@ func sshAndPortForward(ip string, sshPort int32, username string, localPort stri
 	defer os.Remove(sshKeyFile.Name())
 	_, err = sshKeyFile.Write([]byte(sshKey))
 	utils.Check(err)
-	sshKeyFile.Close()
+	err = sshKeyFile.Close()
 	utils.Check(err)
 
 	fmt.Printf("Forwarding %s:%s -> %s:%s...\n", ip, remotePort, "0.0.0.0", localPort)

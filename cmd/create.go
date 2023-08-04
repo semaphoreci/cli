@@ -26,6 +26,7 @@ var createCmd = &cobra.Command{
 
 		utils.CheckWithMessage(err, "Path not provided")
 
+		// #nosec
 		data, err := ioutil.ReadFile(path)
 
 		utils.CheckWithMessage(err, "Failed to read from resource file.")
@@ -229,6 +230,7 @@ func createSnapshot(projectName, label, archiveName string, follow bool) {
 }
 
 func encodeFromFileAt(path string) string {
+	// #nosec
 	content, err := ioutil.ReadFile(path)
 	utils.Check(err)
 
