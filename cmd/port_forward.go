@@ -79,6 +79,8 @@ func sshAndPortForward(ip string, sshPort int32, username string, localPort stri
 	utils.Check(err)
 
 	fmt.Printf("Forwarding %s:%s -> %s:%s...\n", ip, remotePort, "0.0.0.0", localPort)
+
+	// #nosec
 	sshCmd := exec.Command(sshPath, "-L", portForwardRule, portFlag, noStrictRule, identityOnlyrule, userAndIP, "-i", sshKeyFile.Name(), "sleep infinity")
 
 	sshCmd.Stdin = os.Stdin

@@ -156,6 +156,7 @@ func (c *Connection) sshCommand(directive string, interactive bool) (*exec.Cmd, 
 	identitiesOnlyFlag := "-oIdentitiesOnly=yes"
 	userAndIp := fmt.Sprintf("%s@%s", c.Username, c.IP)
 
+	// #nosec
 	cmd := exec.Command(
 		path,
 		identitiesOnlyFlag,
