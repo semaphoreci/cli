@@ -73,8 +73,10 @@ func sshAndPortForward(ip string, sshPort int32, username string, localPort stri
 
 	sshKeyFile, _ := ioutil.TempFile("", "sem-cli-debug-private-key")
 	defer os.Remove(sshKeyFile.Name())
-	sshKeyFile.Write([]byte(sshKey))
+	_, err = sshKeyFile.Write([]byte(sshKey))
+	utils.Check(err)
 	sshKeyFile.Close()
+	utils.Check(err)
 
 	fmt.Printf("Forwarding %s:%s -> %s:%s...\n", ip, remotePort, "0.0.0.0", localPort)
 	sshCmd := exec.Command(sshPath, "-L", portForwardRule, portFlag, noStrictRule, identityOnlyrule, userAndIP, "-i", sshKeyFile.Name(), "sleep infinity")

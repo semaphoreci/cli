@@ -115,7 +115,7 @@ func NewJobV1AlphaFromJson(data []byte) (*JobV1Alpha, error) {
 func NewJobV1AlphaFromYaml(data []byte) (*JobV1Alpha, error) {
 	j := JobV1Alpha{}
 
-	err := yaml.UnmarshalStrict(data, &j)
+	err := yaml.Unmarshal(data, &j)
 
 	if err != nil {
 		return nil, err

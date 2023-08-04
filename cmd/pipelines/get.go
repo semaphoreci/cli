@@ -1,11 +1,11 @@
 package pipelines
 
 import (
+	"encoding/json"
 	"fmt"
-	"time"
 	"os"
 	"text/tabwriter"
-	"encoding/json"
+	"time"
 
 	client "github.com/semaphoreci/cli/api/client"
 	"github.com/semaphoreci/cli/api/models"
@@ -47,19 +47,21 @@ func List(projectID string) {
 }
 
 func prettyPrintPipelineList(jsonList []byte) {
-  j := models.PipelinesListV1Alpha{}
-        err := json.Unmarshal(jsonList, &j)
-  utils.Check(err)
+	j := models.PipelinesListV1Alpha{}
+	err := json.Unmarshal(jsonList, &j)
+	utils.Check(err)
 
-  const padding = 3
-  w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
+	const padding = 3
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
 
-  fmt.Fprintln(w, "PIPELINE ID\tPIPELINE NAME\tCREATION TIME\tSTATE\tLABEL")
+	fmt.Fprintln(w, "PIPELINE ID\tPIPELINE NAME\tCREATION TIME\tSTATE\tLABEL")
 
-  for _, p := range j {
-    createdAt := time.Unix(p.CreatedAt.Seconds, 0).Format("2006-01-02 15:04:05")
-    fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", p.Id, p.Name, createdAt, p.State, p.Label)
-  }
+	for _, p := range j {
+		createdAt := time.Unix(p.CreatedAt.Seconds, 0).Format("2006-01-02 15:04:05")
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", p.Id, p.Name, createdAt, p.State, p.Label)
+	}
 
-  w.Flush()
+	if err := w.Flush(); err != nil {
+		fmt.Printf("Error flushing when pretty printing pipelines: %v\n", err)
+	}
 }

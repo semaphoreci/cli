@@ -73,7 +73,7 @@ func NewSecretV1BetaFromJson(data []byte) (*SecretV1Beta, error) {
 func NewSecretV1BetaFromYaml(data []byte) (*SecretV1Beta, error) {
 	s := SecretV1Beta{}
 
-	err := yaml.UnmarshalStrict(data, &s)
+	err := yaml.Unmarshal(data, &s)
 
 	if err != nil {
 		return nil, err

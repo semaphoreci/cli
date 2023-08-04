@@ -66,5 +66,7 @@ func RunListNotifications(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(w, "%s\t%s\n", n.Metadata.Name, utils.RelativeAgeForHumans(updateTime))
 	}
 
-	w.Flush()
+	if err := w.Flush(); err != nil {
+		fmt.Printf("Error flushing when pretty printing notifications: %v\n", err)
+	}
 }

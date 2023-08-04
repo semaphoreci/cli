@@ -53,7 +53,7 @@ func NewDashboardV1AlphaFromJson(data []byte) (*DashboardV1Alpha, error) {
 func NewDashboardV1AlphaFromYaml(data []byte) (*DashboardV1Alpha, error) {
 	d := DashboardV1Alpha{}
 
-	err := yaml.UnmarshalStrict(data, &d)
+	err := yaml.Unmarshal(data, &d)
 
 	if err != nil {
 		return nil, err

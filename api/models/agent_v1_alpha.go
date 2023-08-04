@@ -53,7 +53,7 @@ func NewAgentV1AlphaFromJson(data []byte) (*AgentV1Alpha, error) {
 func NewAgentV1AlphaFromYaml(data []byte) (*AgentV1Alpha, error) {
 	a := AgentV1Alpha{}
 
-	err := yaml.UnmarshalStrict(data, &a)
+	err := yaml.Unmarshal(data, &a)
 	if err != nil {
 		return nil, err
 	}

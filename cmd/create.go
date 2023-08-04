@@ -224,7 +224,7 @@ func createSnapshot(projectName, label, archiveName string, follow bool) {
 		utils.Check(err)
 
 		RootCmd.SetArgs([]string{"get", "ppl", body.PplID, "--follow"})
-		RootCmd.Execute()
+		_ = RootCmd.Execute()
 	}
 }
 

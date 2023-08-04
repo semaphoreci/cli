@@ -58,7 +58,7 @@ func initConfig() {
 
 	// Touch config file and make sure that it exists
 	path := fmt.Sprintf("%s/.sem.yaml", home)
-	os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
+	_, _ = os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
 
 	err = viper.ReadInConfig()
 

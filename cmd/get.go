@@ -51,7 +51,9 @@ var GetDashboardCmd = &cobra.Command{
 				fmt.Fprintf(w, "%s\t%s\n", d.Metadata.Name, utils.RelativeAgeForHumans(updateTime))
 			}
 
-			w.Flush()
+			if err := w.Flush(); err != nil {
+				fmt.Printf("Error flushing dashboards: %v\n", err)
+			}
 		} else {
 			name := args[0]
 
@@ -99,7 +101,9 @@ var GetSecretCmd = &cobra.Command{
 					fmt.Fprintf(w, "%s\t%s\n", s.Metadata.Name, utils.RelativeAgeForHumans(updateTime))
 				}
 
-				w.Flush()
+				if err := w.Flush(); err != nil {
+					fmt.Printf("Error flushing secrets: %v\n", err)
+				}
 			} else {
 				name := args[0]
 
@@ -133,7 +137,9 @@ var GetSecretCmd = &cobra.Command{
 					fmt.Fprintf(w, "%s\t%s\n", s.Metadata.Name, utils.RelativeAgeForHumans(updateTime))
 				}
 
-				w.Flush()
+				if err := w.Flush(); err != nil {
+					fmt.Printf("Error flushing secrets: %v\n", err)
+				}
 			} else {
 				name := args[0]
 
@@ -177,7 +183,9 @@ var GetAgentTypeCmd = &cobra.Command{
 				fmt.Fprintf(w, "%s\t%s\n", a.Metadata.Name, utils.RelativeAgeForHumans(updateTime))
 			}
 
-			w.Flush()
+			if err := w.Flush(); err != nil {
+				fmt.Printf("Error flushing agent types: %v\n", err)
+			}
 		} else {
 			name := args[0]
 
@@ -230,7 +238,9 @@ var GetAgentsCmd = &cobra.Command{
 				)
 			}
 
-			w.Flush()
+			if err := w.Flush(); err != nil {
+				fmt.Printf("Error flushing agents: %v\n", err)
+			}
 		} else {
 			name := args[0]
 
@@ -292,7 +302,9 @@ var GetProjectCmd = &cobra.Command{
 				fmt.Fprintf(w, "%s\t%s\n", p.Metadata.Name, p.Spec.Repository.Url)
 			}
 
-			w.Flush()
+			if err := w.Flush(); err != nil {
+				fmt.Printf("Error flushing projects: %v\n", err)
+			}
 		} else {
 			name := args[0]
 
@@ -354,7 +366,9 @@ var GetJobCmd = &cobra.Command{
 					j.Status.Result)
 			}
 
-			w.Flush()
+			if err := w.Flush(); err != nil {
+				fmt.Printf("Error flushing jobs: %v\n", err)
+			}
 		} else {
 			id := args[0]
 

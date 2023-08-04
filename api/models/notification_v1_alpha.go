@@ -100,7 +100,7 @@ func NewNotificationV1AlphaFromJson(data []byte) (*NotificationV1Alpha, error) {
 func NewNotificationV1AlphaFromYaml(data []byte) (*NotificationV1Alpha, error) {
 	n := NotificationV1Alpha{}
 
-	err := yaml.UnmarshalStrict(data, &n)
+	err := yaml.Unmarshal(data, &n)
 
 	if err != nil {
 		return nil, err

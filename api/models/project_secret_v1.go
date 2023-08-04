@@ -66,7 +66,7 @@ func NewProjectSecretV1FromJson(data []byte) (*ProjectSecretV1, error) {
 func NewProjectSecretV1FromYaml(data []byte) (*ProjectSecretV1, error) {
 	s := ProjectSecretV1{}
 
-	err := yaml.UnmarshalStrict(data, &s)
+	err := yaml.Unmarshal(data, &s)
 
 	if err != nil {
 		return nil, err

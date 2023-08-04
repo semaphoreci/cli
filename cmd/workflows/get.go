@@ -2,9 +2,9 @@ package workflows
 
 import (
 	"fmt"
-	"time"
 	"os"
 	"text/tabwriter"
+	"time"
 
 	client "github.com/semaphoreci/cli/api/client"
 	"github.com/semaphoreci/cli/api/models"
@@ -31,5 +31,7 @@ func prettyPrint(workflows *models.WorkflowListV1Alpha) {
 		fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", p.Id, p.InitialPplId, createdAt, p.BranchName)
 	}
 
-	w.Flush()
+	if err := w.Flush(); err != nil {
+		fmt.Printf("Error flushing when pretty printing workflows: %v\n", err)
+	}
 }

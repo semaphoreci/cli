@@ -61,7 +61,9 @@ func NewConnectionForJob(job *models.JobV1Alpha, sshKeyPath string) (*Connection
 }
 
 func (c *Connection) Close() {
-	os.Remove(c.SSHKeyFile.Name()) // clean up
+	if err := os.Remove(c.SSHKeyFile.Name()); err != nil {
+		fmt.Printf("Error removing %s: %v\n", c.SSHKeyFile.Name(), err)
+	}
 }
 
 func (c *Connection) WaitUntilReady(attempts int, callback func()) error {
