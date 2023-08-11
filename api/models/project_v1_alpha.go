@@ -18,7 +18,7 @@ type Scheduler struct {
 
 type Task struct {
 	Name         string          `json:"name"`
-	Recurring    bool            `json:"recurring"`
+	Scheduled    bool            `json:"scheduled"`
 	Id           string          `json:"id,omitempty"`
 	Branch       string          `json:"branch,omitempty"`
 	At           string          `json:"at,omitempty"`

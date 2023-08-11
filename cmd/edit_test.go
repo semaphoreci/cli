@@ -241,7 +241,7 @@ func Test__EditProject__WithTasks__Response200(t *testing.T) {
 				{
 					"name":"cron",
 					"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
-					"recurring":false,
+					"scheduled":false,
 					"branch":"master",
 					"pipeline_file":".semaphore/cron.yml",
 					"parameters":[
@@ -294,7 +294,7 @@ func Test__EditProject__WithTasks__Response200(t *testing.T) {
 
 	assert.Equal(t, task.Name, "cron")
 	assert.Equal(t, task.Branch, "master")
-	assert.Equal(t, task.Recurring, false)
+	assert.Equal(t, task.Scheduled, false)
 	assert.Equal(t, task.PipelineFile, ".semaphore/cron.yml")
 
 	task_parameter := task.Parameters[0]
