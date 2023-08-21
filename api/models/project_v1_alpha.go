@@ -18,6 +18,7 @@ type Scheduler struct {
 
 type Task struct {
 	Name         string          `json:"name"`
+	Description  string          `json:"description,omitempty"`
 	Scheduled    bool            `json:"scheduled"`
 	Id           string          `json:"id,omitempty"`
 	Branch       string          `json:"branch,omitempty"`

@@ -240,6 +240,7 @@ func Test__EditProject__WithTasks__Response200(t *testing.T) {
 			"tasks":[
 				{
 					"name":"cron",
+					"description":"cron description",
 					"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
 					"scheduled":false,
 					"branch":"master",
@@ -293,6 +294,7 @@ func Test__EditProject__WithTasks__Response200(t *testing.T) {
 	task := received.Spec.Tasks[0]
 
 	assert.Equal(t, task.Name, "cron")
+	assert.Equal(t, task.Description, "cron description")
 	assert.Equal(t, task.Branch, "master")
 	assert.Equal(t, task.Scheduled, false)
 	assert.Equal(t, task.PipelineFile, ".semaphore/cron.yml")
