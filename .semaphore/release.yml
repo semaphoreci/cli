@@ -14,7 +14,7 @@ blocks:
         - name: sem-robot-ghtoken
       prologue:
         commands:
-          - sem-version go 1.18
+          - sem-version go 1.20
           - "export GOPATH=~/go"
           - "export PATH=/home/semaphore/go/bin:$PATH"
           - checkout
