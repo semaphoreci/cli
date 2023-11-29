@@ -172,8 +172,32 @@ var CreateAgentTypeCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
+		nameAssignmentOrigin, err := cmd.Flags().GetString("name-assignment-origin")
+		utils.Check(err)
+
+		releaseNameAfter, err := cmd.Flags().GetInt64("release-name-after")
+		utils.Check(err)
+
 		c := client.NewAgentTypeApiV1AlphaApi()
 		at := models.NewAgentTypeV1Alpha(name)
+		at.Spec.AgentNameSettings = models.AgentTypeV1AlphaAgentNameSettings{
+			AssignmentOrigin: nameAssignmentOrigin,
+			ReleaseAfter:     releaseNameAfter,
+		}
+
+		if nameAssignmentOrigin == "assignment_origin_aws_sts" {
+			accountID, err := cmd.Flags().GetString("aws-account-id")
+			utils.Check(err)
+
+			roles, err := cmd.Flags().GetString("aws-roles")
+			utils.Check(err)
+
+			at.Spec.AgentNameSettings.Aws = models.AgentTypeV1AlphaAws{
+				AccountID:        accountID,
+				RoleNamePatterns: roles,
+			}
+		}
+
 		agentType, err := c.CreateAgentType(&at)
 		utils.Check(err)
 
@@ -261,4 +285,9 @@ func init() {
 	CreateWorkflowCmd.Flags().StringP("archive", "a", "", "snapshot archive; if not specified current dir will be compressed into .tgz file")
 	CreateWorkflowCmd.Flags().BoolP("follow", "f", false,
 		"run 'get ppl <ppl_id>' after create repeatedly until pipeline reaches terminal state")
+
+	CreateAgentTypeCmd.Flags().StringP("name-assignment-origin", "o", "assignment_origin_agent", "name assignment origin: Possible values: [assignment_origin_agent, assignment_origin_aws_sts]")
+	CreateAgentTypeCmd.Flags().Int64P("release-name-after", "r", 0, "how long to hold the agent name after disconnection, in seconds; if not specified, 0 is used.")
+	CreateAgentTypeCmd.Flags().String("aws-account-id", "", "required if -o AWS_STS is used; AWS account ID to allow registrations")
+	CreateAgentTypeCmd.Flags().String("aws-roles", "", "required if -o AWS_STS is used; comma-separated list of AWS role names")
 }

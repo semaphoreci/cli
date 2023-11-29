@@ -85,3 +85,22 @@ func (c *AgentTypeApiV1AlphaApi) CreateAgentType(d *models.AgentTypeV1Alpha) (*m
 
 	return models.NewAgentTypeV1AlphaFromJson(body)
 }
+
+func (c *AgentTypeApiV1AlphaApi) UpdateAgentType(d *models.AgentTypeV1Alpha) (*models.AgentTypeV1Alpha, error) {
+	json_body, err := d.ToJson()
+
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("failed to serialize object '%s'", err))
+	}
+
+	body, status, err := c.BaseClient.Patch(c.ResourceNamePlural, d.Metadata.Name, json_body)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("updating %s on Semaphore failed '%s'", c.ResourceNameSingular, err))
+	}
+
+	if status != 200 {
+		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
+
+	return models.NewAgentTypeV1AlphaFromJson(body)
+}

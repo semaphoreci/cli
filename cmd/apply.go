@@ -103,6 +103,15 @@ func RunApply(cmd *cobra.Command, args []string) {
 		utils.Check(err)
 
 		fmt.Printf("Project '%s' updated.\n", proj.Metadata.Name)
+	case "SelfHostedAgentType":
+		at, err := models.NewAgentTypeV1AlphaFromYaml(data)
+		utils.Check(err)
+
+		c := client.NewAgentTypeApiV1AlphaApi()
+		newAgentType, err := c.UpdateAgentType(at)
+		utils.Check(err)
+
+		fmt.Printf("SelfHostedAgentType '%s' updated.\n", newAgentType.Metadata.Name)
 	case models.DeploymentTargetKindV1Alpha:
 		target, err := models.NewDeploymentTargetV1AlphaFromYaml(data)
 		utils.Check(err)
