@@ -286,7 +286,7 @@ func init() {
 	CreateWorkflowCmd.Flags().BoolP("follow", "f", false,
 		"run 'get ppl <ppl_id>' after create repeatedly until pipeline reaches terminal state")
 
-	CreateAgentTypeCmd.Flags().StringP("name-assignment-origin", "o", "assignment_origin_agent", "name assignment origin: Possible values: [assignment_origin_agent, assignment_origin_aws_sts]")
+	CreateAgentTypeCmd.Flags().StringP("name-assignment-origin", "o", "assignment_origin_agent", "from where agents will get their names when they register. Possible values: [assignment_origin_agent, assignment_origin_aws_sts]")
 	CreateAgentTypeCmd.Flags().Int64P("release-name-after", "r", 0, "how long to hold the agent name after disconnection, in seconds; if not specified, 0 is used.")
 	CreateAgentTypeCmd.Flags().String("aws-account-id", "", "required if -o AWS_STS is used; AWS account ID to allow registrations")
 	CreateAgentTypeCmd.Flags().String("aws-roles", "", "required if -o AWS_STS is used; comma-separated list of AWS role names")
