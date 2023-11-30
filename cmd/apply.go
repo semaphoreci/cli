@@ -103,7 +103,7 @@ func RunApply(cmd *cobra.Command, args []string) {
 		utils.Check(err)
 
 		fmt.Printf("Project '%s' updated.\n", proj.Metadata.Name)
-	case "SelfHostedAgentType":
+	case models.KindSelfHostedAgentType:
 		at, err := models.NewAgentTypeV1AlphaFromYaml(data)
 		utils.Check(err)
 
@@ -111,7 +111,7 @@ func RunApply(cmd *cobra.Command, args []string) {
 		newAgentType, err := c.UpdateAgentType(at)
 		utils.Check(err)
 
-		fmt.Printf("SelfHostedAgentType '%s' updated.\n", newAgentType.Metadata.Name)
+		fmt.Printf("%s '%s' updated.\n", models.KindSelfHostedAgentType, newAgentType.Metadata.Name)
 	case models.DeploymentTargetKindV1Alpha:
 		target, err := models.NewDeploymentTargetV1AlphaFromYaml(data)
 		utils.Check(err)

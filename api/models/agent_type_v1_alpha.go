@@ -7,6 +7,13 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+const KindSelfHostedAgentType = "SelfHostedAgentType"
+
+var SelfHostedAgentTypeAssignmentOrigins = []string{
+	"assignment_origin_agent",
+	"assignment_origin_aws_sts",
+}
+
 type AgentTypeV1Alpha struct {
 	ApiVersion string                   `json:"apiVersion,omitempty" yaml:"apiVersion"`
 	Kind       string                   `json:"kind,omitempty" yaml:"kind"`
@@ -79,11 +86,11 @@ func NewAgentTypeV1AlphaFromYaml(data []byte) (*AgentTypeV1Alpha, error) {
 
 func (s *AgentTypeV1Alpha) setApiVersionAndKind() {
 	s.ApiVersion = "v1alpha"
-	s.Kind = "SelfHostedAgentType"
+	s.Kind = KindSelfHostedAgentType
 }
 
 func (s *AgentTypeV1Alpha) ObjectName() string {
-	return fmt.Sprintf("SelfHostedAgentType/%s", s.Metadata.Name)
+	return fmt.Sprintf("%s/%s", KindSelfHostedAgentType, s.Metadata.Name)
 }
 
 func (s *AgentTypeV1Alpha) ToJson() ([]byte, error) {

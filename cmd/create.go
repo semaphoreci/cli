@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/semaphoreci/cli/cmd/workflows"
@@ -106,7 +107,7 @@ var createCmd = &cobra.Command{
 			utils.Check(err)
 
 			fmt.Printf("Job '%s' created.\n", job.Metadata.Id)
-		case "SelfHostedAgentType":
+		case models.KindSelfHostedAgentType:
 			at, err := models.NewAgentTypeV1AlphaFromYaml(data)
 			utils.Check(err)
 
@@ -174,6 +175,11 @@ var CreateAgentTypeCmd = &cobra.Command{
 
 		nameAssignmentOrigin, err := cmd.Flags().GetString("name-assignment-origin")
 		utils.Check(err)
+
+		if !utils.Contains(models.SelfHostedAgentTypeAssignmentOrigins, nameAssignmentOrigin) {
+			fmt.Printf("invalid name assignment origin '%s'\n", nameAssignmentOrigin)
+			os.Exit(1)
+		}
 
 		releaseNameAfter, err := cmd.Flags().GetInt64("release-name-after")
 		utils.Check(err)
@@ -286,7 +292,13 @@ func init() {
 	CreateWorkflowCmd.Flags().BoolP("follow", "f", false,
 		"run 'get ppl <ppl_id>' after create repeatedly until pipeline reaches terminal state")
 
-	CreateAgentTypeCmd.Flags().StringP("name-assignment-origin", "o", "assignment_origin_agent", "from where agents will get their names when they register. Possible values: [assignment_origin_agent, assignment_origin_aws_sts]")
+	CreateAgentTypeCmd.Flags().StringP(
+		"name-assignment-origin",
+		"o",
+		models.SelfHostedAgentTypeAssignmentOrigins[0],
+		fmt.Sprintf("from where agents will get their names when they register. Possible values: %v", models.SelfHostedAgentTypeAssignmentOrigins),
+	)
+
 	CreateAgentTypeCmd.Flags().Int64P("release-name-after", "r", 0, "how long to hold the agent name after disconnection, in seconds; if not specified, 0 is used.")
 	CreateAgentTypeCmd.Flags().String("aws-account-id", "", "required if -o AWS_STS is used; AWS account ID to allow registrations")
 	CreateAgentTypeCmd.Flags().String("aws-roles", "", "required if -o AWS_STS is used; comma-separated list of AWS role names")
