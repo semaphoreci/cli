@@ -7,10 +7,18 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+const KindSelfHostedAgentType = "SelfHostedAgentType"
+
+var SelfHostedAgentTypeAssignmentOrigins = []string{
+	"assignment_origin_agent",
+	"assignment_origin_aws_sts",
+}
+
 type AgentTypeV1Alpha struct {
 	ApiVersion string                   `json:"apiVersion,omitempty" yaml:"apiVersion"`
 	Kind       string                   `json:"kind,omitempty" yaml:"kind"`
 	Metadata   AgentTypeV1AlphaMetadata `json:"metadata" yaml:"metadata"`
+	Spec       AgentTypeV1AlphaSpec     `json:"spec" yaml:"spec"`
 	Status     AgentTypeV1AlphaStatus   `json:"status" yaml:"status"`
 }
 
@@ -18,6 +26,21 @@ type AgentTypeV1AlphaMetadata struct {
 	Name       string      `json:"name,omitempty" yaml:"name,omitempty"`
 	CreateTime json.Number `json:"create_time,omitempty" yaml:"create_time,omitempty"`
 	UpdateTime json.Number `json:"update_time,omitempty" yaml:"update_time,omitempty"`
+}
+
+type AgentTypeV1AlphaSpec struct {
+	AgentNameSettings AgentTypeV1AlphaAgentNameSettings `json:"agent_name_settings" yaml:"agent_name_settings"`
+}
+
+type AgentTypeV1AlphaAgentNameSettings struct {
+	AssignmentOrigin string              `json:"assignment_origin,omitempty" yaml:"assignment_origin,omitempty"`
+	Aws              AgentTypeV1AlphaAws `json:"aws,omitempty" yaml:"aws,omitempty"`
+	ReleaseAfter     int64               `json:"release_after" yaml:"release_after"`
+}
+
+type AgentTypeV1AlphaAws struct {
+	AccountID        string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
+	RoleNamePatterns string `json:"role_name_patterns,omitempty" yaml:"role_name_patterns,omitempty"`
 }
 
 type AgentTypeV1AlphaStatus struct {
@@ -53,16 +76,21 @@ func NewAgentTypeV1AlphaFromYaml(data []byte) (*AgentTypeV1Alpha, error) {
 	}
 
 	a.setApiVersionAndKind()
+
+	if a.Spec.AgentNameSettings.AssignmentOrigin == "" {
+		a.Spec.AgentNameSettings.AssignmentOrigin = "assignment_origin_agent"
+	}
+
 	return &a, nil
 }
 
 func (s *AgentTypeV1Alpha) setApiVersionAndKind() {
 	s.ApiVersion = "v1alpha"
-	s.Kind = "SelfHostedAgentType"
+	s.Kind = KindSelfHostedAgentType
 }
 
 func (s *AgentTypeV1Alpha) ObjectName() string {
-	return fmt.Sprintf("SelfHostedAgentType/%s", s.Metadata.Name)
+	return fmt.Sprintf("%s/%s", KindSelfHostedAgentType, s.Metadata.Name)
 }
 
 func (s *AgentTypeV1Alpha) ToJson() ([]byte, error) {

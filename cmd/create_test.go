@@ -231,7 +231,51 @@ metadata:
 	RootCmd.SetArgs([]string{"create", "-f", yaml_file_path})
 	RootCmd.Execute()
 
-	expected := `{"apiVersion":"v1alpha","kind":"SelfHostedAgentType","metadata":{"name":"s1-testing-from-yaml"},"status":{}}`
+	expected := `{"apiVersion":"v1alpha","kind":"SelfHostedAgentType","metadata":{"name":"s1-testing-from-yaml"},"spec":{"agent_name_settings":{"assignment_origin":"assignment_origin_agent","aws":{},"release_after":0}},"status":{}}`
+
+	if received != expected {
+		t.Errorf("Expected the API to receive POST self_hosted_agent_types with: %s, got: %s", expected, received)
+	}
+}
+
+func Test__CreateAgentType__FromYamlWithSettings__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	yaml_file := `
+apiVersion: v1alpha
+kind: SelfHostedAgentType
+metadata:
+  name: s1-testing-from-yaml
+spec:
+  agent_name_settings:
+    assignment_origin: assignment_origin_aws_sts
+    release_after: 60
+    aws:
+      account_id: "1234567890"
+      role_name_patterns: role1,role2
+`
+
+	yaml_file_path := "/tmp/agent_type.yaml"
+
+	ioutil.WriteFile(yaml_file_path, []byte(yaml_file), 0644)
+
+	received := ""
+
+	httpmock.RegisterResponder("POST", "https://org.semaphoretext.xyz/api/v1alpha/self_hosted_agent_types",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+
+			received = string(body)
+
+			return httpmock.NewStringResponse(200, received), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"create", "-f", yaml_file_path})
+	RootCmd.Execute()
+
+	expected := `{"apiVersion":"v1alpha","kind":"SelfHostedAgentType","metadata":{"name":"s1-testing-from-yaml"},"spec":{"agent_name_settings":{"assignment_origin":"assignment_origin_aws_sts","aws":{"account_id":"1234567890","role_name_patterns":"role1,role2"},"release_after":60}},"status":{}}`
 
 	if received != expected {
 		t.Errorf("Expected the API to receive POST self_hosted_agent_types with: %s, got: %s", expected, received)
@@ -257,7 +301,42 @@ func Test__CreateAgentType__Response200(t *testing.T) {
 	RootCmd.SetArgs([]string{"create", "agent_type", "s1-testing"})
 	RootCmd.Execute()
 
-	expected := `{"apiVersion":"v1alpha","kind":"SelfHostedAgentType","metadata":{"name":"s1-testing"},"status":{}}`
+	expected := `{"apiVersion":"v1alpha","kind":"SelfHostedAgentType","metadata":{"name":"s1-testing"},"spec":{"agent_name_settings":{"assignment_origin":"assignment_origin_agent","aws":{},"release_after":0}},"status":{}}`
+
+	if received != expected {
+		t.Errorf("Expected the API to receive POST self_hosted_agent_types with: %s, got: %s", expected, received)
+	}
+}
+
+func Test__CreateAgentTypeWithSettings__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := ""
+
+	httpmock.RegisterResponder("POST", "https://org.semaphoretext.xyz/api/v1alpha/self_hosted_agent_types",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+
+			received = string(body)
+
+			return httpmock.NewStringResponse(200, received), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{
+		"create",
+		"agent_type",
+		"s1-testing",
+		"-o", "assignment_origin_aws_sts",
+		"-r", "60",
+		"--aws-account-id", "1234567890",
+		"--aws-roles", "role1,role2",
+	})
+
+	RootCmd.Execute()
+
+	expected := `{"apiVersion":"v1alpha","kind":"SelfHostedAgentType","metadata":{"name":"s1-testing"},"spec":{"agent_name_settings":{"assignment_origin":"assignment_origin_aws_sts","aws":{"account_id":"1234567890","role_name_patterns":"role1,role2"},"release_after":60}},"status":{}}`
 
 	if received != expected {
 		t.Errorf("Expected the API to receive POST self_hosted_agent_types with: %s, got: %s", expected, received)

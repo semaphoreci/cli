@@ -20,7 +20,7 @@ func NewAgentTypeListV1AlphaFromJson(data []byte) (*AgentTypeListV1Alpha, error)
 		}
 
 		if s.Kind == "" {
-			s.Kind = "SelfHostedAgentType"
+			s.Kind = KindSelfHostedAgentType
 		}
 	}
 
