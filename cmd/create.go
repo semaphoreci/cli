@@ -191,17 +191,15 @@ var CreateAgentTypeCmd = &cobra.Command{
 			ReleaseAfter:     releaseNameAfter,
 		}
 
-		if nameAssignmentOrigin == "assignment_origin_aws_sts" {
-			accountID, err := cmd.Flags().GetString("aws-account-id")
-			utils.Check(err)
+		accountID, err := cmd.Flags().GetString("aws-account-id")
+		utils.Check(err)
 
-			roles, err := cmd.Flags().GetString("aws-roles")
-			utils.Check(err)
+		roles, err := cmd.Flags().GetString("aws-roles")
+		utils.Check(err)
 
-			at.Spec.AgentNameSettings.Aws = models.AgentTypeV1AlphaAws{
-				AccountID:        accountID,
-				RoleNamePatterns: roles,
-			}
+		at.Spec.AgentNameSettings.Aws = models.AgentTypeV1AlphaAws{
+			AccountID:        accountID,
+			RoleNamePatterns: roles,
 		}
 
 		agentType, err := c.CreateAgentType(&at)
