@@ -56,7 +56,7 @@ type DeploymentTargetMetadataV1Alpha struct {
 type DeploymentTargetSpecV1Alpha struct {
 	State              string                          `json:"state" yaml:"state"`
 	StateMessage       string                          `json:"state_message" yaml:"state_message"`
-	SubjectRules       []*SubjectRuleV1Alpha           `json:"subject_rules" yaml:"subject_rules"`
+	SubjectRules       []*SubjectRuleV1Alpha           `json:"subject_rules,omitempty" yaml:"subject_rules,omitempty"`
 	ObjectRules        []*ObjectRuleV1Alpha            `json:"object_rules" yaml:"object_rules"`
 	LastDeployment     *DeploymentV1Alpha              `json:"last_deployment,omitempty" yaml:"last_deployment,omitempty"`
 	Active             bool                            `json:"active" yaml:"active"`
