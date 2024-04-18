@@ -38,6 +38,7 @@ func NewCreateSecretCmd() *cobra.Command {
 		"project name; if specified will edit project level secret, otherwise organization secret")
 	cmd.Flags().StringP("project-id", "i", "",
 		"project id; if specified will edit project level secret, otherwise organization secret")
+	cmd.MarkFlagsMutuallyExclusive("project-name", "project-id")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		projectID := GetProjectID(cmd)
