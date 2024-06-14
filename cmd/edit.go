@@ -146,10 +146,11 @@ var EditSecretCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
-		secret := ctx.Value("secret").(*models.SecretV1Beta)
-		projectSecret := ctx.Value("project_secret").(*models.ProjectSecretV1)
+		s := ctx.Value("secret")
+		pS := ctx.Value("project_secret")
 
-		if secret != nil {
+		if s != nil {
+			secret := s.(*models.SecretV1Beta)
 			c := client.NewSecretV1BetaApi()
 			content, err := secret.ToYaml()
 
@@ -168,12 +169,13 @@ var EditSecretCmd = &cobra.Command{
 			utils.Check(err)
 
 			fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
-		} else if projectSecret != nil {
+		} else if pS != nil {
+			secret := pS.(*models.ProjectSecretV1)
 			projectID := GetProjectID(cmd)
 
 			c := client.NewProjectSecretV1Api(projectID)
 
-			content, err := projectSecret.ToYaml()
+			content, err := secret.ToYaml()
 
 			utils.Check(err)
 
@@ -185,11 +187,11 @@ var EditSecretCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			projectSecret, err = c.UpdateSecret(updated_secret)
+			secret, err = c.UpdateSecret(updated_secret)
 
 			utils.Check(err)
 
-			fmt.Printf("Secret '%s' updated.\n", projectSecret.Metadata.Name)
+			fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
 		} else {
 			fmt.Printf("Secret '%s' not found.\n", args[0])
 		}
