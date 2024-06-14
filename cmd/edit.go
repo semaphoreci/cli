@@ -123,8 +123,8 @@ var EditSecretCmd = &cobra.Command{
 			if secret.Editable() {
 				secret, err = c.UpdateSecret(updated_secret)
 			} else {
-				cmd.Println("This will first remove the old secret. Do you wish to continue? (Y/n)")
-				err = utils.Ask()
+				cmd.Println("WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:")
+				err = utils.Ask(secret.Metadata.Name)				
 				if err == nil {
 					secret, err = c.FallbackUpdate(updated_secret)
 				}
@@ -157,8 +157,8 @@ var EditSecretCmd = &cobra.Command{
 			if secret.Editable() {
 				secret, err = c.UpdateSecret(updated_secret)
 			} else {
-				cmd.Println("This will first remove the old secret. Do you wish to continue? (Y/n)")
-				err = utils.Ask()
+				cmd.Println("WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:")
+				err = utils.Ask(secret.Metadata.Name)
 				if err == nil {
 					secret, err = c.FallbackUpdate(updated_secret)
 				}
