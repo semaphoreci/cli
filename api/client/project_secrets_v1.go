@@ -109,17 +109,21 @@ func (c *ProjectSecretsApiV1Api) UpdateSecret(d *models.ProjectSecretV1) (*model
 	}
 
 	if status != 200 {
-		fallbackResponse, err := c.fallbackUpdate(identifier, d)
-		if err != nil {
 		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
-		}
-		return fallbackResponse, nil
 	}
 
 	return models.NewProjectSecretV1FromJson(body)
 }
 
-func (c *ProjectSecretsApiV1Api) fallbackUpdate(identifier string, d *models.ProjectSecretV1) (*models.ProjectSecretV1, error) {
+func (c *ProjectSecretsApiV1Api) FallbackUpdate(d *models.ProjectSecretV1) (*models.ProjectSecretV1, error) {
+	identifier := ""
+
+	if d.Metadata.Id != "" {
+		identifier = d.Metadata.Id
+	} else {
+		identifier = d.Metadata.Name
+	}
+
 	err := c.DeleteSecret(identifier)
 
 	if err != nil {

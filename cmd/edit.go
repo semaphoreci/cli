@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"errors"
 	"fmt"
 
@@ -95,7 +94,9 @@ var EditSecretCmd = &cobra.Command{
 	Short:   "Edit a secret.",
 	Long:    ``,
 	Aliases: []string{"secrets"},
-	PreRunE: func(cmd *cobra.Command, args []string) error {
+	Args: cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
 		projectID := GetProjectID(cmd)
 
 		if projectID == "" {
@@ -105,53 +106,8 @@ var EditSecretCmd = &cobra.Command{
 
 			secret, err := c.GetSecret(name)
 
-			utils.Check(err)
+			utils.Check(err)	
 
-			ctx := cmd.Context()
-
-			ctx = context.WithValue(ctx, "secret", secret)
-
-			cmd.SetContext(ctx)
-
-			if !secret.Editable() {
-				cmd.Println("This secret can only be replaced. Do you want to continue? (Y/n)")
-				return utils.Ask()
-			} else {
-				return nil
-			}
-		} else {
-			name := args[0]
-
-			c := client.NewProjectSecretV1Api(projectID)
-
-			secret, err := c.GetSecret(name)
-
-			utils.Check(err)
-			ctx := cmd.Context()
-
-			ctx = context.WithValue(ctx, "project_secret", secret)
-
-			cmd.SetContext(ctx)
-
-			if !secret.Editable() {
-				cmd.Println("This secret can only be replaced. Do you want to continue? (Y/n)")
-				return utils.Ask()
-			} else {
-				return nil
-			}
-		}
-
-	},
-	Args: cobra.ExactArgs(1),
-
-	Run: func(cmd *cobra.Command, args []string) {
-		ctx := cmd.Context()
-		s := ctx.Value("secret")
-		pS := ctx.Value("project_secret")
-
-		if s != nil {
-			secret := s.(*models.SecretV1Beta)
-			c := client.NewSecretV1BetaApi()
 			content, err := secret.ToYaml()
 
 			utils.Check(err)
@@ -164,16 +120,27 @@ var EditSecretCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			secret, err = c.UpdateSecret(updated_secret)
+			if secret.Editable() {
+				secret, err = c.UpdateSecret(updated_secret)
+			} else {
+				cmd.Println("This will first remove the old secret. Do you wish to continue? (Y/n)")
+				err = utils.Ask()
+				if err == nil {
+					secret, err = c.FallbackUpdate(updated_secret)
+				}
+			}
 
 			utils.Check(err)
 
 			fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
-		} else if pS != nil {
-			secret := pS.(*models.ProjectSecretV1)
-			projectID := GetProjectID(cmd)
+		} else {
+			name := args[0]
 
 			c := client.NewProjectSecretV1Api(projectID)
+
+			secret, err := c.GetSecret(name)
+
+			utils.Check(err)
 
 			content, err := secret.ToYaml()
 
@@ -187,13 +154,18 @@ var EditSecretCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			secret, err = c.UpdateSecret(updated_secret)
-
+			if secret.Editable() {
+				secret, err = c.UpdateSecret(updated_secret)
+			} else {
+				cmd.Println("This will first remove the old secret. Do you wish to continue? (Y/n)")
+				err = utils.Ask()
+				if err == nil {
+					secret, err = c.FallbackUpdate(updated_secret)
+				}
+			}
 			utils.Check(err)
 
 			fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)
-		} else {
-			fmt.Printf("Secret '%s' not found.\n", args[0])
 		}
 	},
 }
