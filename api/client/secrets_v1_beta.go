@@ -111,18 +111,21 @@ func (c *SecretApiV1BetaApi) UpdateSecret(d *models.SecretV1Beta) (*models.Secre
 	}
 
 	if status != 200 {
-		fallbackResponse, err := c.fallbackUpdate(identifier, d)
-		if err != nil {
-			return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
-
-		}
-		return fallbackResponse, nil
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
 	}
 
 	return models.NewSecretV1BetaFromJson(body)
 }
 
-func (c *SecretApiV1BetaApi) fallbackUpdate(identifier string, d *models.SecretV1Beta) (*models.SecretV1Beta, error) {
+func (c *SecretApiV1BetaApi) FallbackUpdate(d *models.SecretV1Beta) (*models.SecretV1Beta, error) {
+	identifier := ""
+
+	if d.Metadata.Id != "" {
+		identifier = d.Metadata.Id
+	} else {
+		identifier = d.Metadata.Name
+	}
+
 	err := c.DeleteSecret(identifier)
 
 	if err != nil {

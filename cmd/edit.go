@@ -94,7 +94,7 @@ var EditSecretCmd = &cobra.Command{
 	Short:   "Edit a secret.",
 	Long:    ``,
 	Aliases: []string{"secrets"},
-	Args:    cobra.ExactArgs(1),
+	Args: cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
 		projectID := GetProjectID(cmd)
@@ -106,7 +106,7 @@ var EditSecretCmd = &cobra.Command{
 
 			secret, err := c.GetSecret(name)
 
-			utils.Check(err)
+			utils.Check(err)	
 
 			content, err := secret.ToYaml()
 
@@ -120,7 +120,15 @@ var EditSecretCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			secret, err = c.UpdateSecret(updated_secret)
+			if secret.Editable() {
+				secret, err = c.UpdateSecret(updated_secret)
+			} else {
+				cmd.Println("WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:")
+				err = utils.Ask(secret.Metadata.Name)				
+				if err == nil {
+					secret, err = c.FallbackUpdate(updated_secret)
+				}
+			}
 
 			utils.Check(err)
 
@@ -146,8 +154,15 @@ var EditSecretCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			secret, err = c.UpdateSecret(updated_secret)
-
+			if secret.Editable() {
+				secret, err = c.UpdateSecret(updated_secret)
+			} else {
+				cmd.Println("WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:")
+				err = utils.Ask(secret.Metadata.Name)
+				if err == nil {
+					secret, err = c.FallbackUpdate(updated_secret)
+				}
+			}
 			utils.Check(err)
 
 			fmt.Printf("Secret '%s' updated.\n", secret.Metadata.Name)

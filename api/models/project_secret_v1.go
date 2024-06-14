@@ -97,7 +97,12 @@ func (s *ProjectSecretV1) ToJson() ([]byte, error) {
 
 func (s *ProjectSecretV1) ToYaml() ([]byte, error) {
 	if !s.Metadata.ContentIncluded {
-		notice := []byte("# Note: Environment variables and file contents are hidden and accessible only in jobs\n\n")
+		notice := []byte(`
+# DANGER! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever.
+# Note: You can exit without saving to skip.
+
+`)
+
 		s, err := yaml.Marshal(s)
 		if err != nil {
 			return nil, err
