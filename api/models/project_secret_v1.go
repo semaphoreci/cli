@@ -17,12 +17,12 @@ type ProjectSecretV1 struct {
 
 type ProjectSecretV1EnvVar struct {
 	Name  string `json:"name" yaml:"name"`
-	Value string `json:"value" yaml:"value"`
+	Value string `json:"value" yaml:"value,omitempty"`
 }
 
 type ProjectSecretV1File struct {
 	Path    string `json:"path" yaml:"path"`
-	Content string `json:"content" yaml:"content"`
+	Content string `json:"content" yaml:"content,omitempty"`
 }
 
 type ProjectSecretV1Data struct {

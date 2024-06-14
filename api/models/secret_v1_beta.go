@@ -18,12 +18,12 @@ type SecretV1Beta struct {
 
 type SecretV1BetaEnvVar struct {
 	Name  string `json:"name" yaml:"name"`
-	Value string `json:"value" yaml:"value"`
+	Value string `json:"value" yaml:"value,omitempty"`
 }
 
 type SecretV1BetaFile struct {
 	Path    string `json:"path" yaml:"path"`
-	Content string `json:"content" yaml:"content"`
+	Content string `json:"content" yaml:"content,omitempty"`
 }
 
 type SecretV1BetaData struct {
