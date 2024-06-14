@@ -94,7 +94,7 @@ var EditSecretCmd = &cobra.Command{
 	Short:   "Edit a secret.",
 	Long:    ``,
 	Aliases: []string{"secrets"},
-	Args: cobra.ExactArgs(1),
+	Args:    cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
 		projectID := GetProjectID(cmd)
@@ -106,11 +106,20 @@ var EditSecretCmd = &cobra.Command{
 
 			secret, err := c.GetSecret(name)
 
-			utils.Check(err)	
+			utils.Check(err)
 
 			content, err := secret.ToYaml()
 
 			utils.Check(err)
+
+			if !secret.Editable() {
+				notice := []byte(`
+# DANGER! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever.
+# Note: You can exit without saving to skip.
+			
+			`)
+				content = append(notice, content...)
+			}
 
 			new_content, err := utils.EditYamlInEditor(secret.ObjectName(), string(content))
 
@@ -124,7 +133,7 @@ var EditSecretCmd = &cobra.Command{
 				secret, err = c.UpdateSecret(updated_secret)
 			} else {
 				cmd.Println("WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:")
-				err = utils.Ask(secret.Metadata.Name)				
+				err = utils.Ask(secret.Metadata.Name)
 				if err == nil {
 					secret, err = c.FallbackUpdate(updated_secret)
 				}
@@ -145,6 +154,15 @@ var EditSecretCmd = &cobra.Command{
 			content, err := secret.ToYaml()
 
 			utils.Check(err)
+
+			if !secret.Editable() {
+				notice := []byte(`
+# DANGER! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever.
+# Note: You can exit without saving to skip.
+			
+			`)
+				content = append(notice, content...)
+			}
 
 			new_content, err := utils.EditYamlInEditor(secret.ObjectName(), string(content))
 

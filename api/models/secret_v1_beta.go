@@ -36,7 +36,7 @@ type SecretV1BetaMetadata struct {
 	Id              string      `json:"id,omitempty" yaml:"id,omitempty"`
 	CreateTime      json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
 	UpdateTime      json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
-	ContentIncluded bool        `json:"content_included,omitempty" yaml:"content_included,omitempty"`
+	ContentIncluded bool        `json:"content_included,omitempty" yaml:"content_included"`
 }
 
 type SecretV1BetaOrgConfig struct {
@@ -103,19 +103,5 @@ func (s *SecretV1Beta) ToJson() ([]byte, error) {
 }
 
 func (s *SecretV1Beta) ToYaml() ([]byte, error) {
-	if !s.Metadata.ContentIncluded {
-		notice := []byte(`
-# DANGER! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever.
-# Note: You can exit without saving to skip.
-
-`)
-
-		s, err := yaml.Marshal(s)
-		if err != nil {
-			return nil, err
-		}
-		return append(notice, s...), nil
-
-	}
 	return yaml.Marshal(s)
 }

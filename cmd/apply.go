@@ -50,7 +50,15 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 		c := client.NewSecretV1BetaApi()
 
-		secret, err = c.UpdateSecret(secret)
+		if secret.Editable() {
+			secret, err = c.UpdateSecret(secret)
+		} else {
+			cmd.Println("WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:")
+			err = utils.Ask(secret.Metadata.Name)
+			if err == nil {
+				secret, err = c.FallbackUpdate(secret)
+			}
+		}
 
 		utils.Check(err)
 
@@ -62,7 +70,15 @@ func RunApply(cmd *cobra.Command, args []string) {
 
 		c := client.NewProjectSecretV1Api(secret.Metadata.ProjectIdOrName)
 
-		secret, err = c.UpdateSecret(secret)
+		if secret.Editable() {
+			secret, err = c.UpdateSecret(secret)
+		} else {
+			cmd.Println("WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:")
+			err = utils.Ask(secret.Metadata.Name)
+			if err == nil {
+				secret, err = c.FallbackUpdate(secret)
+			}
+		}
 
 		utils.Check(err)
 

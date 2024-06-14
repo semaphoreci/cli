@@ -36,7 +36,7 @@ type ProjectSecretV1Metadata struct {
 	CreateTime      json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
 	UpdateTime      json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
 	ProjectIdOrName string      `json:"project_id_or_name,omitempty" yaml:"project_id_or_name,omitempty"`
-	ContentIncluded bool        `json:"content_included,omitempty" yaml:"content_included,omitempty"`
+	ContentIncluded bool        `json:"content_included,omitempty" yaml:"content_included"`
 }
 
 func NewProjectSecretV1(name string, envVars []ProjectSecretV1EnvVar, files []ProjectSecretV1File) ProjectSecretV1 {
@@ -96,19 +96,5 @@ func (s *ProjectSecretV1) ToJson() ([]byte, error) {
 }
 
 func (s *ProjectSecretV1) ToYaml() ([]byte, error) {
-	if !s.Metadata.ContentIncluded {
-		notice := []byte(`
-# DANGER! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever.
-# Note: You can exit without saving to skip.
-
-`)
-
-		s, err := yaml.Marshal(s)
-		if err != nil {
-			return nil, err
-		}
-		return append(notice, s...), nil
-
-	}
 	return yaml.Marshal(s)
 }

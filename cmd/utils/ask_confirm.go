@@ -16,7 +16,7 @@ func Ask(name string) error {
 		if strings.Compare(s, name) == 0 {
 			break
 		} else {
-			return errors.New("user did not confirm")
+			return errors.New("user confirmation failed")
 		}
 	}
 	return nil
