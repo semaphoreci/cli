@@ -36,6 +36,7 @@ type ProjectSecretV1Metadata struct {
 	CreateTime      json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
 	UpdateTime      json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
 	ProjectIdOrName string      `json:"project_id_or_name,omitempty" yaml:"project_id_or_name,omitempty"`
+	ContentIncluded bool        `json:"content_included,omitempty" yaml:"content_included,omitempty"`
 }
 
 func NewProjectSecretV1(name string, envVars []ProjectSecretV1EnvVar, files []ProjectSecretV1File) ProjectSecretV1 {
@@ -82,6 +83,10 @@ func (s *ProjectSecretV1) setApiVersionAndKind() {
 	s.Kind = "ProjectSecret"
 }
 
+func (s *ProjectSecretV1) Editable() bool {
+	return s.Metadata.ContentIncluded
+}
+
 func (s *ProjectSecretV1) ObjectName() string {
 	return fmt.Sprintf("Project/%s/Secrets/%s", s.Metadata.ProjectIdOrName, s.Metadata.Name)
 }
@@ -91,5 +96,14 @@ func (s *ProjectSecretV1) ToJson() ([]byte, error) {
 }
 
 func (s *ProjectSecretV1) ToYaml() ([]byte, error) {
+	if !s.Metadata.ContentIncluded {
+		notice := []byte("# Note: Environment variables and file contents are hidden and accessible only in jobs\n\n")
+		s, err := yaml.Marshal(s)
+		if err != nil {
+			return nil, err
+		}
+		return append(notice, s...), nil
+
+	}
 	return yaml.Marshal(s)
 }

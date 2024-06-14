@@ -3,6 +3,7 @@ package client
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	models "github.com/semaphoreci/cli/api/models"
 )
@@ -101,6 +102,8 @@ func (c *SecretApiV1BetaApi) UpdateSecret(d *models.SecretV1Beta) (*models.Secre
 		identifier = d.Metadata.Name
 	}
 
+	fmt.Printf("This might overwrite the secret '%s' and change it's id.", identifier)
+
 	body, status, err := c.BaseClient.Patch(c.ResourceNamePlural, identifier, json_body)
 
 	if err != nil {
@@ -108,8 +111,24 @@ func (c *SecretApiV1BetaApi) UpdateSecret(d *models.SecretV1Beta) (*models.Secre
 	}
 
 	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+		fallbackResponse, err := c.fallbackUpdate(identifier, d)
+		if err != nil {
+			return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
+
+		}
+		return fallbackResponse, nil
 	}
 
 	return models.NewSecretV1BetaFromJson(body)
+}
+
+func (c *SecretApiV1BetaApi) fallbackUpdate(identifier string, d *models.SecretV1Beta) (*models.SecretV1Beta, error) {
+	err := c.DeleteSecret(identifier)
+
+	if err != nil {
+		log.Println("fallbackUpdate:", err)
+		return nil, fmt.Errorf("updating %s on Semaphore failed '%s'", c.ResourceNamePlural, err)
+	}
+
+	return c.CreateSecret(d)
 }

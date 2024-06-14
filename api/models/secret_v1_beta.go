@@ -32,10 +32,11 @@ type SecretV1BetaData struct {
 }
 
 type SecretV1BetaMetadata struct {
-	Name       string      `json:"name,omitempty" yaml:"name,omitempty"`
-	Id         string      `json:"id,omitempty" yaml:"id,omitempty"`
-	CreateTime json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
-	UpdateTime json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
+	Name            string      `json:"name,omitempty" yaml:"name,omitempty"`
+	Id              string      `json:"id,omitempty" yaml:"id,omitempty"`
+	CreateTime      json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
+	UpdateTime      json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
+	ContentIncluded bool        `json:"content_included,omitempty" yaml:"content_included,omitempty"`
 }
 
 type SecretV1BetaOrgConfig struct {
@@ -93,10 +94,23 @@ func (s *SecretV1Beta) ObjectName() string {
 	return fmt.Sprintf("Secrets/%s", s.Metadata.Name)
 }
 
+func (s *SecretV1Beta) Editable() bool {
+	return s.Metadata.ContentIncluded
+}
+
 func (s *SecretV1Beta) ToJson() ([]byte, error) {
 	return json.Marshal(s)
 }
 
 func (s *SecretV1Beta) ToYaml() ([]byte, error) {
+	if !s.Metadata.ContentIncluded {
+		notice := []byte("# Note: Environment variables and file contents are hidden and accessible only in jobs\n\n") 
+		s, err := yaml.Marshal(s)
+		if err != nil {
+			return nil, err
+		}
+		return append(notice, s...), nil
+
+	}
 	return yaml.Marshal(s)
 }
