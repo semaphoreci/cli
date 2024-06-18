@@ -11,6 +11,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const secretEditDangerMessage = `
+ DANGER! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever.
+# Note: You can exit without saving to skip.
+
+`
+const secretAskConfirmationMessage = `WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:`
+
 var editCmd = &cobra.Command{
 	Use:   "edit",
 	Short: "Edit a resource from.",
@@ -113,11 +120,7 @@ var EditSecretCmd = &cobra.Command{
 			utils.Check(err)
 
 			if !secret.Editable() {
-				notice := []byte(`
-# DANGER! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever.
-# Note: You can exit without saving to skip.
-			
-			`)
+				notice := []byte(secretEditDangerMessage)
 				content = append(notice, content...)
 			}
 
@@ -132,7 +135,7 @@ var EditSecretCmd = &cobra.Command{
 			if secret.Editable() {
 				secret, err = c.UpdateSecret(updated_secret)
 			} else {
-				cmd.Println("WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:")
+				cmd.Println(secretAskConfirmationMessage)
 				err = utils.Ask(secret.Metadata.Name)
 				if err == nil {
 					secret, err = c.FallbackUpdate(updated_secret)
@@ -156,11 +159,7 @@ var EditSecretCmd = &cobra.Command{
 			utils.Check(err)
 
 			if !secret.Editable() {
-				notice := []byte(`
-# DANGER! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever.
-# Note: You can exit without saving to skip.
-			
-			`)
+				notice := []byte(secretEditDangerMessage)
 				content = append(notice, content...)
 			}
 
@@ -175,7 +174,7 @@ var EditSecretCmd = &cobra.Command{
 			if secret.Editable() {
 				secret, err = c.UpdateSecret(updated_secret)
 			} else {
-				cmd.Println("WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:")
+				cmd.Println(secretAskConfirmationMessage)
 				err = utils.Ask(secret.Metadata.Name)
 				if err == nil {
 					secret, err = c.FallbackUpdate(updated_secret)
