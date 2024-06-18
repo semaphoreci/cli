@@ -53,7 +53,7 @@ func RunApply(cmd *cobra.Command, args []string) {
 		if secret.Editable() {
 			secret, err = c.UpdateSecret(secret)
 		} else {
-			cmd.Println("WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:")
+			cmd.Println(secretAskConfirmationMessage)
 			err = utils.Ask(secret.Metadata.Name)
 			if err == nil {
 				secret, err = c.FallbackUpdate(secret)
@@ -73,7 +73,7 @@ func RunApply(cmd *cobra.Command, args []string) {
 		if secret.Editable() {
 			secret, err = c.UpdateSecret(secret)
 		} else {
-			cmd.Println("WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:")
+			cmd.Println(secretAskConfirmationMessage)
 			err = utils.Ask(secret.Metadata.Name)
 			if err == nil {
 				secret, err = c.FallbackUpdate(secret)
