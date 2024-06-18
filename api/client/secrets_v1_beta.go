@@ -102,8 +102,6 @@ func (c *SecretApiV1BetaApi) UpdateSecret(d *models.SecretV1Beta) (*models.Secre
 		identifier = d.Metadata.Name
 	}
 
-	fmt.Printf("This might overwrite the secret '%s' and change it's id.", identifier)
-
 	body, status, err := c.BaseClient.Patch(c.ResourceNamePlural, identifier, json_body)
 
 	if err != nil {
