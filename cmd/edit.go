@@ -12,7 +12,7 @@ import (
 )
 
 const secretEditDangerMessage = `
- DANGER! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever.
+# WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever.
 # Note: You can exit without saving to skip.
 
 `
