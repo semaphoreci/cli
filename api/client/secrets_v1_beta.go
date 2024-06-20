@@ -3,6 +3,7 @@ package client
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	models "github.com/semaphoreci/cli/api/models"
 )
@@ -108,8 +109,27 @@ func (c *SecretApiV1BetaApi) UpdateSecret(d *models.SecretV1Beta) (*models.Secre
 	}
 
 	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
 	}
 
 	return models.NewSecretV1BetaFromJson(body)
+}
+
+func (c *SecretApiV1BetaApi) FallbackUpdate(d *models.SecretV1Beta) (*models.SecretV1Beta, error) {
+	identifier := ""
+
+	if d.Metadata.Id != "" {
+		identifier = d.Metadata.Id
+	} else {
+		identifier = d.Metadata.Name
+	}
+
+	err := c.DeleteSecret(identifier)
+
+	if err != nil {
+		log.Println("fallbackUpdate:", err)
+		return nil, fmt.Errorf("updating %s on Semaphore failed '%s'", c.ResourceNamePlural, err)
+	}
+
+	return c.CreateSecret(d)
 }

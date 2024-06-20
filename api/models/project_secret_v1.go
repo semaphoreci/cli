@@ -17,12 +17,12 @@ type ProjectSecretV1 struct {
 
 type ProjectSecretV1EnvVar struct {
 	Name  string `json:"name" yaml:"name"`
-	Value string `json:"value" yaml:"value"`
+	Value string `json:"value" yaml:"value,omitempty"`
 }
 
 type ProjectSecretV1File struct {
 	Path    string `json:"path" yaml:"path"`
-	Content string `json:"content" yaml:"content"`
+	Content string `json:"content" yaml:"content,omitempty"`
 }
 
 type ProjectSecretV1Data struct {
@@ -36,6 +36,7 @@ type ProjectSecretV1Metadata struct {
 	CreateTime      json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
 	UpdateTime      json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
 	ProjectIdOrName string      `json:"project_id_or_name,omitempty" yaml:"project_id_or_name,omitempty"`
+	ContentIncluded bool        `json:"content_included,omitempty" yaml:"content_included"`
 }
 
 func NewProjectSecretV1(name string, envVars []ProjectSecretV1EnvVar, files []ProjectSecretV1File) ProjectSecretV1 {
@@ -80,6 +81,10 @@ func NewProjectSecretV1FromYaml(data []byte) (*ProjectSecretV1, error) {
 func (s *ProjectSecretV1) setApiVersionAndKind() {
 	s.ApiVersion = "v1"
 	s.Kind = "ProjectSecret"
+}
+
+func (s *ProjectSecretV1) Editable() bool {
+	return s.Metadata.ContentIncluded
 }
 
 func (s *ProjectSecretV1) ObjectName() string {

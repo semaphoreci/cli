@@ -18,12 +18,12 @@ type SecretV1Beta struct {
 
 type SecretV1BetaEnvVar struct {
 	Name  string `json:"name" yaml:"name"`
-	Value string `json:"value" yaml:"value"`
+	Value string `json:"value" yaml:"value,omitempty"`
 }
 
 type SecretV1BetaFile struct {
 	Path    string `json:"path" yaml:"path"`
-	Content string `json:"content" yaml:"content"`
+	Content string `json:"content" yaml:"content,omitempty"`
 }
 
 type SecretV1BetaData struct {
@@ -32,10 +32,11 @@ type SecretV1BetaData struct {
 }
 
 type SecretV1BetaMetadata struct {
-	Name       string      `json:"name,omitempty" yaml:"name,omitempty"`
-	Id         string      `json:"id,omitempty" yaml:"id,omitempty"`
-	CreateTime json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
-	UpdateTime json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
+	Name            string      `json:"name,omitempty" yaml:"name,omitempty"`
+	Id              string      `json:"id,omitempty" yaml:"id,omitempty"`
+	CreateTime      json.Number `json:"create_time,omitempty,string" yaml:"create_time,omitempty"`
+	UpdateTime      json.Number `json:"update_time,omitempty,string" yaml:"update_time,omitempty"`
+	ContentIncluded bool        `json:"content_included,omitempty" yaml:"content_included"`
 }
 
 type SecretV1BetaOrgConfig struct {
@@ -91,6 +92,10 @@ func (s *SecretV1Beta) setApiVersionAndKind() {
 
 func (s *SecretV1Beta) ObjectName() string {
 	return fmt.Sprintf("Secrets/%s", s.Metadata.Name)
+}
+
+func (s *SecretV1Beta) Editable() bool {
+	return s.Metadata.ContentIncluded
 }
 
 func (s *SecretV1Beta) ToJson() ([]byte, error) {
