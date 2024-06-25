@@ -11,12 +11,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// #nosec G101 -- false positive
 const secretEditDangerMessage = `
 # WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever.
 # Note: You can exit without saving to skip.
 
 `
-const secretAskConfirmationMessage = `WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:`
+const secretAskConfirmationMessage = `WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:` // #nosec G101 -- false positive
 
 var editCmd = &cobra.Command{
 	Use:   "edit",
