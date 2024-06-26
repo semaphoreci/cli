@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"testing"
 
 	httpmock "github.com/jarcoal/httpmock"
@@ -109,7 +110,8 @@ func Test__EditSecret__Response200(t *testing.T) {
 			"name":"aaaaaaa",
 			"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
 			"create_time":"1536673464",
-			"update_time":"1536674946"
+			"update_time":"1536674946",
+			"content_included": true
 		},
 		"data":{
 			"env_vars":[{
@@ -138,6 +140,64 @@ func Test__EditSecret__Response200(t *testing.T) {
 			return httpmock.NewStringResponse(200, dash), nil
 		},
 	)
+
+	RootCmd.SetArgs([]string{"edit", "secrets", "aaaaaaa"})
+	RootCmd.Execute()
+
+	if received == false {
+		t.Error("Expected the API to receive GET and PATCH secret")
+	}
+}
+
+func Test__EditSecret_UsingFallback__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	dash := `{
+		"metadata":{
+			"name":"aaaaaaa",
+			"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+			"create_time":"1536673464",
+			"update_time":"1536674946"
+		},
+		"data":{
+			"env_vars":[{
+				"name":"TEST",
+				"value":"AAAA"
+			}],
+			"files":[{
+				"path":"a.txt",
+				"content":"W1twYWNrYWdlXV0KbmFtZSA9ICJzcGlyYWwtbWVtb3J5Igp2ZXJzaW9uID0gIjAuMS4wIgoK"
+			}]
+		}
+	}`
+
+	received := false
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1beta/secrets/aaaaaaa",
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(200, dash), nil
+		},
+	)
+
+	httpmock.RegisterResponder("DELETE", "https://org.semaphoretext.xyz/api/v1beta/secrets/bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			return httpmock.NewStringResponse(200, ""), nil
+		},
+	)
+
+	httpmock.RegisterResponder("POST", "https://org.semaphoretext.xyz/api/v1beta/secrets",
+		func(r *http.Request) (*http.Response, error) {
+			received = true
+
+			return httpmock.NewStringResponse(200, dash), nil
+		},
+	)
+
+	r := strings.NewReader("aaaaaaa\n")
+	RootCmd.SetIn(r)
 
 	RootCmd.SetArgs([]string{"edit", "secrets", "aaaaaaa"})
 	RootCmd.Execute()

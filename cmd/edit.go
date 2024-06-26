@@ -11,13 +11,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// #nosec
+// #nosec G101 -- false positive
 const secretEditDangerMessage = `
 # WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever.
 # Note: You can exit without saving to skip.
 
 `
-const secretAskConfirmationMessage = `WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:`
+const secretAskConfirmationMessage = `WARNING! Secrets cannot be updated, only replaced. Once the change is applied, the old values will be lost forever. To continue, please type in the (current) secret name:` // #nosec G101 -- false positive
 
 var editCmd = &cobra.Command{
 	Use:   "edit",
@@ -137,7 +137,7 @@ var EditSecretCmd = &cobra.Command{
 				secret, err = c.UpdateSecret(updated_secret)
 			} else {
 				cmd.Println(secretAskConfirmationMessage)
-				err = utils.Ask(secret.Metadata.Name)
+				err = utils.Ask(cmd.InOrStdin(), secret.Metadata.Name)
 				if err == nil {
 					secret, err = c.FallbackUpdate(updated_secret)
 				}
@@ -176,7 +176,7 @@ var EditSecretCmd = &cobra.Command{
 				secret, err = c.UpdateSecret(updated_secret)
 			} else {
 				cmd.Println(secretAskConfirmationMessage)
-				err = utils.Ask(secret.Metadata.Name)
+				err = utils.Ask(cmd.InOrStdin(), secret.Metadata.Name)
 				if err == nil {
 					secret, err = c.FallbackUpdate(updated_secret)
 				}
