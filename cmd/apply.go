@@ -54,7 +54,6 @@ func RunApply(cmd *cobra.Command, args []string) {
 			secret, err = c.UpdateSecret(secret)
 		} else {
 			cmd.Println(secretAskConfirmationMessage)
-			cmd.InOrStdin()
 			err = utils.Ask(cmd.InOrStdin(), secret.Metadata.Name)
 			if err == nil {
 				secret, err = c.FallbackUpdate(secret)
