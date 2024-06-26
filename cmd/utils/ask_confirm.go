@@ -3,12 +3,12 @@ package utils
 import (
 	"bufio"
 	"errors"
-	"os"
+	"io"
 	"strings"
 )
 
-func Ask(name string) error {
-	reader := bufio.NewReader(os.Stdin)
+func Ask(in io.Reader, name string) error {
+	reader := bufio.NewReader(in)
 	for {
 		s, _ := reader.ReadString('\n')
 		s = strings.TrimSuffix(s, "\n")

@@ -21,6 +21,7 @@ kind: Secret
 metadata:
   name: Test
   id: "8f100520-5ab9-469f-854a-87bae95f19b9"
+  content_included: true
 data:
   env_vars:
   - value: A
@@ -49,7 +50,7 @@ data:
 	RootCmd.SetArgs([]string{"apply", "-f", yaml_file_path})
 	RootCmd.Execute()
 
-	expected := `{"apiVersion":"v1beta","kind":"Secret","metadata":{"name":"Test","id":"8f100520-5ab9-469f-854a-87bae95f19b9"},"data":{"env_vars":[{"name":"B","value":"A"}],"files":[{"path":"a.txt","content":"21313123"}]}}`
+	expected := `{"apiVersion":"v1beta","kind":"Secret","metadata":{"name":"Test","id":"8f100520-5ab9-469f-854a-87bae95f19b9","content_included":true},"data":{"env_vars":[{"name":"B","value":"A"}],"files":[{"path":"a.txt","content":"21313123"}]}}`
 
 	if received != expected {
 		t.Errorf("Expected the API to receive PATCH secret with: %s, got: %s", expected, received)

@@ -137,7 +137,7 @@ var EditSecretCmd = &cobra.Command{
 				secret, err = c.UpdateSecret(updated_secret)
 			} else {
 				cmd.Println(secretAskConfirmationMessage)
-				err = utils.Ask(secret.Metadata.Name)
+				err = utils.Ask(cmd.InOrStdin(), secret.Metadata.Name)
 				if err == nil {
 					secret, err = c.FallbackUpdate(updated_secret)
 				}
@@ -176,7 +176,7 @@ var EditSecretCmd = &cobra.Command{
 				secret, err = c.UpdateSecret(updated_secret)
 			} else {
 				cmd.Println(secretAskConfirmationMessage)
-				err = utils.Ask(secret.Metadata.Name)
+				err = utils.Ask(cmd.InOrStdin(), secret.Metadata.Name)
 				if err == nil {
 					secret, err = c.FallbackUpdate(updated_secret)
 				}
