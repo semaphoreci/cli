@@ -37,10 +37,10 @@ func describe(c client.PipelinesApiV1AlphaApi, id string) ([]byte, bool) {
 	return pplY, pplJ.IsDone()
 }
 
-func List(projectID string) {
+func List(projectID string, options client.ListOptions) {
 	fmt.Printf("%s\n", projectID)
 	c := client.NewPipelinesV1AlphaApi()
-	body, err := c.ListPpl(projectID)
+	body, err := c.ListPplWithOptions(projectID, options)
 	utils.Check(err)
 
 	prettyPrintPipelineList(body)

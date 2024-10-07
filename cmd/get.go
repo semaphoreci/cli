@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"text/tabwriter"
+	"time"
 
 	client "github.com/semaphoreci/cli/api/client"
 	models "github.com/semaphoreci/cli/api/models"
@@ -398,7 +399,7 @@ var GetPplCmd = &cobra.Command{
 		if len(args) == 0 {
 			projectID := getPrj(cmd)
 
-			pipelines.List(projectID)
+			pipelines.List(projectID, listOptions(cmd))
 		} else {
 			id := args[0]
 			pipelines.Describe(id, GetPplFollow)
@@ -417,7 +418,7 @@ var GetWfCmd = &cobra.Command{
 		projectID := getPrj(cmd)
 
 		if len(args) == 0 {
-			workflows.List(projectID)
+			workflows.List(projectID, listOptions(cmd))
 		} else {
 			wfID := args[0]
 			workflows.Describe(projectID, wfID)
@@ -504,6 +505,30 @@ func getPrj(cmd *cobra.Command) string {
 	return projectID
 }
 
+func listOptions(cmd *cobra.Command) client.ListOptions {
+	//
+	// By default, we return resources (pipelines/workflows) created in the last 3 months.
+	//
+	options := client.ListOptions{
+		CreatedAfter:  time.Now().Add(-1 * time.Hour * 24 * 90).Unix(),
+		CreatedBefore: time.Now().Unix(),
+	}
+
+	createdAfter, err := cmd.Flags().GetInt64("created-after")
+	utils.Check(err)
+	if createdAfter > 0 {
+		options.CreatedAfter = createdAfter
+	}
+
+	createdBefore, err := cmd.Flags().GetInt64("created-before")
+	utils.Check(err)
+	if createdBefore > 0 {
+		options.CreatedBefore = createdBefore
+	}
+
+	return options
+}
+
 func init() {
 	RootCmd.AddCommand(getCmd)
 
@@ -533,6 +558,10 @@ func init() {
 		"project name; if not specified will be inferred from git origin")
 	GetPplCmd.Flags().StringP("project-id", "i", "",
 		"project id; if not specified will be inferred from git origin")
+	GetPplCmd.Flags().Int64P("created-after", "", 0,
+		"filter for pipeline creation timestamp; by default, this is (now - 90d)")
+	GetPplCmd.Flags().Int64P("created-before", "", 0,
+		"filter for pipeline creation timestamp; by default, this is now")
 	getCmd.AddCommand(GetPplCmd)
 
 	getCmd.AddCommand(GetWfCmd)
@@ -540,6 +569,10 @@ func init() {
 		"project name; if not specified will be inferred from git origin")
 	GetWfCmd.Flags().StringP("project-id", "i", "",
 		"project id; if not specified will be inferred from git origin")
+	GetWfCmd.Flags().Int64P("created-after", "", 0,
+		"filter for pipeline creation timestamp; by default, this is (now - 90d)")
+	GetWfCmd.Flags().Int64P("created-before", "", 0,
+		"filter for pipeline creation timestamp; by default, this is now")
 
 	getCmd.AddCommand(GetDTCmd)
 	GetDTCmd.Flags().StringP("project-name", "p", "",

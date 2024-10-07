@@ -3,6 +3,7 @@ package client
 import (
 	"errors"
 	"fmt"
+	"net/url"
 
 	models "github.com/semaphoreci/cli/api/models"
 	"github.com/semaphoreci/cli/api/uuid"
@@ -29,6 +30,30 @@ func (c *WorkflowApiV1AlphaApi) ListWorkflows(project_id string) (*models.Workfl
 	urlEncode := fmt.Sprintf("%s?project_id=%s", c.ResourceNamePlural, project_id)
 	body, status, err := c.BaseClient.List(urlEncode)
 
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+	}
+
+	if status != 200 {
+		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
+
+	return models.NewWorkflowListV1AlphaFromJson(body)
+}
+
+func (c *WorkflowApiV1AlphaApi) ListWorkflowsWithOptions(projectID string, options ListOptions) (*models.WorkflowListV1Alpha, error) {
+	query := url.Values{}
+	query.Add("project_id", projectID)
+
+	if options.CreatedAfter > 0 {
+		query.Add("created_after", fmt.Sprintf("%d", options.CreatedAfter))
+	}
+
+	if options.CreatedBefore > 0 {
+		query.Add("created_before", fmt.Sprintf("%d", options.CreatedBefore))
+	}
+
+	body, status, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
 	}

@@ -3,6 +3,7 @@ package client
 import (
 	"errors"
 	"fmt"
+	"net/url"
 
 	models "github.com/semaphoreci/cli/api/models"
 	"github.com/semaphoreci/cli/api/uuid"
@@ -92,9 +93,39 @@ func (c *PipelinesApiV1AlphaApi) ListPplByWfID(projectID, wfID string) ([]byte, 
 	return body, nil
 }
 
+type ListOptions struct {
+	CreatedAfter  int64
+	CreatedBefore int64
+}
+
 func (c *PipelinesApiV1AlphaApi) ListPpl(projectID string) ([]byte, error) {
 	detailed := fmt.Sprintf("%s?project_id=%s", c.ResourceNamePlural, projectID)
 	body, status, err := c.BaseClient.List(detailed)
+
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+	}
+
+	if status != 200 {
+		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	}
+
+	return body, nil
+}
+
+func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options ListOptions) ([]byte, error) {
+	query := url.Values{}
+	query.Add("project_id", projectID)
+
+	if options.CreatedAfter > 0 {
+		query.Add("created_after", fmt.Sprintf("%d", options.CreatedAfter))
+	}
+
+	if options.CreatedBefore > 0 {
+		query.Add("created_before", fmt.Sprintf("%d", options.CreatedBefore))
+	}
+
+	body, status, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
 
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
