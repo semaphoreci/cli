@@ -549,7 +549,7 @@ func init() {
 	GetPplCmd.Flags().StringP("project-id", "i", "",
 		"project id; if not specified will be inferred from git origin")
 	GetPplCmd.Flags().DurationP("age", "", DefaultListingAge,
-		"filter for listing pipelines based on age; by default, we list only pipelines created in the last 90 days")
+		"list only pipelines created in the given duration; it accepts a Go duration. e.g. 24h, 30m, 60s")
 	getCmd.AddCommand(GetPplCmd)
 
 	getCmd.AddCommand(GetWfCmd)
@@ -558,7 +558,7 @@ func init() {
 	GetWfCmd.Flags().StringP("project-id", "i", "",
 		"project id; if not specified will be inferred from git origin")
 	GetWfCmd.Flags().DurationP("age", "", DefaultListingAge,
-		"filter for listing pipelines based on age; by default, we list only pipelines created in the last 90 days")
+		"list only workflows created in the given duration; it accepts a Go duration. e.g. 24h, 30m, 60s")
 
 	getCmd.AddCommand(GetDTCmd)
 	GetDTCmd.Flags().StringP("project-name", "p", "",
