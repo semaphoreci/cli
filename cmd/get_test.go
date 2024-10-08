@@ -428,10 +428,10 @@ func Test__GetPipelines__WithCreationTimestampFilters(t *testing.T) {
 		},
 	)
 
-	threeMonthsAgo := fmt.Sprintf("%d", time.Now().Add(-1*time.Hour*24*90).Unix())
-	oneMonthAgo := fmt.Sprintf("%d", time.Now().Add(-1*time.Hour*24*30).Unix())
-
-	url := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/pipelines?created_after=%s&created_before=%s&project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe", threeMonthsAgo, oneMonthAgo)
+	age := 720 * time.Hour
+	createdBefore := fmt.Sprintf("%d", time.Now().Unix())
+	createdAfter := fmt.Sprintf("%d", time.Now().Add(-1*age).Unix())
+	url := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/pipelines?created_after=%s&created_before=%s&project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe", createdAfter, createdBefore)
 	httpmock.RegisterResponder("GET", url,
 		func(req *http.Request) (*http.Response, error) {
 			received = true
@@ -456,10 +456,8 @@ func Test__GetPipelines__WithCreationTimestampFilters(t *testing.T) {
 		"pipelines",
 		"--project-name",
 		"foo",
-		"--created-after",
-		threeMonthsAgo,
-		"--created-before",
-		oneMonthAgo,
+		"--age",
+		age.String(),
 	})
 
 	RootCmd.Execute()
@@ -693,10 +691,10 @@ func Test__GetWorkflows__WithCreationTimestampFilters(t *testing.T) {
 		},
 	)
 
-	threeMonthsAgo := fmt.Sprintf("%d", time.Now().Add(-1*time.Hour*24*90).Unix())
-	oneMonthAgo := fmt.Sprintf("%d", time.Now().Add(-1*time.Hour*24*30).Unix())
-
-	url := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/plumber-workflows?created_after=%s&created_before=%s&project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe", threeMonthsAgo, oneMonthAgo)
+	age := 720 * time.Hour
+	createdBefore := fmt.Sprintf("%d", time.Now().Unix())
+	createdAfter := fmt.Sprintf("%d", time.Now().Add(-1*age).Unix())
+	url := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/plumber-workflows?created_after=%s&created_before=%s&project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe", createdAfter, createdBefore)
 	httpmock.RegisterResponder("GET", url,
 		func(req *http.Request) (*http.Response, error) {
 			received = true
@@ -721,10 +719,8 @@ func Test__GetWorkflows__WithCreationTimestampFilters(t *testing.T) {
 		"workflows",
 		"--project-name",
 		"foo",
-		"--created-after",
-		threeMonthsAgo,
-		"--created-before",
-		oneMonthAgo,
+		"--age",
+		age.String(),
 	})
 
 	RootCmd.Execute()

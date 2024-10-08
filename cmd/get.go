@@ -17,6 +17,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	DefaultListingAge = time.Hour * 24 * 90
+)
+
 var getCmd = &cobra.Command{
 	Use:   "get [KIND]",
 	Short: "List resources.",
@@ -506,27 +510,13 @@ func getPrj(cmd *cobra.Command) string {
 }
 
 func listOptions(cmd *cobra.Command) client.ListOptions {
-	//
-	// By default, we return resources (pipelines/workflows) created in the last 3 months.
-	//
-	options := client.ListOptions{
-		CreatedAfter:  time.Now().Add(-1 * time.Hour * 24 * 90).Unix(),
+	age, err := cmd.Flags().GetDuration("age")
+	utils.Check(err)
+
+	return client.ListOptions{
 		CreatedBefore: time.Now().Unix(),
+		CreatedAfter:  time.Now().Add(-1 * age).Unix(),
 	}
-
-	createdAfter, err := cmd.Flags().GetInt64("created-after")
-	utils.Check(err)
-	if createdAfter > 0 {
-		options.CreatedAfter = createdAfter
-	}
-
-	createdBefore, err := cmd.Flags().GetInt64("created-before")
-	utils.Check(err)
-	if createdBefore > 0 {
-		options.CreatedBefore = createdBefore
-	}
-
-	return options
 }
 
 func init() {
@@ -558,10 +548,8 @@ func init() {
 		"project name; if not specified will be inferred from git origin")
 	GetPplCmd.Flags().StringP("project-id", "i", "",
 		"project id; if not specified will be inferred from git origin")
-	GetPplCmd.Flags().Int64P("created-after", "", 0,
-		"filter for pipeline creation timestamp; by default, this is (now - 90d)")
-	GetPplCmd.Flags().Int64P("created-before", "", 0,
-		"filter for pipeline creation timestamp; by default, this is now")
+	GetPplCmd.Flags().DurationP("age", "", DefaultListingAge,
+		"filter for listing pipelines based on age; by default, we list only pipelines created in the last 90 days")
 	getCmd.AddCommand(GetPplCmd)
 
 	getCmd.AddCommand(GetWfCmd)
@@ -569,10 +557,8 @@ func init() {
 		"project name; if not specified will be inferred from git origin")
 	GetWfCmd.Flags().StringP("project-id", "i", "",
 		"project id; if not specified will be inferred from git origin")
-	GetWfCmd.Flags().Int64P("created-after", "", 0,
-		"filter for pipeline creation timestamp; by default, this is (now - 90d)")
-	GetWfCmd.Flags().Int64P("created-before", "", 0,
-		"filter for pipeline creation timestamp; by default, this is now")
+	GetWfCmd.Flags().DurationP("age", "", DefaultListingAge,
+		"filter for listing pipelines based on age; by default, we list only pipelines created in the last 90 days")
 
 	getCmd.AddCommand(GetDTCmd)
 	GetDTCmd.Flags().StringP("project-name", "p", "",
