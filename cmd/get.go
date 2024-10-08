@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"text/tabwriter"
+	"time"
 
 	client "github.com/semaphoreci/cli/api/client"
 	models "github.com/semaphoreci/cli/api/models"
@@ -14,6 +15,10 @@ import (
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/semaphoreci/cli/cmd/workflows"
 	"github.com/spf13/cobra"
+)
+
+const (
+	DefaultListingAge = time.Hour * 24 * 90
 )
 
 var getCmd = &cobra.Command{
@@ -398,7 +403,7 @@ var GetPplCmd = &cobra.Command{
 		if len(args) == 0 {
 			projectID := getPrj(cmd)
 
-			pipelines.List(projectID)
+			pipelines.List(projectID, listOptions(cmd))
 		} else {
 			id := args[0]
 			pipelines.Describe(id, GetPplFollow)
@@ -417,7 +422,7 @@ var GetWfCmd = &cobra.Command{
 		projectID := getPrj(cmd)
 
 		if len(args) == 0 {
-			workflows.List(projectID)
+			workflows.List(projectID, listOptions(cmd))
 		} else {
 			wfID := args[0]
 			workflows.Describe(projectID, wfID)
@@ -504,6 +509,16 @@ func getPrj(cmd *cobra.Command) string {
 	return projectID
 }
 
+func listOptions(cmd *cobra.Command) client.ListOptions {
+	age, err := cmd.Flags().GetDuration("age")
+	utils.Check(err)
+
+	return client.ListOptions{
+		CreatedBefore: time.Now().Unix(),
+		CreatedAfter:  time.Now().Add(-1 * age).Unix(),
+	}
+}
+
 func init() {
 	RootCmd.AddCommand(getCmd)
 
@@ -533,6 +548,8 @@ func init() {
 		"project name; if not specified will be inferred from git origin")
 	GetPplCmd.Flags().StringP("project-id", "i", "",
 		"project id; if not specified will be inferred from git origin")
+	GetPplCmd.Flags().DurationP("age", "", DefaultListingAge,
+		"list only pipelines created in the given duration; it accepts a Go duration. e.g. 24h, 30m, 60s")
 	getCmd.AddCommand(GetPplCmd)
 
 	getCmd.AddCommand(GetWfCmd)
@@ -540,6 +557,8 @@ func init() {
 		"project name; if not specified will be inferred from git origin")
 	GetWfCmd.Flags().StringP("project-id", "i", "",
 		"project id; if not specified will be inferred from git origin")
+	GetWfCmd.Flags().DurationP("age", "", DefaultListingAge,
+		"list only workflows created in the given duration; it accepts a Go duration. e.g. 24h, 30m, 60s")
 
 	getCmd.AddCommand(GetDTCmd)
 	GetDTCmd.Flags().StringP("project-name", "p", "",

@@ -11,9 +11,9 @@ import (
 	"github.com/semaphoreci/cli/cmd/utils"
 )
 
-func List(projectID string) {
+func List(projectID string, options client.ListOptions) {
 	wfClient := client.NewWorkflowV1AlphaApi()
-	workflows, err := wfClient.ListWorkflows(projectID)
+	workflows, err := wfClient.ListWorkflowsWithOptions(projectID, options)
 	utils.Check(err)
 
 	prettyPrint(workflows)

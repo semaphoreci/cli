@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 
 	httpmock "github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
@@ -360,6 +361,112 @@ func Test__GetAgent__Response200(t *testing.T) {
 	}
 }
 
+func Test__GetPipelines__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects/foo",
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `{
+				"metadata": {
+					"id": "758cb945-7495-4e40-a9a1-4b3991c6a8fe"
+				}
+			}`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	httpmock.RegisterResponder("GET", `=~^https:\/\/org\.semaphoretext\.xyz\/api\/v1alpha\/pipelines\?created_after=\d+&created_before=\d+&project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe`,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `[{
+				"pipeline": {
+					"ppl_id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+					"name": "snapshot test",
+				"state": "done",
+				"result": "passed",
+					"result_reason": "test",
+				"error_description": ""
+				}
+			}]`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"get", "pipelines", "--project-name", "foo"})
+	RootCmd.Execute()
+
+	if received == false {
+		t.Error("Expected the API to receive GET /pipelines")
+	}
+}
+
+func Test__GetPipelines__WithCreationTimestampFilters(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects/foo",
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `{
+				"metadata": {
+					"id": "758cb945-7495-4e40-a9a1-4b3991c6a8fe"
+				}
+			}`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	age := 720 * time.Hour
+	createdBefore := fmt.Sprintf("%d", time.Now().Unix())
+	createdAfter := fmt.Sprintf("%d", time.Now().Add(-1*age).Unix())
+	url := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/pipelines?created_after=%s&created_before=%s&project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe", createdAfter, createdBefore)
+	httpmock.RegisterResponder("GET", url,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `[{
+				"pipeline": {
+					"ppl_id": "494b76aa-f3f0-4ecf-b5ef-c389591a01be",
+					"name": "snapshot test",
+				"state": "done",
+				"result": "passed",
+					"result_reason": "test",
+				"error_description": ""
+				}
+			}]`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{
+		"get",
+		"pipelines",
+		"--project-name",
+		"foo",
+		"--age",
+		age.String(),
+	})
+
+	RootCmd.Execute()
+
+	if received == false {
+		t.Error("Expected the API to receive GET /pipelines")
+	}
+}
+
 func Test__GetPipeline__Response200(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -537,7 +644,7 @@ func Test__GetWorkflows__Response200(t *testing.T) {
 		},
 	)
 
-	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/plumber-workflows?project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe",
+	httpmock.RegisterResponder("GET", `=~^https:\/\/org\.semaphoretext\.xyz\/api\/v1alpha\/plumber-workflows\?created_after=\d+&created_before=\d+&project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe`,
 		func(req *http.Request) (*http.Response, error) {
 			received = true
 
@@ -560,6 +667,65 @@ func Test__GetWorkflows__Response200(t *testing.T) {
 	RootCmd.Execute()
 
 	if received == false {
-		t.Error("Expected the API to receive GET secrets/aaaaaaa")
+		t.Error("Expected the API to receive GET /plumber-workflows")
+	}
+}
+
+func Test__GetWorkflows__WithCreationTimestampFilters(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	received := false
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects/foo",
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `{
+				"metadata": {
+					"id": "758cb945-7495-4e40-a9a1-4b3991c6a8fe"
+				}
+			}`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	age := 720 * time.Hour
+	createdBefore := fmt.Sprintf("%d", time.Now().Unix())
+	createdAfter := fmt.Sprintf("%d", time.Now().Add(-1*age).Unix())
+	url := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/plumber-workflows?created_after=%s&created_before=%s&project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe", createdAfter, createdBefore)
+	httpmock.RegisterResponder("GET", url,
+		func(req *http.Request) (*http.Response, error) {
+			received = true
+
+			p := `[{
+				"wf_id": "b129e277-4aa5-4308-8e31-ec825815e335",
+				"requester_id": "92f81b82-3584-4852-ab28-4866624bed1e",
+				"project_id": "758cb945-7495-4e40-a9a1-4b3991c6a8fe",
+				"initial_ppl_id": "92f81b82-3584-4852-ab28-4866624bed1e",
+				"created_at": {
+					"seconds": 1533833523,
+					"nanos": 537460000
+				}
+			}]`
+
+			return httpmock.NewStringResponse(200, p), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{
+		"get",
+		"workflows",
+		"--project-name",
+		"foo",
+		"--age",
+		age.String(),
+	})
+
+	RootCmd.Execute()
+
+	if received == false {
+		t.Error("Expected the API to receive GET /plumber-workflows")
 	}
 }
