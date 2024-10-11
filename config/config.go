@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -36,6 +37,18 @@ func GetActiveContext() string {
 	} else {
 		return "org-semaphoretext-xyz"
 	}
+}
+
+func GetVersionCheckTime() string {
+	if flag.Lookup("test.v") == nil {
+		return viper.GetString("version-checked-at")
+	} else {
+		return time.Now().UTC().Format(time.RFC3339)
+	}
+}
+
+func SetVersionCheckTime(v string) {
+	Set("version-checked-at", v)
 }
 
 func GetAuth() string {
