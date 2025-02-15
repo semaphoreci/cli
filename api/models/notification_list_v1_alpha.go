@@ -5,7 +5,8 @@ import (
 )
 
 type NotificationListV1Alpha struct {
-	Notifications []NotificationV1Alpha `json:"notifications" yaml:"notifications"`
+	Notifications   []NotificationV1Alpha `json:"notifications" yaml:"notifications"`
+	NextPageToken   string                `json:"next_page_token,omitempty" yaml:"next_page_token,omitempty"`
 }
 
 func NewNotificationListV1AlphaFromJson(data []byte) (*NotificationListV1Alpha, error) {

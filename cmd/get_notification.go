@@ -49,7 +49,10 @@ func RunGetNotification(cmd *cobra.Command, args []string) {
 func RunListNotifications(cmd *cobra.Command, args []string) {
 	c := client.NewNotificationsV1AlphaApi()
 
-	notifList, err := c.ListNotifications()
+	pageSize, _ := cmd.Flags().GetInt32("page-size")
+	pageToken, _ := cmd.Flags().GetString("page-token")
+
+	notifList, err := c.ListNotifications(pageSize, pageToken)
 
 	utils.Check(err)
 
@@ -64,6 +67,11 @@ func RunListNotifications(cmd *cobra.Command, args []string) {
 		utils.Check(err)
 
 		fmt.Fprintf(w, "%s\t%s\n", n.Metadata.Name, utils.RelativeAgeForHumans(updateTime))
+	}
+
+	if notifList.NextPageToken != "" {
+		fmt.Fprintf(w, "\nNext page token: %s\n", notifList.NextPageToken)
+		fmt.Fprintf(w, "To view next page, run: sem get notifications --page-token %s\n", notifList.NextPageToken)
 	}
 
 	if err := w.Flush(); err != nil {
