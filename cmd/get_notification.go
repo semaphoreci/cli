@@ -6,6 +6,7 @@ import (
 	"text/tabwriter"
 
 	client "github.com/semaphoreci/cli/api/client"
+	models "github.com/semaphoreci/cli/api/models"
 
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
@@ -51,27 +52,36 @@ func RunListNotifications(cmd *cobra.Command, args []string) {
 
 	pageSize, _ := cmd.Flags().GetInt32("page-size")
 	pageToken, _ := cmd.Flags().GetString("page-token")
+	fetchAll := (pageSize == 0) && (pageToken == "")
 
-	notifList, err := c.ListNotifications(pageSize, pageToken)
+	var allNotifications []models.NotificationV1Alpha
 
-	utils.Check(err)
+	for {
+		notifList, err := c.ListNotifications(pageSize, pageToken)
+		utils.Check(err)
+
+		allNotifications = append(allNotifications, notifList.Notifications...)
+		pageToken = notifList.NextPageToken
+
+		if !fetchAll || notifList.NextPageToken == "" {
+			break
+		}
+	}
 
 	const padding = 3
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
 
 	fmt.Fprintln(w, "NAME\tAGE")
 
-	for _, n := range notifList.Notifications {
+	for _, n := range allNotifications {
 		updateTime, err := n.Metadata.UpdateTime.Int64()
-
 		utils.Check(err)
 
 		fmt.Fprintf(w, "%s\t%s\n", n.Metadata.Name, utils.RelativeAgeForHumans(updateTime))
 	}
-
-	if notifList.NextPageToken != "" {
-		fmt.Fprintf(w, "\nNext page token: %s\n", notifList.NextPageToken)
-		fmt.Fprintf(w, "To view next page, run: sem get notifications --page-token %s\n", notifList.NextPageToken)
+	if !fetchAll && pageToken != "" {
+		fmt.Fprintf(w, "\nNext page token: %s\n", pageToken)
+		fmt.Fprintf(w, "To view next page, run: sem get notifications --page-token %s\n", pageToken)
 	}
 
 	if err := w.Flush(); err != nil {
