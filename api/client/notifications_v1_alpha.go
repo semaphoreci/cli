@@ -3,6 +3,7 @@ package client
 import (
 	"errors"
 	"fmt"
+	"net/url"
 
 	models "github.com/semaphoreci/cli/api/models"
 )
@@ -25,17 +26,17 @@ func NewNotificationsV1AlphaApi() NotificationsV1AlphaApi {
 }
 
 func (c *NotificationsV1AlphaApi) ListNotifications(pageSize int32, pageToken string) (*models.NotificationListV1Alpha, error) {
-	query := ""
+	query := url.Values{}
+
 	if pageSize > 0 {
-		query = fmt.Sprintf("?page_size=%d", pageSize)
-		if pageToken != "" {
-			query = fmt.Sprintf("%s&page_token=%s", query, pageToken)
-		}
-	} else if pageToken != "" {
-		query = fmt.Sprintf("?page_token=%s", pageToken)
+		query.Add("page_size", fmt.Sprintf("%d", pageSize))
 	}
 
-	body, status, err := c.BaseClient.List(c.ResourceNamePlural + query)
+	if pageToken != "" {
+		query.Add("page_token", pageToken)
+	}
+
+	body, status, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
 
 	if err != nil {
 		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
