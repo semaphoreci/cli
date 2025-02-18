@@ -113,12 +113,17 @@ func (c *BaseClient) List(kind string) ([]byte, int, error) {
 }
 
 func (c *BaseClient) ListWithParams(kind string, query url.Values) ([]byte, int, error) {
+	if len(query) == 0 {
+		return c.List(kind)
+	}
 	url := fmt.Sprintf("https://%s/api/%s/%s?%s", c.host, c.apiVersion, kind, query.Encode())
 
 	log.Printf("GET %s\n", url)
 
 	req, err := http.NewRequest("GET", url, nil)
-
+	if err != nil {
+		return nil, 0, err
+	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
 	req.Header.Set("User-Agent", UserAgent)

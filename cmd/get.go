@@ -523,6 +523,8 @@ func init() {
 	RootCmd.AddCommand(getCmd)
 
 	getNotificationCmd := NewGetNotificationCmd()
+	getNotificationCmd.Flags().Int32P("page-size", "s", 0, "Number of items per page (max 300)")
+	getNotificationCmd.Flags().StringP("page-token", "t", "", "Token for the next page")
 
 	getCmd.AddCommand(GetDashboardCmd)
 	getCmd.AddCommand(getNotificationCmd)
