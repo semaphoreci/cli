@@ -207,6 +207,125 @@ var GetAgentTypeCmd = &cobra.Command{
 	},
 }
 
+var GetCanvasCmd = &cobra.Command{
+	Use:     "canvases [name]",
+	Short:   "Get canvases.",
+	Long:    ``,
+	Aliases: []string{"canvas"},
+	Args:    cobra.ExactArgs(1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		c := client.NewCanvasV2API()
+		name := args[0]
+		secret, err := c.GetCanvas(name)
+		utils.Check(err)
+		y, err := secret.ToYaml()
+		utils.Check(err)
+		fmt.Printf("%s", y)
+	},
+}
+
+var GetEventSourceCmd = &cobra.Command{
+	Use:     "event_sources [name]",
+	Short:   "Get event sources.",
+	Long:    ``,
+	Aliases: []string{"event_source", "sources", "source"},
+	Args:    cobra.RangeArgs(0, 1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		canvasID, err := cmd.Flags().GetString("canvas-id")
+		utils.Check(err)
+		if canvasID == "" {
+			fmt.Println("canvas ID is required")
+			return
+		}
+
+		c := client.NewEventSourceV2API()
+		if len(args) == 0 {
+			sources, err := c.List(canvasID)
+			utils.Check(err)
+
+			if len(sources) == 0 {
+				fmt.Fprintln(os.Stdout, "No sources found")
+				return
+			}
+
+			const padding = 3
+			w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
+
+			fmt.Fprintln(w, "ID\tNAME\tAGE")
+			for _, s := range sources {
+				fmt.Fprintf(w, "%s\t%s\t%s\n",
+					s.Metadata.ID,
+					s.Metadata.Name,
+					s.Metadata.Timeline.CreatedAt,
+				)
+			}
+
+			if err := w.Flush(); err != nil {
+				fmt.Printf("Error flushing sources: %v\n", err)
+			}
+		} else {
+			name := args[0]
+			source, err := c.GetEventSource(canvasID, name)
+			utils.Check(err)
+			y, err := source.ToYaml()
+			utils.Check(err)
+			fmt.Printf("%s", y)
+		}
+	},
+}
+
+var GetStageCmd = &cobra.Command{
+	Use:     "stages [name]",
+	Short:   "Get stages.",
+	Long:    ``,
+	Aliases: []string{"stages", "stage", "stg"},
+	Args:    cobra.RangeArgs(0, 1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		canvasID, err := cmd.Flags().GetString("canvas-id")
+		utils.Check(err)
+		if canvasID == "" {
+			fmt.Println("canvas ID is required")
+			return
+		}
+
+		c := client.NewStageV2API()
+		if len(args) == 0 {
+			stages, err := c.List(canvasID)
+			utils.Check(err)
+			if len(stages) == 0 {
+				fmt.Fprintln(os.Stdout, "No stages found")
+				return
+			}
+
+			const padding = 3
+			w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
+
+			fmt.Fprintln(w, "ID\tNAME\tAGE")
+			for _, s := range stages {
+				fmt.Fprintf(w, "%s\t%s\t%s\n",
+					s.Metadata.ID,
+					s.Metadata.Name,
+					s.Metadata.Timeline.CreatedAt,
+				)
+			}
+
+			if err := w.Flush(); err != nil {
+				fmt.Printf("Error flushing stages: %v\n", err)
+			}
+		} else {
+			name := args[0]
+			stage, err := c.GetStage(canvasID, name)
+			utils.Check(err)
+			y, err := stage.ToYaml()
+			utils.Check(err)
+			fmt.Printf("%s", y)
+		}
+	},
+}
+
 var GetAgentsCmd = &cobra.Command{
 	Use:     "agents",
 	Short:   "Get self-hosted agents.",
@@ -530,6 +649,7 @@ func init() {
 	getCmd.AddCommand(getNotificationCmd)
 	getCmd.AddCommand(GetProjectCmd)
 	getCmd.AddCommand(GetAgentTypeCmd)
+	getCmd.AddCommand(GetCanvasCmd)
 
 	GetAgentsCmd.Flags().StringP("agent-type", "t", "",
 		"agent type; if specified, returns only agents for this agent type")
@@ -561,6 +681,11 @@ func init() {
 		"project id; if not specified will be inferred from git origin")
 	GetWfCmd.Flags().DurationP("age", "", DefaultListingAge,
 		"list only workflows created in the given duration; it accepts a Go duration. e.g. 24h, 30m, 60s")
+
+	getCmd.AddCommand(GetEventSourceCmd)
+	GetEventSourceCmd.Flags().StringP("canvas-id", "c", "", "canvas ID")
+	getCmd.AddCommand(GetStageCmd)
+	GetStageCmd.Flags().StringP("canvas-id", "c", "", "canvas ID")
 
 	getCmd.AddCommand(GetDTCmd)
 	GetDTCmd.Flags().StringP("project-name", "p", "",

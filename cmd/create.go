@@ -107,6 +107,43 @@ var createCmd = &cobra.Command{
 			utils.Check(err)
 
 			fmt.Printf("Job '%s' created.\n", job.Metadata.Id)
+
+		case models.KindCanvas:
+			canvas, err := models.NewCanvasV2FromYaml(data)
+			utils.Check(err)
+
+			api := client.NewCanvasV2API()
+			newCanvas, err := api.CreateCanvas(canvas)
+			utils.Check(err)
+
+			y, err := newCanvas.ToYaml()
+			utils.Check(err)
+			fmt.Printf("%s", y)
+
+		case models.KindEventSource:
+			source, err := models.NewEventSourceV2FromYaml(data)
+			utils.Check(err)
+
+			api := client.NewEventSourceV2API()
+			newSource, err := api.CreateEventSource(source.Metadata.Canvas.ID, source)
+			utils.Check(err)
+
+			y, err := newSource.ToYaml()
+			utils.Check(err)
+			fmt.Printf("%s", y)
+
+		case models.KindStage:
+			stage, err := models.NewStageV2FromYaml(data)
+			utils.Check(err)
+
+			api := client.NewStageV2API()
+			newStage, err := api.CreateStage(stage.Metadata.Canvas.ID, stage)
+			utils.Check(err)
+
+			y, err := newStage.ToYaml()
+			utils.Check(err)
+			fmt.Printf("%s", y)
+
 		case models.KindSelfHostedAgentType:
 			at, err := models.NewAgentTypeV1AlphaFromYaml(data)
 			utils.Check(err)
