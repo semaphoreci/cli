@@ -25,9 +25,25 @@ type StageV2Metadata struct {
 }
 
 type StageV2Spec struct {
-	ApprovalRequired bool                `json:"approval_required" yaml:"approval_required"`
-	Connections      []StageV2Connection `json:"connections" yaml:"connections"`
-	Run              *StageV2RunTemplate `json:"run,omitempty" yaml:"run"`
+	Conditions  []StageV2Condition  `json:"conditions" yaml:"conditions"`
+	Connections []StageV2Connection `json:"connections" yaml:"connections"`
+	Run         *StageV2RunTemplate `json:"run,omitempty" yaml:"run"`
+}
+
+type StageV2Condition struct {
+	Type       string                      `json:"type" yaml:"type"`
+	Approval   *StageV2ApprovalCondition   `json:"approval,omitempty" yaml:"approval,omitempty"`
+	TimeWindow *StageV2TimeWindowCondition `json:"time_window,omitempty" yaml:"time_window,omitempty"`
+}
+
+type StageV2ApprovalCondition struct {
+	Count int `json:"count" yaml:"count"`
+}
+
+type StageV2TimeWindowCondition struct {
+	Start    string   `json:"start" yaml:"start"`
+	End      string   `json:"end" yaml:"end"`
+	WeekDays []string `json:"week_days" yaml:"week_days"`
 }
 
 type StageV2Connection struct {
