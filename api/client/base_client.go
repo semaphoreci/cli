@@ -183,16 +183,20 @@ func (c *BaseClient) PostAction(kind, item, action string, resource []byte) ([]b
 }
 
 func (c *BaseClient) Post(kind string, resource []byte) ([]byte, int, error) {
-	return c.PostHeaders(kind, resource, make(map[string]string))
+	return c.JsonHeaders("POST", kind, resource, make(map[string]string))
 }
 
-func (c *BaseClient) PostHeaders(kind string, resource []byte, headers map[string]string) ([]byte, int, error) {
+func (c *BaseClient) Put(kind string, resource []byte) ([]byte, int, error) {
+	return c.JsonHeaders("PUT", kind, resource, make(map[string]string))
+}
+
+func (c *BaseClient) JsonHeaders(method string, kind string, resource []byte, headers map[string]string) ([]byte, int, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s", c.host, c.apiVersion, kind)
 
-	log.Printf("POST %s\n", url)
+	log.Printf("%s %s\n", method, url)
 	log.Println("Resource", string(resource))
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(resource))
+	req, _ := http.NewRequest(method, url, bytes.NewBuffer(resource))
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))

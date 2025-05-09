@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	client "github.com/semaphoreci/cli/api/client"
 	models "github.com/semaphoreci/cli/api/models"
@@ -21,8 +22,34 @@ const secretAskConfirmationMessage = `WARNING! Secrets cannot be updated, only r
 
 var editCmd = &cobra.Command{
 	Use:   "edit",
-	Short: "Edit a resource from.",
+	Short: "Edit a resource from a file.",
 	Long:  ``,
+
+	Run: func(cmd *cobra.Command, args []string) {
+		path, err := cmd.Flags().GetString("file")
+		utils.CheckWithMessage(err, "Path not provided")
+
+		data, err := os.ReadFile(path)
+		utils.CheckWithMessage(err, "Failed to read from resource file.")
+		_, kind, err := utils.ParseYamlResourceHeaders(data)
+		utils.Check(err)
+
+		switch kind {
+		case models.KindStage:
+			stage, err := models.NewStageV2FromYaml(data)
+			utils.Check(err)
+
+			api := client.NewStageV2API()
+			updatedStage, err := api.EditStage(stage.Metadata.Canvas.ID, stage)
+			utils.Check(err)
+
+			y, err := updatedStage.ToYaml()
+			utils.Check(err)
+			fmt.Printf("%s", y)
+		default:
+			utils.Fail(fmt.Sprintf("Unsupported resource kind '%s'", kind))
+		}
+	},
 }
 
 var EditDashboardCmd = &cobra.Command{
@@ -325,6 +352,9 @@ func init() {
 	editCmd.AddCommand(EditDashboardCmd)
 	editCmd.AddCommand(EditNotificationCmd)
 	editCmd.AddCommand(EditProjectCmd)
+
+	desc := "Filename, directory, or URL to files to use to edit the resource"
+	editCmd.Flags().StringP("file", "f", "", desc)
 
 	EditDeploymentTargetCmd.Flags().StringP("project-name", "p", "",
 		"project name; if not specified will be inferred from git origin")
