@@ -73,3 +73,35 @@ func (c *StageV2API) CreateStage(canvasID string, d *models.StageV2) (*models.St
 
 	return models.NewStageV2FromJson(body)
 }
+
+func (c *StageV2API) EditStage(canvasID string, d *models.StageV2) (*models.StageV2, error) {
+	json_body, err := d.ToJson()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to serialize object '%s'", err)
+	}
+
+	identifier := ""
+
+	if d.Metadata.ID != "" {
+		identifier = d.Metadata.ID
+	} else if d.Metadata.Name != "" {
+		identifier = d.Metadata.Name
+	} else {
+		return nil, fmt.Errorf("failed to update %s on Semaphore: missing identifier", c.ResourceNameSingular)
+	}
+
+	base := fmt.Sprintf("canvases/%s/%s/%s", canvasID, c.ResourceNamePlural, identifier)
+
+	body, status, err := c.BaseClient.Put(base, json_body)
+
+	if err != nil {
+		return nil, fmt.Errorf("updating %s on Semaphore failed '%s'", c.ResourceNameSingular, err)
+	}
+
+	if status != 200 {
+		return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
+	}
+
+	return models.NewStageV2FromJson(body)
+}
