@@ -3,6 +3,8 @@ package client
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
 
 	models "github.com/semaphoreci/cli/api/models"
 )
@@ -32,6 +34,58 @@ func NewProjectV1AlphaApiWithCustomClient(client BaseClient) ProjectApiV1AlphaAp
 		ResourceNamePlural:   "projects",
 		ResourceNameSingular: "project",
 	}
+}
+
+// ListProjectsPaginated fetches all projects using pagination and aggregates them.
+func (c *ProjectApiV1AlphaApi) ListProjectsPaginated(page, pageSize int) (*models.ProjectListV1Alpha, error) {
+	var allProjects []models.ProjectV1Alpha
+	currentPage := page
+	numFailures := 0
+	maxFailures := 5
+	for {
+		params := make(url.Values)
+		params.Set("page", fmt.Sprintf("%d", currentPage))
+		params.Set("page_size", fmt.Sprintf("%d", pageSize))
+		body, status, headers, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, params)
+		if err != nil {
+			numFailures++
+			if numFailures > maxFailures {
+				return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
+			} else {
+				continue
+			}
+		}
+		if status != http.StatusOK {
+			numFailures++
+			if numFailures > maxFailures {
+				return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
+			} else {
+				continue
+			}
+		}
+		pageList, err := models.NewProjectListV1AlphaFromJson(body)
+		if err != nil {
+			numFailures++
+			if numFailures > maxFailures {
+				return nil, fmt.Errorf("failed to deserialize %s list '%s'", c.ResourceNamePlural, err)
+			} else {
+				continue
+			}
+		}
+		allProjects = append(allProjects, pageList.Projects...)
+		hasMore := false
+		if headers != nil {
+			hasMoreHeader := headers.Get("x-has-more")
+			if hasMoreHeader == "true" {
+				hasMore = true
+			}
+		}
+		if !hasMore {
+			break
+		}
+		currentPage++
+	}
+	return &models.ProjectListV1Alpha{Projects: allProjects}, nil
 }
 
 func (c *ProjectApiV1AlphaApi) ListProjects() (*models.ProjectListV1Alpha, error) {

@@ -125,7 +125,7 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 		query.Add("created_before", fmt.Sprintf("%d", options.CreatedBefore))
 	}
 
-	body, status, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
+	body, status, _, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
 
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))

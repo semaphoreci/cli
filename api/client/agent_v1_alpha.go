@@ -36,7 +36,7 @@ func (c *AgentApiV1AlphaApi) ListAgents(agentType string, cursor string) (*model
 		query.Add("cursor", cursor)
 	}
 
-	body, status, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
+	body, status, _, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
 
 	if err != nil {
 		return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
