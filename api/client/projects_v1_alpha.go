@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	models "github.com/semaphoreci/cli/api/models"
+	retry "github.com/semaphoreci/cli/api/retry"
 )
 
 type ProjectApiV1AlphaApi struct {
@@ -40,38 +41,38 @@ func NewProjectV1AlphaApiWithCustomClient(client BaseClient) ProjectApiV1AlphaAp
 func (c *ProjectApiV1AlphaApi) ListProjectsPaginated(page, pageSize int) (*models.ProjectListV1Alpha, error) {
 	var allProjects []models.ProjectV1Alpha
 	currentPage := page
-	numFailures := 0
-	maxFailures := 5
+	const maxFailures = 5
+
 	for {
 		params := make(url.Values)
 		params.Set("page", fmt.Sprintf("%d", currentPage))
 		params.Set("page_size", fmt.Sprintf("%d", pageSize))
-		body, status, headers, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, params)
+
+		var bodyBytes []byte
+		var status int
+		var headers http.Header
+		var pageList *models.ProjectListV1Alpha
+
+		err := retry.RetryWithMaxFailures(maxFailures, func() error {
+			var err error
+			bodyBytes, status, headers, err = c.BaseClient.ListWithParams(c.ResourceNamePlural, params)
+			if err != nil {
+				return fmt.Errorf("connecting to Semaphore failed '%s'", err)
+			}
+			if status != http.StatusOK {
+				return fmt.Errorf("http status %d with message \"%s\" received from upstream", status, string(bodyBytes))
+			}
+			pageList, err = models.NewProjectListV1AlphaFromJson(bodyBytes)
+			if err != nil {
+				return fmt.Errorf("failed to deserialize %s list '%s'", c.ResourceNamePlural, err)
+			}
+			return nil
+		})
+
 		if err != nil {
-			numFailures++
-			if numFailures > maxFailures {
-				return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
-			} else {
-				continue
-			}
+			return nil, err
 		}
-		if status != http.StatusOK {
-			numFailures++
-			if numFailures > maxFailures {
-				return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
-			} else {
-				continue
-			}
-		}
-		pageList, err := models.NewProjectListV1AlphaFromJson(body)
-		if err != nil {
-			numFailures++
-			if numFailures > maxFailures {
-				return nil, fmt.Errorf("failed to deserialize %s list '%s'", c.ResourceNamePlural, err)
-			} else {
-				continue
-			}
-		}
+
 		allProjects = append(allProjects, pageList.Projects...)
 		hasMore := false
 		if headers != nil {
