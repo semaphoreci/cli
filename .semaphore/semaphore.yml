@@ -51,6 +51,13 @@ blocks:
             - goreleaser check
             - goreleaser release --snapshot --rm-dist
 
+after_pipeline:
+  task:
+    jobs:
+      - name: Submit Reports
+        commands:
+          - test-results gen-pipeline-report
+
 promotions:
   - name: "Release on Github & Brew Tap"
     pipeline_file: "release.yml"
