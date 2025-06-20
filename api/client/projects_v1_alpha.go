@@ -37,16 +37,15 @@ func NewProjectV1AlphaApiWithCustomClient(client BaseClient) ProjectApiV1AlphaAp
 	}
 }
 
-// ListProjectsPaginated fetches all projects using pagination and aggregates them.
-func (c *ProjectApiV1AlphaApi) ListProjectsPaginated(page, pageSize int) (*models.ProjectListV1Alpha, error) {
+// ListProjects fetches all projects using pagination and aggregates them.
+func (c *ProjectApiV1AlphaApi) ListProjects() (*models.ProjectListV1Alpha, error) {
 	var allProjects []models.ProjectV1Alpha
-	currentPage := page
+	currentPage := 1
 	const maxFailures = 5
 
 	for {
 		params := make(url.Values)
 		params.Set("page", fmt.Sprintf("%d", currentPage))
-		params.Set("page_size", fmt.Sprintf("%d", pageSize))
 
 		var bodyBytes []byte
 		var status int
@@ -87,19 +86,6 @@ func (c *ProjectApiV1AlphaApi) ListProjectsPaginated(page, pageSize int) (*model
 		currentPage++
 	}
 	return &models.ProjectListV1Alpha{Projects: allProjects}, nil
-}
-
-func (c *ProjectApiV1AlphaApi) ListProjects() (*models.ProjectListV1Alpha, error) {
-	body, status, err := c.BaseClient.List(c.ResourceNamePlural)
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
-	}
-
-	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
-	}
-
-	return models.NewProjectListV1AlphaFromJson(body)
 }
 
 func (c *ProjectApiV1AlphaApi) GetProject(name string) (*models.ProjectV1Alpha, error) {

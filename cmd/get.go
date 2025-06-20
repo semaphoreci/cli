@@ -294,7 +294,7 @@ var GetProjectCmd = &cobra.Command{
 		c := client.NewProjectV1AlphaApi()
 
 		if len(args) == 0 {
-			projectList, err := c.ListProjectsPaginated(1, 500)
+			projectList, err := c.ListProjects()
 
 			utils.Check(err)
 

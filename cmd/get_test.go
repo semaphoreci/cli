@@ -17,7 +17,7 @@ func Test__ListProjects__Response200(t *testing.T) {
 
 	received := false
 
-	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects?page=1&page_size=500",
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects?page=1",
 		func(req *http.Request) (*http.Response, error) {
 			received = true
 
