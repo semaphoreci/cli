@@ -73,13 +73,7 @@ func (c *ProjectApiV1AlphaApi) ListProjects() (*models.ProjectListV1Alpha, error
 		}
 
 		allProjects = append(allProjects, pageList.Projects...)
-		hasMore := false
-		if headers != nil {
-			hasMoreHeader := headers.Get("x-has-more")
-			if hasMoreHeader == "true" {
-				hasMore = true
-			}
-		}
+		hasMore := headers.Get("x-has-more") == "true"
 		if !hasMore {
 			break
 		}
