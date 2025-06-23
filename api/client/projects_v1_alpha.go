@@ -3,8 +3,11 @@ package client
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
 
 	models "github.com/semaphoreci/cli/api/models"
+	retry "github.com/semaphoreci/cli/api/retry"
 )
 
 type ProjectApiV1AlphaApi struct {
@@ -34,17 +37,49 @@ func NewProjectV1AlphaApiWithCustomClient(client BaseClient) ProjectApiV1AlphaAp
 	}
 }
 
+// ListProjects fetches all projects using pagination and aggregates them.
 func (c *ProjectApiV1AlphaApi) ListProjects() (*models.ProjectListV1Alpha, error) {
-	body, status, err := c.BaseClient.List(c.ResourceNamePlural)
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
-	}
+	var allProjects []models.ProjectV1Alpha
+	currentPage := 1
+	const maxFailures = 5
 
-	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
-	}
+	for {
+		params := make(url.Values)
+		params.Set("page", fmt.Sprintf("%d", currentPage))
 
-	return models.NewProjectListV1AlphaFromJson(body)
+		var bodyBytes []byte
+		var status int
+		var headers http.Header
+		var pageList *models.ProjectListV1Alpha
+
+		err := retry.RetryWithMaxFailures(maxFailures, func() error {
+			var err error
+			bodyBytes, status, headers, err = c.BaseClient.ListWithParams(c.ResourceNamePlural, params)
+			if err != nil {
+				return fmt.Errorf("connecting to Semaphore failed '%s'", err)
+			}
+			if status != http.StatusOK {
+				return fmt.Errorf("http status %d with message \"%s\" received from upstream", status, string(bodyBytes))
+			}
+			pageList, err = models.NewProjectListV1AlphaFromJson(bodyBytes)
+			if err != nil {
+				return fmt.Errorf("failed to deserialize %s list '%s'", c.ResourceNamePlural, err)
+			}
+			return nil
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		allProjects = append(allProjects, pageList.Projects...)
+		hasMore := headers.Get("x-has-more") == "true"
+		if !hasMore {
+			break
+		}
+		currentPage++
+	}
+	return &models.ProjectListV1Alpha{Projects: allProjects}, nil
 }
 
 func (c *ProjectApiV1AlphaApi) GetProject(name string) (*models.ProjectV1Alpha, error) {

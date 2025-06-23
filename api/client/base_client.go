@@ -112,17 +112,14 @@ func (c *BaseClient) List(kind string) ([]byte, int, error) {
 	return body, resp.StatusCode, err
 }
 
-func (c *BaseClient) ListWithParams(kind string, query url.Values) ([]byte, int, error) {
-	if len(query) == 0 {
-		return c.List(kind)
-	}
+func (c *BaseClient) ListWithParams(kind string, query url.Values) ([]byte, int, http.Header, error) {
 	url := fmt.Sprintf("https://%s/api/%s/%s?%s", c.host, c.apiVersion, kind, query.Encode())
 
 	log.Printf("GET %s\n", url)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", c.authToken))
@@ -132,7 +129,7 @@ func (c *BaseClient) ListWithParams(kind string, query url.Values) ([]byte, int,
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return []byte(""), 0, err
+		return []byte(""), 0, nil, err
 	}
 
 	defer resp.Body.Close()
@@ -144,7 +141,7 @@ func (c *BaseClient) ListWithParams(kind string, query url.Values) ([]byte, int,
 
 	log.Println(string(body))
 
-	return body, resp.StatusCode, err
+	return body, resp.StatusCode, resp.Header, err
 }
 
 func (c *BaseClient) Delete(kind string, name string) ([]byte, int, error) {
