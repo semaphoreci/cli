@@ -23,6 +23,36 @@ var contextCmd = &cobra.Command{
 			panic("")
 		}
 	},
+	ValidArgsFunction: contextValidArgs,
+}
+
+func contextValidArgs(cmd *cobra.Command, args []string, toComplete string) ([]cobra.Completion, cobra.ShellCompDirective) {
+	var comps []cobra.Completion
+
+	contexts, err := config.ContextList()
+
+	if err != nil {
+		return comps, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	active := config.GetActiveContext()
+
+	for _, context := range contexts {
+		compName := context.Name
+		compDesc := context.Host
+
+		if compName == active {
+			compDesc = fmt.Sprintf("%s (ACTIVE)", compDesc)
+		}
+
+		comp := cobra.CompletionWithDesc(compName, compDesc)
+		comps = append(comps, comp)
+	}
+
+	if len(args) != 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	return comps, cobra.ShellCompDirectiveNoFileComp
 }
 
 func init() {
