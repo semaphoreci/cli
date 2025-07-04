@@ -8,10 +8,37 @@ import (
 	"github.com/spf13/viper"
 )
 
-func ContextList() ([]string, error) {
+// Context represents a context name and its HTTPS endpoint
+type Context struct {
+	Name string
+	Host string
+}
+
+func ContextList() ([]Context, error) {
+	res := []Context{}
+
+	m := make(map[string]Context)
+
+	err := viper.UnmarshalKey("contexts", &m)
+
+	if err != nil {
+		return []Context{}, err
+	}
+
+	for k := range m {
+		this := m[k]
+		this.Name = k
+		res = append(res, this)
+	}
+
+	return res, nil
+
+}
+
+func ContextNameList() ([]string, error) {
 	res := []string{}
 
-	m := make(map[string]interface{})
+	m := make(map[string]any)
 
 	err := viper.UnmarshalKey("contexts", &m)
 
