@@ -30,7 +30,7 @@ func init() {
 }
 
 func listContexts() {
-	contexts, err := config.ContextList()
+	contexts, err := config.ContextNameList()
 
 	utils.Check(err)
 
@@ -48,7 +48,7 @@ func listContexts() {
 }
 
 func setContext(name string) {
-	contexts, err := config.ContextList()
+	contexts, err := config.ContextNameList()
 
 	utils.Check(err)
 

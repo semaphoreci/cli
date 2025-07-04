@@ -8,10 +8,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-func ContextList() ([]string, error) {
+func ContextNameList() ([]string, error) {
 	res := []string{}
 
-	m := make(map[string]interface{})
+	m := make(map[string]any)
 
 	err := viper.UnmarshalKey("contexts", &m)
 
