@@ -35,6 +35,11 @@ func contextValidArgs(cmd *cobra.Command, args []string, toComplete string) ([]c
 		return comps, cobra.ShellCompDirectiveNoFileComp
 	}
 
+	if len(contexts) == 0 {
+		comps = cobra.AppendActiveHelp(comps, "There don't appear to be any contexts defined. Use `sem connect` to configure a context.")
+		return comps, cobra.ShellCompDirectiveNoFileComp
+	}
+
 	active := config.GetActiveContext()
 
 	for _, context := range contexts {
