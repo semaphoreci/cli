@@ -3,11 +3,17 @@
 REL_VERSION=$(shell git rev-parse HEAD)
 REL_BUCKET=sem-cli-releases
 SECURITY_TOOLBOX_BRANCH ?= master
-SECURITY_TOOLBOX_TMP_DIR ?= /tmp/security-toolbox
+MONOREPO_TMP_DIR?=/tmp/monorepo
+SECURITY_TOOLBOX_TMP_DIR?=$(MONOREPO_TMP_DIR)/security-toolbox
 
 check.prepare:
-	rm -rf $(SECURITY_TOOLBOX_TMP_DIR)
-	git clone git@github.com:renderedtext/security-toolbox.git $(SECURITY_TOOLBOX_TMP_DIR) && (cd $(SECURITY_TOOLBOX_TMP_DIR) && git checkout $(SECURITY_TOOLBOX_BRANCH) && cd -)
+	rm -rf $(MONOREPO_TMP_DIR)
+	git clone --depth 1 --filter=blob:none --sparse https://github.com/semaphoreio/semaphore $(MONOREPO_TMP_DIR) && \
+		cd $(MONOREPO_TMP_DIR) && \
+		git config core.sparseCheckout true && \
+		git sparse-checkout init --cone && \
+		git sparse-checkout set security-toolbox && \
+		git checkout main && cd -
 
 check.static: check.prepare
 	docker run -it -v $$(pwd):/app \
