@@ -7,6 +7,11 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+type Reference struct {
+	Type string `json:"type" yaml:"type"`
+	Name string `json:"name" yaml:"name"`
+}
+
 type Scheduler struct {
 	Name         string `json:"name"`
 	Id           string `json:"id,omitempty"`
@@ -21,11 +26,70 @@ type Task struct {
 	Description  string          `json:"description,omitempty"`
 	Scheduled    bool            `json:"scheduled"`
 	Id           string          `json:"id,omitempty"`
-	Branch       string          `json:"branch,omitempty"`
+	Branch       string          `json:"branch,omitempty"` // deprecated: use Reference instead
+	Reference    *Reference      `json:"reference,omitempty" yaml:"reference,omitempty"`
 	At           string          `json:"at,omitempty"`
 	PipelineFile string          `json:"pipeline_file" yaml:"pipeline_file,omitempty"`
 	Status       string          `json:"status,omitempty" yaml:"status,omitempty"`
 	Parameters   []TaskParameter `json:"parameters,omitempty" yaml:"parameters,omitempty"`
+}
+
+// UnmarshalJSON implements custom JSON unmarshaling for backward compatibility
+func (t *Task) UnmarshalJSON(data []byte) error {
+	type Alias Task
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(t),
+	}
+
+	if err := json.Unmarshal(data, aux); err != nil {
+		return err
+	}
+
+	// Backward compatibility: if Reference is nil but Branch is set, create Reference
+	if t.Reference == nil && t.Branch != "" {
+		t.Reference = &Reference{
+			Type: "branch",
+			Name: t.Branch,
+		}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements custom JSON marshaling for backward compatibility
+func (t *Task) MarshalJSON() ([]byte, error) {
+	type Alias Task
+
+	// Create a copy to avoid mutating the original struct
+	temp := *t
+	if t.Reference != nil && t.Reference.Type == "branch" {
+		temp.Branch = t.Reference.Name
+	}
+
+	return json.Marshal(&struct {
+		*Alias
+	}{
+		Alias: (*Alias)(&temp),
+	})
+}
+
+// MarshalYAML implements custom YAML marshaling for backward compatibility
+func (t *Task) MarshalYAML() (interface{}, error) {
+	type Alias Task
+
+	// Create a copy to avoid mutating the original struct
+	temp := *t
+	if t.Reference != nil && t.Reference.Type == "branch" {
+		temp.Branch = t.Reference.Name
+	}
+
+	return &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(&temp),
+	}, nil
 }
 
 type TaskParameter struct {

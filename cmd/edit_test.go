@@ -366,6 +366,142 @@ func Test__EditProject__WithTasks__Response200(t *testing.T) {
 	assert.Equal(t, task_parameter.Description, "param1 description")
 	assert.Equal(t, task_parameter.DefaultValue, "option1")
 	assert.Equal(t, task_parameter.Options, []string{"option1", "option2"})
+
+	// Test backward compatibility: Branch should auto-create Reference
+	assert.NotNil(t, task.Reference, "Reference should be auto-created from Branch")
+	assert.Equal(t, task.Reference.Type, "branch")
+	assert.Equal(t, task.Reference.Name, "master")
+}
+
+func Test__EditProject__WithTaskReference__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	dash := `{
+		"metadata":{
+			"name":"hello",
+			"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+			"description":"Test project with task reference"
+		},
+		"spec":{
+			"repository":{
+				"url":"git@github.com/renderextext/hello",
+				"run_on":["tags", "branches"],
+				"pipeline_file": ""
+			},
+			"tasks":[
+				{
+					"name":"deploy-tag",
+					"description":"Deploy from tag",
+					"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424d",
+					"scheduled":false,
+					"reference":{
+						"type":"tag",
+						"name":"v1.0"
+					},
+					"pipeline_file":".semaphore/deploy.yml"
+				}
+			]
+		}
+	}`
+
+	var received *models.ProjectV1Alpha
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects/hello",
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(200, dash), nil
+		},
+	)
+
+	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			received, _ = models.NewProjectV1AlphaFromJson(body)
+
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"edit", "project", "hello"})
+	RootCmd.Execute()
+
+	assert.Equal(t, received.Metadata.Name, "hello")
+
+	task := received.Spec.Tasks[0]
+
+	assert.Equal(t, task.Name, "deploy-tag")
+	assert.Equal(t, task.Description, "Deploy from tag")
+	assert.Equal(t, task.Scheduled, false)
+	assert.Equal(t, task.PipelineFile, ".semaphore/deploy.yml")
+
+	// Test Reference field with tag type
+	assert.NotNil(t, task.Reference, "Reference should be present")
+	assert.Equal(t, task.Reference.Type, "tag")
+	assert.Equal(t, task.Reference.Name, "v1.0")
+
+	// Test backward compatibility: Branch should be empty for tag references
+	assert.Equal(t, task.Branch, "")
+}
+
+func Test__EditProject__WithTaskConflictingBranchReference__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// Test task with both branch and reference fields set - Reference should take precedence
+	dash := `{
+		"metadata":{
+			"name":"hello",
+			"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+			"description":"Test project with conflicting branch/reference"
+		},
+		"spec":{
+			"repository":{
+				"url":"git@github.com/renderextext/hello",
+				"pipeline_file": ""
+			},
+			"tasks":[
+				{
+					"name":"conflicting-task",
+					"branch":"master",
+					"reference":{
+						"type":"tag",
+						"name":"v2.0"
+					},
+					"pipeline_file":".semaphore/test.yml"
+				}
+			]
+		}
+	}`
+
+	var received *models.ProjectV1Alpha
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects/hello",
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(200, dash), nil
+		},
+	)
+
+	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			received, _ = models.NewProjectV1AlphaFromJson(body)
+
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"edit", "project", "hello"})
+	RootCmd.Execute()
+
+	task := received.Spec.Tasks[0]
+
+	// Reference should take precedence when both are present
+	assert.NotNil(t, task.Reference, "Reference should be present")
+	assert.Equal(t, task.Reference.Type, "tag")
+	assert.Equal(t, task.Reference.Name, "v2.0")
+
+	// Branch field should remain as originally provided
+	assert.Equal(t, task.Branch, "master")
 }
 
 func Test__EditDeploymentTarget__Response200(t *testing.T) {
