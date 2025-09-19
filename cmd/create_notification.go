@@ -24,6 +24,7 @@ func NewCreateNotificationCmd() *cobra.Command {
 	cmd.Flags().String("projects", "", "Filter for project names")
 	cmd.Flags().String("pipelines", "", "Filter for pipeline file")
 	cmd.Flags().String("branches", "", "Filter for branch names")
+	cmd.Flags().String("tags", "", "Filter for tag names")
 
 	cmd.Flags().String("slack-channels", "", "Slack channels where to send notifications")
 	cmd.Flags().String("slack-endpoint", "", "Slack webhook endpoint")
@@ -66,6 +67,9 @@ func RunCreateNotification(cmd *cobra.Command, args []string) {
 	branches, err := utils.CSVFlag(cmd, "branches")
 	utils.Check(err)
 
+	tags, err := utils.CSVFlag(cmd, "tags")
+	utils.Check(err)
+
 	pipelines, err := utils.CSVFlag(cmd, "pipelines")
 	utils.Check(err)
 
@@ -92,6 +96,7 @@ func RunCreateNotification(cmd *cobra.Command, args []string) {
 	filter := models.NotificationV1AlphaSpecRuleFilter{}
 	filter.Projects = projects
 	filter.Branches = branches
+	filter.Tags = tags
 	filter.Pipelines = pipelines
 
 	notify := models.NotificationV1AlphaSpecRuleNotify{}

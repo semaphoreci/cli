@@ -35,6 +35,7 @@ func Test__CreateNotification(t *testing.T) {
 		"aaa",
 		"--projects", "cli, test1",
 		"--branches", "master,staging",
+		"--tags", "v1.0.0,v2.*",
 		"--pipelines", ".semaphore/semaphore.yml",
 		"--slack-channels", "#product",
 		"--slack-endpoint", "https://dasdasdasd/sa/das/da/sdas",
@@ -54,6 +55,11 @@ func Test__CreateNotification(t *testing.T) {
 	assert.Equal(t, received.Spec.Rules[0].Filter.Branches, []string{
 		"master",
 		"staging",
+	})
+
+	assert.Equal(t, received.Spec.Rules[0].Filter.Tags, []string{
+		"v1.0.0",
+		"v2.*",
 	})
 
 	assert.Equal(t, received.Spec.Rules[0].Filter.Pipelines, []string{

@@ -17,6 +17,7 @@ type NotificationV1AlphaMetadata struct {
 type NotificationV1AlphaSpecRuleFilter struct {
 	Projects  []string `json:"projects,omitempty" yaml:"projects,omitempty"`
 	Branches  []string `json:"branches,omitempty" yaml:"branches,omitempty"`
+	Tags      []string `json:"tags,omitempty" yaml:"tags,omitempty"`
 	Pipelines []string `json:"pipelines,omitempty" yaml:"pipelines,omitempty"`
 	Blocks    []string `json:"blocks,omitempty" yaml:"blocks,omitempty"`
 	States    []string `json:"states,omitempty" yaml:"states,omitempty"`
