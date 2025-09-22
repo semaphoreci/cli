@@ -13,12 +13,76 @@ type Reference struct {
 }
 
 type Scheduler struct {
-	Name         string `json:"name"`
-	Id           string `json:"id,omitempty"`
-	Branch       string `json:"branch"`
-	At           string `json:"at"`
-	PipelineFile string `json:"pipeline_file" yaml:"pipeline_file"`
-	Status       string `json:"status,omitempty" yaml:"status,omitempty"`
+	Name         string     `json:"name"`
+	Id           string     `json:"id,omitempty"`
+	Branch       string     `json:"branch,omitempty" yaml:"branch,omitempty"` // deprecated: use Reference instead
+	Reference    *Reference `json:"reference,omitempty" yaml:"reference,omitempty"`
+	At           string     `json:"at"`
+	PipelineFile string     `json:"pipeline_file" yaml:"pipeline_file"`
+	Status       string     `json:"status,omitempty" yaml:"status,omitempty"`
+}
+
+// UnmarshalJSON implements custom JSON unmarshaling for backward compatibility
+func (s *Scheduler) UnmarshalJSON(data []byte) error {
+	type Alias Scheduler
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(s),
+	}
+
+	if err := json.Unmarshal(data, aux); err != nil {
+		return err
+	}
+
+	// If we have a reference field from the API, use it and clear branch
+	// to avoid duplication in the output
+	if s.Reference != nil {
+		s.Branch = ""
+		return nil
+	}
+
+	// For schedulers, always create a reference from branch if not provided
+	// This ensures consistent output format
+	if s.Branch != "" {
+		// Check if the branch looks like a tag reference
+		if len(s.Branch) > 10 && s.Branch[:10] == "refs/tags/" {
+			s.Reference = &Reference{
+				Type: "tag",
+				Name: s.Branch[10:], // Remove "refs/tags/" prefix
+			}
+		} else {
+			s.Reference = &Reference{
+				Type: "branch",
+				Name: s.Branch,
+			}
+		}
+		// Clear the branch field since we now have a reference
+		s.Branch = ""
+	}
+
+	return nil
+}
+
+// MarshalJSON implements custom JSON marshaling for backward compatibility
+func (s *Scheduler) MarshalJSON() ([]byte, error) {
+	type Alias Scheduler
+
+	// Create a copy to avoid mutating the original struct
+	temp := *s
+	if s.Reference != nil {
+		if s.Reference.Type == "branch" {
+			temp.Branch = s.Reference.Name
+		} else if s.Reference.Type == "tag" {
+			temp.Branch = "refs/tags/" + s.Reference.Name
+		}
+	}
+
+	return json.Marshal(&struct {
+		*Alias
+	}{
+		Alias: (*Alias)(&temp),
+	})
 }
 
 type Task struct {
@@ -47,13 +111,15 @@ func (t *Task) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	// Backward compatibility: if Reference is nil but Branch is set, create Reference
-	if t.Reference == nil && t.Branch != "" {
-		t.Reference = &Reference{
-			Type: "branch",
-			Name: t.Branch,
-		}
+	// If we have a reference field from the API, use it and clear branch
+	// to avoid duplication in the output
+	if t.Reference != nil {
+		t.Branch = ""
+		return nil
 	}
+
+	// Keep the branch field as-is when reference is not provided
+	// This maintains backward compatibility for older API responses
 
 	return nil
 }
