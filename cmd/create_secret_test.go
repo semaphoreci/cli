@@ -98,12 +98,10 @@ func Test__CreateSecret__WithProjectID__Response200(t *testing.T) {
 		"projectABC",
 	})
 
-
 	RootCmd.Execute()
 
-	
 	file1 := base64.StdEncoding.EncodeToString([]byte(content1))
-	file2 := base64.StdEncoding.EncodeToString([]byte(content2))	// We do not expect project_id_or_name to be received in the body of the request, as it's set by the grpc-gateway from the URL
+	file2 := base64.StdEncoding.EncodeToString([]byte(content2)) // We do not expect project_id_or_name to be received in the body of the request, as it's set by the grpc-gateway from the URL
 	expected := fmt.Sprintf(`{"apiVersion":"v1","kind":"ProjectSecret","metadata":{"name":"projectABC"},"data":{"env_vars":[{"name":"FOO","value":"BAR"},{"name":"ZEZ","value":"Hello World"}],"files":[{"path":".config/docker","content":"%s"},{"path":".config/gcloud","content":"%s"}]}}`, file1, file2)
 
 	assert.Equal(t, expected, received)
