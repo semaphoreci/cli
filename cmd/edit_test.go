@@ -273,9 +273,14 @@ func Test__EditProject__Response200(t *testing.T) {
 	scheduler := received.Spec.Schedulers[0]
 
 	assert.Equal(t, scheduler.Name, "cron")
-	assert.Equal(t, scheduler.Branch, "master")
+	assert.Equal(t, scheduler.Branch, "")
 	assert.Equal(t, scheduler.At, "* * * *")
 	assert.Equal(t, scheduler.PipelineFile, ".semaphore/cron.yml")
+
+	// Test backward compatibility: Branch should auto-create Reference
+	assert.NotNil(t, scheduler.Reference, "Reference should be auto-created from Branch")
+	assert.Equal(t, scheduler.Reference.Type, "branch")
+	assert.Equal(t, scheduler.Reference.Name, "master")
 }
 
 func Test__EditProject__WithTasks__Response200(t *testing.T) {
@@ -355,7 +360,7 @@ func Test__EditProject__WithTasks__Response200(t *testing.T) {
 
 	assert.Equal(t, task.Name, "cron")
 	assert.Equal(t, task.Description, "cron description")
-	assert.Equal(t, task.Branch, "master")
+	assert.Equal(t, "", task.Branch) // Branch is cleared when auto-creating Reference
 	assert.Equal(t, task.Scheduled, false)
 	assert.Equal(t, task.PipelineFile, ".semaphore/cron.yml")
 
@@ -502,6 +507,130 @@ func Test__EditProject__WithTaskConflictingBranchReference__Response200(t *testi
 
 	// Branch field should remain as originally provided
 	assert.Equal(t, task.Branch, "master")
+}
+
+func Test__EditProject__SchedulerWithTagReference__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	dash := `{
+		"metadata":{
+			"name":"hello",
+			"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+			"description":"Test scheduler with tag reference"
+		},
+		"spec":{
+			"repository":{
+				"url":"git@github.com/renderextext/hello",
+				"pipeline_file": ""
+			},
+			"schedulers":[
+				{
+					"name":"tag-scheduler",
+					"branch":"refs/tags/v1.0.0",
+					"at":"0 0 * * *",
+					"pipeline_file":".semaphore/tag.yml"
+				}
+			]
+		}
+	}`
+
+	var received *models.ProjectV1Alpha
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects/hello",
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(200, dash), nil
+		},
+	)
+
+	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			received, _ = models.NewProjectV1AlphaFromJson(body)
+
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"edit", "project", "hello"})
+	RootCmd.Execute()
+
+	scheduler := received.Spec.Schedulers[0]
+
+	// Branch field should be cleared after conversion to Reference
+	assert.Equal(t, scheduler.Branch, "")
+
+	// Reference should be created as tag type
+	assert.NotNil(t, scheduler.Reference, "Reference should be auto-created from tag branch")
+	assert.Equal(t, scheduler.Reference.Type, "tag")
+	assert.Equal(t, scheduler.Reference.Name, "v1.0.0")
+
+	// Verify MarshalJSON converts back correctly
+	// When Reference exists and Branch is empty, MarshalJSON should convert Reference to Branch
+	// and NOT include the Reference field (for backward compatibility)
+	marshaledScheduler, err := json.Marshal(&scheduler)
+	assert.Nil(t, err)
+
+	var unmarshaledMap map[string]interface{}
+	json.Unmarshal(marshaledScheduler, &unmarshaledMap)
+	assert.Equal(t, "refs/tags/v1.0.0", unmarshaledMap["branch"])
+	assert.Nil(t, unmarshaledMap["reference"], "Reference should not be included when converted to branch")
+}
+
+func Test__EditProject__TaskWithTagReference__Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	dash := `{
+		"metadata":{
+			"name":"hello",
+			"id":"bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+			"description":"Test task with tag reference"
+		},
+		"spec":{
+			"repository":{
+				"url":"git@github.com/renderextext/hello",
+				"pipeline_file": ""
+			},
+			"tasks":[
+				{
+					"name":"tag-task",
+					"branch":"refs/tags/v2.0.0",
+					"pipeline_file":".semaphore/task.yml"
+				}
+			]
+		}
+	}`
+
+	var received *models.ProjectV1Alpha
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/projects/hello",
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewStringResponse(200, dash), nil
+		},
+	)
+
+	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/bb2ba294-d4b3-48bc-90a7-12dd56e9424b",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			received, _ = models.NewProjectV1AlphaFromJson(body)
+
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"edit", "project", "hello"})
+	RootCmd.Execute()
+
+	task := received.Spec.Tasks[0]
+
+	// Branch field should be cleared after conversion to Reference
+	assert.Equal(t, task.Branch, "")
+
+	// Reference should be created as tag type
+	assert.NotNil(t, task.Reference, "Reference should be auto-created from tag branch")
+	assert.Equal(t, task.Reference.Type, "tag")
+	assert.Equal(t, task.Reference.Name, "v2.0.0")
 }
 
 func Test__EditDeploymentTarget__Response200(t *testing.T) {

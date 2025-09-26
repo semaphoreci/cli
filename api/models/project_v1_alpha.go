@@ -70,12 +70,17 @@ func (s *Scheduler) MarshalJSON() ([]byte, error) {
 
 	// Create a copy to avoid mutating the original struct
 	temp := *s
-	if s.Reference != nil {
+
+	// If we have a Reference but no Branch, convert Reference to Branch
+	// for backward compatibility and omit the Reference field
+	if s.Reference != nil && s.Branch == "" {
 		if s.Reference.Type == "branch" {
 			temp.Branch = s.Reference.Name
 		} else if s.Reference.Type == "tag" {
 			temp.Branch = "refs/tags/" + s.Reference.Name
 		}
+		// Don't include Reference in output to avoid confusion on re-parse
+		temp.Reference = nil
 	}
 
 	return json.Marshal(&struct {
@@ -111,15 +116,30 @@ func (t *Task) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	// If we have a reference field from the API, use it and clear branch
-	// to avoid duplication in the output
+	// If we have a reference field from the API, use it and keep branch
+	// for backward compatibility (branch field is preserved when both exist)
 	if t.Reference != nil {
-		t.Branch = ""
 		return nil
 	}
 
-	// Keep the branch field as-is when reference is not provided
-	// This maintains backward compatibility for older API responses
+	// For tasks, always create a reference from branch if not provided
+	// This ensures consistent output format
+	if t.Branch != "" {
+		// Check if the branch looks like a tag reference
+		if len(t.Branch) > 10 && t.Branch[:10] == "refs/tags/" {
+			t.Reference = &Reference{
+				Type: "tag",
+				Name: t.Branch[10:], // Remove "refs/tags/" prefix
+			}
+		} else {
+			t.Reference = &Reference{
+				Type: "branch",
+				Name: t.Branch,
+			}
+		}
+		// Clear the branch field since we now have a reference
+		t.Branch = ""
+	}
 
 	return nil
 }
@@ -130,8 +150,17 @@ func (t *Task) MarshalJSON() ([]byte, error) {
 
 	// Create a copy to avoid mutating the original struct
 	temp := *t
-	if t.Reference != nil && t.Reference.Type == "branch" {
-		temp.Branch = t.Reference.Name
+
+	// If we have a Reference but no Branch, convert Reference to Branch
+	// for backward compatibility and omit the Reference field
+	if t.Reference != nil && t.Branch == "" {
+		if t.Reference.Type == "branch" {
+			temp.Branch = t.Reference.Name
+		} else if t.Reference.Type == "tag" {
+			temp.Branch = "refs/tags/" + t.Reference.Name
+		}
+		// Don't include Reference in output to avoid confusion on re-parse
+		temp.Reference = nil
 	}
 
 	return json.Marshal(&struct {
@@ -147,8 +176,17 @@ func (t *Task) MarshalYAML() (interface{}, error) {
 
 	// Create a copy to avoid mutating the original struct
 	temp := *t
-	if t.Reference != nil && t.Reference.Type == "branch" {
-		temp.Branch = t.Reference.Name
+
+	// If we have a Reference but no Branch, convert Reference to Branch
+	// for backward compatibility and omit the Reference field
+	if t.Reference != nil && t.Branch == "" {
+		if t.Reference.Type == "branch" {
+			temp.Branch = t.Reference.Name
+		} else if t.Reference.Type == "tag" {
+			temp.Branch = "refs/tags/" + t.Reference.Name
+		}
+		// Don't include Reference in output to avoid confusion on re-parse
+		temp.Reference = nil
 	}
 
 	return &struct {
