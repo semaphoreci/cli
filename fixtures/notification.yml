@@ -10,6 +10,9 @@ spec:
           - cli
         branches:
           - master
+        tags:
+          - v1.0.0
+          - v2.*
         pipelines:
           - semaphore.yml
       notify:
