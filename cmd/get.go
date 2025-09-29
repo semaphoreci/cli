@@ -290,20 +290,10 @@ var GetCurrentProjectCmd = &cobra.Command{
 	Long:    ``,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		c := client.NewProjectV1AlphaApi()
-
-		projectList, err := c.ListProjects()
-
+		project, err := utils.InferProject()
 		utils.Check(err)
 
-		projectName, err := utils.InferProjectName()
-		utils.Check(err)
-
-		for _, p := range projectList.Projects {
-			if p.Metadata.Name == projectName {
-				fmt.Println(p.Metadata.Id, p.Metadata.Name, p.Spec.Repository.Url)
-			}
-		}
+		fmt.Println(project.Metadata.Id, project.Metadata.Name, project.Spec.Repository.Url)
 
 	},
 }

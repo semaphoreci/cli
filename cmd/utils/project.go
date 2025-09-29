@@ -2,12 +2,14 @@ package utils
 
 import (
 	"fmt"
+	"slices"
 
 	"log"
 	"os/exec"
 	"strings"
 
 	"github.com/semaphoreci/cli/api/client"
+	"github.com/semaphoreci/cli/api/models"
 )
 
 func GetProjectId(name string) string {
@@ -20,49 +22,51 @@ func GetProjectId(name string) string {
 }
 
 func InferProjectName() (string, error) {
-	originURLs, err := getAllGitRemoteURLs()
+	project, err := InferProject()
 	if err != nil {
 		return "", err
 	}
+	return project.Metadata.Name, nil
+}
 
-	var projectName string
-
-	for _, originURL := range originURLs {
-		log.Printf("Origin url: '%s'\n", originURL)
-
-		projectName, err = getProjectIdFromUrl(originURL)
-		if err != nil {
-			log.Printf("no project found for remote %s", originURL)
-		}
-		if projectName != "" {
-			return projectName, nil
-		}
+func InferProject() (models.ProjectV1Alpha, error) {
+	originURLs, err := getAllGitRemoteURLs()
+	if err != nil {
+		return models.ProjectV1Alpha{}, err
 	}
 
-	return "", fmt.Errorf("Unable to find project for any configured remotes")
+	project, err := getProjectFromUrls(originURLs)
+	if err != nil {
+		log.Printf("no project found for any configured remotes (%s)", strings.Join(originURLs, ", "))
+	}
+
+	return project, nil
 }
 
 func getProjectIdFromUrl(url string) (string, error) {
+	project, err := getProjectFromUrls([]string{url})
+	if err != nil {
+		return "", fmt.Errorf("project with url %s not found in this org", url)
+	}
+	return project.Metadata.Id, nil
+
+}
+
+func getProjectFromUrls(urls []string) (models.ProjectV1Alpha, error) {
 	projectClient := client.NewProjectV1AlphaApi()
 	projects, err := projectClient.ListProjects()
 
 	if err != nil {
-		return "", fmt.Errorf("getting project list failed '%s'", err)
+		return models.ProjectV1Alpha{}, fmt.Errorf("getting project list failed '%s'", err)
 	}
 
-	projectName := ""
 	for _, p := range projects.Projects {
-		if p.Spec.Repository.Url == url {
-			projectName = p.Metadata.Name
-			break
+		if slices.Contains(urls, p.Spec.Repository.Url) {
+			return p, nil
 		}
 	}
 
-	if projectName == "" {
-		return "", fmt.Errorf("project with url '%s' not found in this org", url)
-	}
-
-	return projectName, nil
+	return models.ProjectV1Alpha{}, fmt.Errorf("project with urls '%s' not found in this org", strings.Join(urls, ", "))
 }
 
 func getGitRemotes() ([]string, error) {
