@@ -20,19 +20,26 @@ func GetProjectId(name string) string {
 }
 
 func InferProjectName() (string, error) {
-	originUrl, err := getGitOriginUrl()
+	originURLs, err := getAllGitRemoteURLs()
 	if err != nil {
 		return "", err
 	}
 
-	log.Printf("Origin url: '%s'\n", originUrl)
+	var projectName string
 
-	projectName, err := getProjectIdFromUrl(originUrl)
-	if err != nil {
-		return "", err
+	for _, originURL := range originURLs {
+		log.Printf("Origin url: '%s'\n", originURL)
+
+		projectName, err = getProjectIdFromUrl(originURL)
+		if err != nil {
+			log.Printf("no project found for remote %s", originURL)
+		}
+		if projectName != "" {
+			return projectName, nil
+		}
 	}
 
-	return projectName, nil
+	return "", fmt.Errorf("Unable to find project for any configured remotes")
 }
 
 func getProjectIdFromUrl(url string) (string, error) {
@@ -58,8 +65,20 @@ func getProjectIdFromUrl(url string) (string, error) {
 	return projectName, nil
 }
 
-func getGitOriginUrl() (string, error) {
-	args := []string{"config", "remote.origin.url"}
+func getGitRemotes() ([]string, error) {
+	args := []string{"remote"}
+	cmd := exec.Command("git", args...)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		cmd_string := fmt.Sprintf("'%s %s'", "git", strings.Join(args, " "))
+		user_msg := "You are probably not in a git directory?"
+		return []string{}, fmt.Errorf("%s failed with message: '%s'\n%s", cmd_string, err, user_msg)
+	}
+	return strings.Split(strings.TrimSpace(string(out)), "\n"), nil
+}
+
+func getGitRemoteUrl(remote string) (string, error) {
+	args := []string{"config", fmt.Sprintf("remote.%s.url", remote)}
 
 	cmd := exec.Command("git", args...)
 	out, err := cmd.CombinedOutput()
@@ -70,4 +89,25 @@ func getGitOriginUrl() (string, error) {
 	}
 
 	return strings.TrimSpace(string(out)), nil
+}
+
+func getAllGitRemoteURLs() ([]string, error) {
+	gitRemotes, err := getGitRemotes()
+	if err != nil {
+		return gitRemotes, err
+	}
+	var gitRemoteURLs []string
+	for _, remote := range gitRemotes {
+		remoteURL, err := getGitRemoteUrl(remote)
+		if err != nil {
+			log.Printf("could not get URL for remote %s", remote)
+		} else {
+			gitRemoteURLs = append(gitRemoteURLs, remoteURL)
+		}
+	}
+	return gitRemoteURLs, nil
+}
+
+func getGitOriginUrl() (string, error) {
+	return getGitRemoteUrl("origin")
 }

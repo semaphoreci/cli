@@ -283,6 +283,31 @@ func getAllAgents(client client.AgentApiV1AlphaApi, agentType string) ([]models.
 	return agents, nil
 }
 
+var GetCurrentProjectCmd = &cobra.Command{
+	Use:     "current_project",
+	Short:   "Get project for current directory",
+	Aliases: []string{"cur"},
+	Long:    ``,
+
+	Run: func(cmd *cobra.Command, args []string) {
+		c := client.NewProjectV1AlphaApi()
+
+		projectList, err := c.ListProjects()
+
+		utils.Check(err)
+
+		projectName, err := utils.InferProjectName()
+		utils.Check(err)
+
+		for _, p := range projectList.Projects {
+			if p.Metadata.Name == projectName {
+				fmt.Println(p.Metadata.Id, p.Metadata.Name, p.Spec.Repository.Url)
+			}
+		}
+
+	},
+}
+
 var GetProjectCmd = &cobra.Command{
 	Use:     "projects [name]",
 	Short:   "Get projects.",
@@ -298,13 +323,20 @@ var GetProjectCmd = &cobra.Command{
 
 			utils.Check(err)
 
+			projectName, err := utils.InferProjectName()
+			utils.Check(err)
+
 			const padding = 3
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
 
 			fmt.Fprintln(w, "NAME\tREPOSITORY")
 
 			for _, p := range projectList.Projects {
-				fmt.Fprintf(w, "%s\t%s\n", p.Metadata.Name, p.Spec.Repository.Url)
+				if p.Metadata.Name == projectName {
+					fmt.Fprintf(w, "%s\t%s\t%s\n", p.Metadata.Name, p.Spec.Repository.Url, "(active)")
+				} else {
+					fmt.Fprintf(w, "%s\t%s\n", p.Metadata.Name, p.Spec.Repository.Url)
+				}
 			}
 
 			if err := w.Flush(); err != nil {
@@ -529,6 +561,7 @@ func init() {
 	getCmd.AddCommand(GetDashboardCmd)
 	getCmd.AddCommand(getNotificationCmd)
 	getCmd.AddCommand(GetProjectCmd)
+	getCmd.AddCommand(GetCurrentProjectCmd)
 	getCmd.AddCommand(GetAgentTypeCmd)
 
 	GetAgentsCmd.Flags().StringP("agent-type", "t", "",
