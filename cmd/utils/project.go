@@ -67,7 +67,7 @@ func getProjectFromUrls(urls []string) (models.ProjectV1Alpha, error) {
 		}
 	}
 
-	return models.ProjectV1Alpha{}, fmt.Errorf("project with urls '%s' not found in this org", strings.Join(urls, ", "))
+	return models.ProjectV1Alpha{}, fmt.Errorf("no project found in this org with a url matching any of this repository's remotes")
 }
 
 func getGitRemotes() ([]string, error) {
