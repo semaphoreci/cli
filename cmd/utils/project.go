@@ -38,6 +38,7 @@ func InferProject() (models.ProjectV1Alpha, error) {
 	project, err := getProjectFromUrls(originURLs)
 	if err != nil {
 		log.Printf("no project found for any configured remotes (%s)", strings.Join(originURLs, ", "))
+		return models.ProjectV1Alpha{}, fmt.Errorf("no project found for any configured remotes: %w", err)
 	}
 
 	return project, nil

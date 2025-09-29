@@ -313,20 +313,13 @@ var GetProjectCmd = &cobra.Command{
 
 			utils.Check(err)
 
-			projectName, err := utils.InferProjectName()
-			utils.Check(err)
-
 			const padding = 3
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
 
 			fmt.Fprintln(w, "NAME\tREPOSITORY")
 
 			for _, p := range projectList.Projects {
-				if p.Metadata.Name == projectName {
-					fmt.Fprintf(w, "%s\t%s\t%s\n", p.Metadata.Name, p.Spec.Repository.Url, "(active)")
-				} else {
-					fmt.Fprintf(w, "%s\t%s\n", p.Metadata.Name, p.Spec.Repository.Url)
-				}
+				fmt.Fprintf(w, "%s\t%s\n", p.Metadata.Name, p.Spec.Repository.Url)
 			}
 
 			if err := w.Flush(); err != nil {
