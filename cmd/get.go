@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -283,6 +284,29 @@ func getAllAgents(client client.AgentApiV1AlphaApi, agentType string) ([]models.
 	return agents, nil
 }
 
+var GetCurrentProjectCmd = &cobra.Command{
+	Use:     "current_project",
+	Short:   "Get project for current directory",
+	Aliases: []string{"cur"},
+	Long:    ``,
+
+	Run: func(cmd *cobra.Command, args []string) {
+		project, err := utils.InferProject()
+		utils.Check(err)
+
+		doJSON, err := cmd.Flags().GetBool("json")
+		utils.Check(err)
+		if doJSON {
+			jsonBody, err := json.MarshalIndent(project, "", "  ")
+			utils.Check(err)
+			fmt.Println(string(jsonBody))
+		} else {
+			fmt.Println(project.Metadata.Id, project.Metadata.Name, project.Spec.Repository.Url)
+		}
+
+	},
+}
+
 var GetProjectCmd = &cobra.Command{
 	Use:     "projects [name]",
 	Short:   "Get projects.",
@@ -530,6 +554,9 @@ func init() {
 	getCmd.AddCommand(getNotificationCmd)
 	getCmd.AddCommand(GetProjectCmd)
 	getCmd.AddCommand(GetAgentTypeCmd)
+
+	getCmd.AddCommand(GetCurrentProjectCmd)
+	GetCurrentProjectCmd.Flags().Bool("json", false, "print project information as json")
 
 	GetAgentsCmd.Flags().StringP("agent-type", "t", "",
 		"agent type; if specified, returns only agents for this agent type")
