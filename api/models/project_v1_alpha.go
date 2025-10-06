@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -45,18 +46,7 @@ func (s *Scheduler) UnmarshalJSON(data []byte) error {
 	// For schedulers, always create a reference from branch if not provided
 	// This ensures consistent output format
 	if s.Branch != "" {
-		// Check if the branch looks like a tag reference
-		if len(s.Branch) > 10 && s.Branch[:10] == "refs/tags/" {
-			s.Reference = &Reference{
-				Type: "tag",
-				Name: s.Branch[10:], // Remove "refs/tags/" prefix
-			}
-		} else {
-			s.Reference = &Reference{
-				Type: "branch",
-				Name: s.Branch,
-			}
-		}
+		s.Reference = referenceFromBranch(s.Branch)
 		// Clear the branch field since we now have a reference
 		s.Branch = ""
 	}
@@ -77,7 +67,7 @@ func (s *Scheduler) MarshalJSON() ([]byte, error) {
 		if s.Reference.Type == "branch" {
 			temp.Branch = s.Reference.Name
 		} else if s.Reference.Type == "tag" {
-			temp.Branch = "refs/tags/" + s.Reference.Name
+			temp.Branch = refTagsPrefix + s.Reference.Name
 		}
 		// Don't include Reference in output to avoid confusion on re-parse
 		temp.Reference = nil
@@ -125,18 +115,7 @@ func (t *Task) UnmarshalJSON(data []byte) error {
 	// For tasks, always create a reference from branch if not provided
 	// This ensures consistent output format
 	if t.Branch != "" {
-		// Check if the branch looks like a tag reference
-		if len(t.Branch) > 10 && t.Branch[:10] == "refs/tags/" {
-			t.Reference = &Reference{
-				Type: "tag",
-				Name: t.Branch[10:], // Remove "refs/tags/" prefix
-			}
-		} else {
-			t.Reference = &Reference{
-				Type: "branch",
-				Name: t.Branch,
-			}
-		}
+		t.Reference = referenceFromBranch(t.Branch)
 		// Clear the branch field since we now have a reference
 		t.Branch = ""
 	}
@@ -157,7 +136,7 @@ func (t *Task) MarshalJSON() ([]byte, error) {
 		if t.Reference.Type == "branch" {
 			temp.Branch = t.Reference.Name
 		} else if t.Reference.Type == "tag" {
-			temp.Branch = "refs/tags/" + t.Reference.Name
+			temp.Branch = refTagsPrefix + t.Reference.Name
 		}
 		// Don't include Reference in output to avoid confusion on re-parse
 		temp.Reference = nil
@@ -183,7 +162,7 @@ func (t *Task) MarshalYAML() (interface{}, error) {
 		if t.Reference.Type == "branch" {
 			temp.Branch = t.Reference.Name
 		} else if t.Reference.Type == "tag" {
-			temp.Branch = "refs/tags/" + t.Reference.Name
+			temp.Branch = refTagsPrefix + t.Reference.Name
 		}
 		// Don't include Reference in output to avoid confusion on re-parse
 		temp.Reference = nil
@@ -249,6 +228,28 @@ type ProjectV1Alpha struct {
 		DebugPermissions  []string    `json:"debug_permissions,omitempty" yaml:"debug_permissions,omitempty"`
 		AttachPermissions []string    `json:"attach_permissions,omitempty" yaml:"attach_permissions,omitempty"`
 	} `json:"spec,omitempty"`
+}
+
+const refTagsPrefix = "refs/tags/"
+
+// referenceFromBranch converts a legacy branch string into a Reference object.
+// Returns nil if the branch is empty.
+func referenceFromBranch(branch string) *Reference {
+	if branch == "" {
+		return nil
+	}
+
+	if strings.HasPrefix(branch, refTagsPrefix) {
+		return &Reference{
+			Type: "tag",
+			Name: branch[len(refTagsPrefix):],
+		}
+	}
+
+	return &Reference{
+		Type: "branch",
+		Name: branch,
+	}
 }
 
 func NewProjectV1Alpha(name string) ProjectV1Alpha {
