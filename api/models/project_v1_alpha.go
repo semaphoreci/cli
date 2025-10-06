@@ -16,7 +16,7 @@ type Reference struct {
 type Scheduler struct {
 	Name         string     `json:"name"`
 	Id           string     `json:"id,omitempty"`
-	Branch       string     `json:"branch,omitempty" yaml:"branch,omitempty"` // deprecated: use Reference instead
+	Branch       string     `json:"branch,omitempty" yaml:"branch,omitempty"` // Deprecated: Use Reference field instead.
 	Reference    *Reference `json:"reference,omitempty" yaml:"reference,omitempty"`
 	At           string     `json:"at"`
 	PipelineFile string     `json:"pipeline_file" yaml:"pipeline_file"`
