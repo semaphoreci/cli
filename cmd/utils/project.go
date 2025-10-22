@@ -124,32 +124,6 @@ func InferProject() (models.ProjectV1Alpha, error) {
 	return models.ProjectV1Alpha{}, fmt.Errorf("found %d remotes with %d different URLs but cannot determine the correct one", len(gitRemotes), len(allUrls))
 }
 
-func getProjectIdFromUrl(url string) (string, error) {
-	project, err := getProjectFromUrls([]string{url})
-	if err != nil {
-		return "", fmt.Errorf("project with url %s not found in this org", url)
-	}
-	return project.Metadata.Id, nil
-
-}
-
-func getProjectFromUrls(urls []string) (models.ProjectV1Alpha, error) {
-	projectClient := client.NewProjectV1AlphaApi()
-	projects, err := projectClient.ListProjects()
-
-	if err != nil {
-		return models.ProjectV1Alpha{}, fmt.Errorf("getting project list failed '%s'", err)
-	}
-
-	for _, p := range projects.Projects {
-		if slices.Contains(urls, p.Spec.Repository.Url) {
-			return p, nil
-		}
-	}
-
-	return models.ProjectV1Alpha{}, fmt.Errorf("no project found in this org with a url matching any of this repository's remotes")
-}
-
 // getGitHubBaseRemoteName checks to see if the `gh` cli tool has set a default
 // remote for this repository. If not, or if we're not using Github at all, we
 // can just ignore the error.
@@ -175,32 +149,6 @@ func getGitHubBaseRemoteName() (string, error) {
 	fields := strings.Fields(lines[0])
 	remoteName := strings.Split(fields[0], ".")[1]
 	return remoteName, nil
-}
-
-func getGitRemotes() ([]string, error) {
-	args := []string{"remote"}
-	cmd := exec.Command("git", args...)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		cmd_string := fmt.Sprintf("'%s %s'", "git", strings.Join(args, " "))
-		user_msg := "You are probably not in a git directory?"
-		return []string{}, fmt.Errorf("%s failed with message: '%s'\n%s", cmd_string, err, user_msg)
-	}
-	return strings.Split(strings.TrimSpace(string(out)), "\n"), nil
-}
-
-func getGitRemoteUrl(remote string) (string, error) {
-	args := []string{"config", fmt.Sprintf("remote.%s.url", remote)}
-
-	cmd := exec.Command("git", args...)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		cmd_string := fmt.Sprintf("'%s %s'", "git", strings.Join(args, " "))
-		user_msg := "You are probably not in a git directory?"
-		return "", fmt.Errorf("%s failed with message: '%s'\n%s", cmd_string, err, user_msg)
-	}
-
-	return strings.TrimSpace(string(out)), nil
 }
 
 func getAllGitRemotesAndProjects() (GitRemoteList, error) {
@@ -235,25 +183,4 @@ func getAllGitRemotesAndProjects() (GitRemoteList, error) {
 	}
 
 	return remotes, nil
-}
-
-func getAllGitRemoteURLs() ([]string, error) {
-	gitRemotes, err := getGitRemotes()
-	if err != nil {
-		return gitRemotes, err
-	}
-	var gitRemoteURLs []string
-	for _, remote := range gitRemotes {
-		remoteURL, err := getGitRemoteUrl(remote)
-		if err != nil {
-			log.Printf("could not get URL for remote %s", remote)
-		} else {
-			gitRemoteURLs = append(gitRemoteURLs, remoteURL)
-		}
-	}
-	return gitRemoteURLs, nil
-}
-
-func getGitOriginUrl() (string, error) {
-	return getGitRemoteUrl("origin")
 }
