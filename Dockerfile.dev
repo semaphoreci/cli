@@ -1,5 +1,6 @@
 FROM golang:1.21
 
 RUN go install gotest.tools/gotestsum@v1.12.2
+RUN git config --global --add safe.directory /app
 
 WORKDIR /app
