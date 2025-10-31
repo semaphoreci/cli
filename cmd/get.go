@@ -288,7 +288,14 @@ var GetCurrentProjectCmd = &cobra.Command{
 	Use:     "current_project",
 	Short:   "Get project for current directory",
 	Aliases: []string{"cur"},
-	Long:    ``,
+Long: `Determine the Semaphore project associated with this repository.
+
+	Resolution order:
+	1. A remote selected by 'gh repo set-default', if present.
+	2. The 'origin' remote, when configured.
+	3. The 'upstream' remote, when configured.
+	4. Any remaining remote whose URL is shared by all candidates.
+	5. An explicit error when multiple distinct URLs remain.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		project, err := utils.InferProject()
