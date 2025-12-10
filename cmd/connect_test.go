@@ -51,5 +51,5 @@ func Test__Connect__Response401(t *testing.T) {
 	assert.Equal(
 		t,
 		outputBuffer.String(),
-		"http status 401 with message \"Unauthorized\" received from upstream")
+		"http status 401 with message \"Unauthorized\" received from upstream\n")
 }

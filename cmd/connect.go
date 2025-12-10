@@ -26,7 +26,7 @@ var connectCmd = &cobra.Command{
 		_, err := client.ListProjects()
 
 		if err != nil {
-			fmt.Fprintf(cmd.OutOrStderr(), "%s", err)
+			fmt.Fprintf(cmd.OutOrStderr(), "%s\n", err)
 			utils.Exit(1)
 		}
 
