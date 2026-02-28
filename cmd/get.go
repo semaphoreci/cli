@@ -12,6 +12,7 @@ import (
 	"github.com/semaphoreci/cli/api/uuid"
 	"github.com/semaphoreci/cli/cmd/deployment_targets"
 	"github.com/semaphoreci/cli/cmd/pipelines"
+	"github.com/semaphoreci/cli/cmd/tasks"
 	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/semaphoreci/cli/cmd/workflows"
 	"github.com/spf13/cobra"
@@ -469,6 +470,24 @@ var GetDTCmd = &cobra.Command{
 	},
 }
 
+var GetTaskCmd = &cobra.Command{
+	Use:     "tasks [id]",
+	Short:   "Get tasks.",
+	Long:    ``,
+	Aliases: []string{"task"},
+	Args:    cobra.RangeArgs(0, 1),
+
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			projectID := getPrj(cmd)
+			tasks.List(projectID)
+		} else {
+			id := args[0]
+			tasks.Describe(id)
+		}
+	},
+}
+
 func GetProjectID(cmd *cobra.Command) string {
 	projectID, err := cmd.Flags().GetString("project-id")
 	if projectID != "" {
@@ -561,6 +580,12 @@ func init() {
 		"project id; if not specified will be inferred from git origin")
 	GetWfCmd.Flags().DurationP("age", "", DefaultListingAge,
 		"list only workflows created in the given duration; it accepts a Go duration. e.g. 24h, 30m, 60s")
+
+	GetTaskCmd.Flags().StringP("project-name", "p", "",
+		"project name; if not specified will be inferred from git origin")
+	GetTaskCmd.Flags().StringP("project-id", "i", "",
+		"project id; if not specified will be inferred from git origin")
+	getCmd.AddCommand(GetTaskCmd)
 
 	getCmd.AddCommand(GetDTCmd)
 	GetDTCmd.Flags().StringP("project-name", "p", "",
