@@ -8,12 +8,14 @@ import (
 
 type PipelineV1Alpha struct {
 	Pipeline struct {
-		ID     string `json:"ppl_id"`
-		Name   string `json:"name,omitempty"`
-		State  string `json:"state,omitempty"`
-		Result string `json:"result,omitempty" yaml:"result,omitempty"`
-		Reason string `json:"result_reason,omitempty" yaml:"result_reason,omitempty"`
-		Error  string `json:"error_description,omitempty"  yaml:"error_description,omitempty"`
+		ID            string `json:"ppl_id"`
+		Name          string `json:"name,omitempty"`
+		State         string `json:"state,omitempty"`
+		Result        string `json:"result,omitempty" yaml:"result,omitempty"`
+		Reason        string `json:"result_reason,omitempty" yaml:"result_reason,omitempty"`
+		Error         string `json:"error_description,omitempty"  yaml:"error_description,omitempty"`
+		WithAfterTask bool   `json:"with_after_task,omitempty" yaml:"with_after_task,omitempty"`
+		AfterTaskID   string `json:"after_task_id,omitempty" yaml:"after_task_id,omitempty"`
 	} `json:"pipeline,omitempty"`
 	Blocks []PipelineV1AlphaBlock `json:"blocks,omitempty"`
 }
