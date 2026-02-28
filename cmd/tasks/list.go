@@ -39,7 +39,6 @@ func List(projectID string) {
 		)
 	}
 
-	if err := w.Flush(); err != nil {
-		fmt.Printf("Error flushing when pretty printing tasks: %v\n", err)
-	}
+	err = w.Flush()
+	utils.Check(err)
 }

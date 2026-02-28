@@ -2,14 +2,14 @@ package cmd
 
 import (
 	"github.com/semaphoreci/cli/cmd/tasks"
+	"github.com/semaphoreci/cli/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
 var runCmd = &cobra.Command{
 	Use:   "run [KIND]",
-	Short: "Run a task.",
+	Short: "Run a resource.",
 	Long:  ``,
-	Args:  cobra.ExactArgs(1),
 }
 
 var runTaskCmd = &cobra.Command{
@@ -22,10 +22,14 @@ var runTaskCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		id := args[0]
 
-		branch, _ := cmd.Flags().GetString("branch")
-		tag, _ := cmd.Flags().GetString("tag")
-		pipelineFile, _ := cmd.Flags().GetString("pipeline-file")
-		params, _ := cmd.Flags().GetStringSlice("param")
+		branch, err := cmd.Flags().GetString("branch")
+		utils.Check(err)
+		tag, err := cmd.Flags().GetString("tag")
+		utils.Check(err)
+		pipelineFile, err := cmd.Flags().GetString("pipeline-file")
+		utils.Check(err)
+		params, err := cmd.Flags().GetStringSlice("param")
+		utils.Check(err)
 
 		tasks.Run(id, branch, tag, pipelineFile, params)
 	},
@@ -38,6 +42,7 @@ func init() {
 	runTaskCmd.Flags().String("tag", "", "git tag to use for the task run")
 	runTaskCmd.Flags().String("pipeline-file", "", "pipeline file to use for the task run")
 	runTaskCmd.Flags().StringSlice("param", []string{}, "parameter in KEY=VALUE format; can be specified multiple times")
+	runTaskCmd.MarkFlagsMutuallyExclusive("branch", "tag")
 
 	runCmd.AddCommand(runTaskCmd)
 }

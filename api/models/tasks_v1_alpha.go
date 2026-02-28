@@ -4,6 +4,11 @@ import (
 	"encoding/json"
 )
 
+const (
+	RunTaskRefBranch = "BRANCH"
+	RunTaskRefTag    = "TAG"
+)
+
 type TaskV1Alpha struct {
 	ID           string            `json:"id" yaml:"id"`
 	Name         string            `json:"name" yaml:"name"`
@@ -14,9 +19,9 @@ type TaskV1Alpha struct {
 	PipelineFile string            `json:"pipeline_file" yaml:"pipeline_file"`
 	RequesterID  string            `json:"requester_id,omitempty" yaml:"requester_id,omitempty"`
 	UpdatedAt    string            `json:"updated_at,omitempty" yaml:"updated_at,omitempty"`
-	Paused       bool              `json:"paused,omitempty" yaml:"paused,omitempty"`
-	Suspended    bool              `json:"suspended,omitempty" yaml:"suspended,omitempty"`
-	Recurring    bool              `json:"recurring,omitempty" yaml:"recurring,omitempty"`
+	Paused       bool              `json:"paused" yaml:"paused"`
+	Suspended    bool              `json:"suspended" yaml:"suspended"`
+	Recurring    bool              `json:"recurring" yaml:"recurring"`
 	Parameters   map[string]string `json:"parameters,omitempty" yaml:"parameters,omitempty"`
 }
 

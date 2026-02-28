@@ -11,15 +11,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// resetRunTaskFlags clears flag state between tests because cobra's global
+// command tree persists flag values across RootCmd.Execute() calls.
 func resetRunTaskFlags() {
 	for _, name := range []string{"branch", "tag", "pipeline-file"} {
-		runTaskCmd.Flags().Lookup(name).Value.Set("")
+		f := runTaskCmd.Flags().Lookup(name)
+		f.Value.Set("")
+		f.Changed = false
 	}
 
 	if f := runTaskCmd.Flags().Lookup("param"); f != nil {
 		if sv, ok := f.Value.(pflag.SliceValue); ok {
 			sv.Replace([]string{})
 		}
+		f.Changed = false
 	}
 }
 
@@ -226,4 +231,41 @@ func Test__RunTask__TasksAlias(t *testing.T) {
 	RootCmd.Execute()
 
 	assert.True(t, received, "Expected the 'tasks' alias to work for run task")
+}
+
+func Test__RunTask__BranchAndTagConflict(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	resetRunTaskFlags()
+	RootCmd.SetArgs([]string{"run", "task", "bb2ba294-d4b3-48bc-90a7-12dd56e9424c", "--branch", "main", "--tag", "v1.0"})
+	err := RootCmd.Execute()
+
+	assert.NotNil(t, err, "Expected an error when both --branch and --tag are provided")
+	assert.Contains(t, err.Error(), "if any flags in the group [branch tag] are set none of the others can be")
+}
+
+func Test__RunTask__WithParamContainingEquals(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	var receivedBody map[string]interface{}
+
+	httpmock.RegisterResponder("POST", "https://org.semaphoretext.xyz/api/v1alpha/tasks/bb2ba294-d4b3-48bc-90a7-12dd56e9424c/run_now",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			json.Unmarshal(body, &receivedBody)
+
+			resp := `{"workflow_id": "dd4ba294-d4b3-48bc-90a7-12dd56e9424e"}`
+			return httpmock.NewStringResponse(200, resp), nil
+		},
+	)
+
+	resetRunTaskFlags()
+	RootCmd.SetArgs([]string{"run", "task", "bb2ba294-d4b3-48bc-90a7-12dd56e9424c", "--param", "CONN=host=db;port=5432"})
+	RootCmd.Execute()
+
+	assert.NotNil(t, receivedBody)
+	params := receivedBody["parameters"].(map[string]interface{})
+	assert.Equal(t, "host=db;port=5432", params["CONN"])
 }

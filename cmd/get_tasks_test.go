@@ -79,7 +79,7 @@ func Test__ListTasks__WithProjectID(t *testing.T) {
 	assert.True(t, received, "Expected the API to receive GET /tasks with project_id flag")
 }
 
-func Test__ListTasks__EmptyList(t *testing.T) {
+func Test__ListTasks__SuspendedTask(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -88,14 +88,28 @@ func Test__ListTasks__EmptyList(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/tasks?project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe",
 		func(req *http.Request) (*http.Response, error) {
 			received = true
-			return httpmock.NewStringResponse(200, "[]"), nil
+
+			tasks := `[
+				{
+					"id": "bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
+					"name": "deploy",
+					"project_id": "758cb945-7495-4e40-a9a1-4b3991c6a8fe",
+					"branch": "main",
+					"pipeline_file": ".semaphore/deploy.yml",
+					"recurring": true,
+					"paused": false,
+					"suspended": true
+				}
+			]`
+
+			return httpmock.NewStringResponse(200, tasks), nil
 		},
 	)
 
 	RootCmd.SetArgs([]string{"get", "tasks", "--project-id", "758cb945-7495-4e40-a9a1-4b3991c6a8fe"})
 	RootCmd.Execute()
 
-	assert.True(t, received, "Expected the API to receive GET /tasks for empty list")
+	assert.True(t, received, "Expected the API to receive GET /tasks with suspended task")
 }
 
 func Test__DescribeTask__Response200(t *testing.T) {

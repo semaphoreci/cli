@@ -151,7 +151,7 @@ func TestNewRunTaskResponseFromJSON__InvalidJSON(t *testing.T) {
 func TestRunTaskRequest__MarshalBranchReference(t *testing.T) {
 	req := RunTaskRequest{
 		Reference: &RunTaskReference{
-			Type: "BRANCH",
+			Type: RunTaskRefBranch,
 			Name: "main",
 		},
 		PipelineFile: ".semaphore/custom.yml",
@@ -181,7 +181,7 @@ func TestRunTaskRequest__MarshalBranchReference(t *testing.T) {
 func TestRunTaskRequest__MarshalTagReference(t *testing.T) {
 	req := RunTaskRequest{
 		Reference: &RunTaskReference{
-			Type: "TAG",
+			Type: RunTaskRefTag,
 			Name: "v1.0",
 		},
 	}
@@ -206,7 +206,7 @@ func TestRunTaskRequest__MarshalEmpty(t *testing.T) {
 	assert.Equal(t, "{}", string(data))
 }
 
-func TestTaskV1Alpha__OmitsEmptyFields(t *testing.T) {
+func TestTaskV1Alpha__OmitsEmptyOptionalStrings(t *testing.T) {
 	task := TaskV1Alpha{
 		ID:           "abc-123",
 		Name:         "deploy",
@@ -226,6 +226,7 @@ func TestTaskV1Alpha__OmitsEmptyFields(t *testing.T) {
 	assert.Equal(t, "prj-456", parsed["project_id"])
 	assert.Equal(t, ".semaphore/deploy.yml", parsed["pipeline_file"])
 
+	// Optional string fields are omitted when empty
 	_, hasBranch := parsed["branch"]
 	assert.False(t, hasBranch)
 	_, hasAt := parsed["at"]
@@ -234,4 +235,14 @@ func TestTaskV1Alpha__OmitsEmptyFields(t *testing.T) {
 	assert.False(t, hasDescription)
 	_, hasParams := parsed["parameters"]
 	assert.False(t, hasParams)
+
+	// Boolean fields are always present (false is meaningful)
+	assert.Equal(t, false, parsed["paused"])
+	assert.Equal(t, false, parsed["suspended"])
+	assert.Equal(t, false, parsed["recurring"])
+}
+
+func TestRunTaskRequest__UsesReferenceConstants(t *testing.T) {
+	assert.Equal(t, "BRANCH", RunTaskRefBranch)
+	assert.Equal(t, "TAG", RunTaskRefTag)
 }

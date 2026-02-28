@@ -38,8 +38,7 @@ func Describe(id string) {
 			)
 		}
 
-		if err := w.Flush(); err != nil {
-			fmt.Printf("Error flushing when pretty printing triggers: %v\n", err)
-		}
+		err = w.Flush()
+		utils.Check(err)
 	}
 }
