@@ -51,6 +51,46 @@ func TestNewTaskListV1AlphaFromJSON(t *testing.T) {
 	assert.True(t, list[1].Paused)
 }
 
+func TestNewTaskListV1AlphaFromJSON__WithParameters(t *testing.T) {
+	input := `[
+		{
+			"id": "bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
+			"name": "deploy",
+			"project_id": "aa1ba294-d4b3-48bc-90a7-12dd56e9424a",
+			"branch": "main",
+			"pipeline_file": ".semaphore/deploy.yml",
+			"recurring": false,
+			"paused": false,
+			"suspended": false,
+			"parameters": [
+				{
+					"name": "ENV",
+					"required": true,
+					"description": "Target environment",
+					"default_value": "staging",
+					"options": ["staging", "production"]
+				},
+				{
+					"name": "REGION",
+					"required": false,
+					"description": "AWS region"
+				}
+			]
+		}
+	]`
+
+	list, err := NewTaskListV1AlphaFromJSON([]byte(input))
+	assert.Nil(t, err)
+	assert.Len(t, list, 1)
+	assert.Len(t, list[0].Parameters, 2)
+	assert.Equal(t, "ENV", list[0].Parameters[0].Name)
+	assert.True(t, list[0].Parameters[0].Required)
+	assert.Equal(t, "staging", list[0].Parameters[0].DefaultValue)
+	assert.Equal(t, []string{"staging", "production"}, list[0].Parameters[0].Options)
+	assert.Equal(t, "REGION", list[0].Parameters[1].Name)
+	assert.False(t, list[0].Parameters[1].Required)
+}
+
 func TestNewTaskListV1AlphaFromJSON__EmptyList(t *testing.T) {
 	list, err := NewTaskListV1AlphaFromJSON([]byte("[]"))
 	assert.Nil(t, err)
@@ -73,9 +113,14 @@ func TestNewTaskDescribeV1AlphaFromJSON(t *testing.T) {
 			"pipeline_file": ".semaphore/deploy.yml",
 			"recurring": true,
 			"description": "Daily deploy task",
-			"parameters": {
-				"ENV": "production"
-			}
+			"parameters": [
+				{
+					"name": "ENV",
+					"required": true,
+					"default_value": "production",
+					"options": ["production", "staging"]
+				}
+			]
 		},
 		"triggers": [
 			{
@@ -101,7 +146,11 @@ func TestNewTaskDescribeV1AlphaFromJSON(t *testing.T) {
 	assert.Equal(t, "bb2ba294-d4b3-48bc-90a7-12dd56e9424c", desc.Schedule.ID)
 	assert.Equal(t, "deploy", desc.Schedule.Name)
 	assert.Equal(t, "Daily deploy task", desc.Schedule.Description)
-	assert.Equal(t, "production", desc.Schedule.Parameters["ENV"])
+	assert.Len(t, desc.Schedule.Parameters, 1)
+	assert.Equal(t, "ENV", desc.Schedule.Parameters[0].Name)
+	assert.True(t, desc.Schedule.Parameters[0].Required)
+	assert.Equal(t, "production", desc.Schedule.Parameters[0].DefaultValue)
+	assert.Equal(t, []string{"production", "staging"}, desc.Schedule.Parameters[0].Options)
 	assert.True(t, desc.Schedule.Recurring)
 
 	assert.Len(t, desc.Triggers, 2)

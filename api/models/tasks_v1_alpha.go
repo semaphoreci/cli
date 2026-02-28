@@ -9,20 +9,28 @@ const (
 	RunTaskRefTag    = "TAG"
 )
 
+type TaskParameterV1Alpha struct {
+	Name         string   `json:"name" yaml:"name"`
+	Required     bool     `json:"required" yaml:"required"`
+	Description  string   `json:"description,omitempty" yaml:"description,omitempty"`
+	DefaultValue string   `json:"default_value,omitempty" yaml:"default_value,omitempty"`
+	Options      []string `json:"options,omitempty" yaml:"options,omitempty"`
+}
+
 type TaskV1Alpha struct {
-	ID           string            `json:"id" yaml:"id"`
-	Name         string            `json:"name" yaml:"name"`
-	Description  string            `json:"description,omitempty" yaml:"description,omitempty"`
-	ProjectID    string            `json:"project_id" yaml:"project_id"`
-	Branch       string            `json:"branch,omitempty" yaml:"branch,omitempty"`
-	At           string            `json:"at,omitempty" yaml:"at,omitempty"`
-	PipelineFile string            `json:"pipeline_file" yaml:"pipeline_file"`
-	RequesterID  string            `json:"requester_id,omitempty" yaml:"requester_id,omitempty"`
-	UpdatedAt    string            `json:"updated_at,omitempty" yaml:"updated_at,omitempty"`
-	Paused       bool              `json:"paused" yaml:"paused"`
-	Suspended    bool              `json:"suspended" yaml:"suspended"`
-	Recurring    bool              `json:"recurring" yaml:"recurring"`
-	Parameters   map[string]string `json:"parameters,omitempty" yaml:"parameters,omitempty"`
+	ID           string                 `json:"id" yaml:"id"`
+	Name         string                 `json:"name" yaml:"name"`
+	Description  string                 `json:"description,omitempty" yaml:"description,omitempty"`
+	ProjectID    string                 `json:"project_id" yaml:"project_id"`
+	Branch       string                 `json:"branch,omitempty" yaml:"branch,omitempty"`
+	At           string                 `json:"at,omitempty" yaml:"at,omitempty"`
+	PipelineFile string                 `json:"pipeline_file" yaml:"pipeline_file"`
+	RequesterID  string                 `json:"requester_id,omitempty" yaml:"requester_id,omitempty"`
+	UpdatedAt    string                 `json:"updated_at,omitempty" yaml:"updated_at,omitempty"`
+	Paused       bool                   `json:"paused" yaml:"paused"`
+	Suspended    bool                   `json:"suspended" yaml:"suspended"`
+	Recurring    bool                   `json:"recurring" yaml:"recurring"`
+	Parameters   []TaskParameterV1Alpha `json:"parameters,omitempty" yaml:"parameters,omitempty"`
 }
 
 type TriggerV1Alpha struct {

@@ -36,7 +36,10 @@ func Test__ListTasks__Response200(t *testing.T) {
 					"project_id": "758cb945-7495-4e40-a9a1-4b3991c6a8fe",
 					"branch": "main",
 					"pipeline_file": ".semaphore/deploy.yml",
-					"recurring": false
+					"recurring": false,
+					"parameters": [
+						{"name": "ENV", "required": true, "default_value": "staging"}
+					]
 				},
 				{
 					"id": "cc3ba294-d4b3-48bc-90a7-12dd56e9424d",
