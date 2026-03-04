@@ -27,14 +27,15 @@ func Describe(id string) {
 		const padding = 3
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, padding, ' ', 0)
 
-		fmt.Fprintln(w, "TRIGGERED AT\tSTATUS\tWORKFLOW ID\tBRANCH")
+		fmt.Fprintln(w, "TRIGGERED AT\tSTATUS\tWORKFLOW ID\tBRANCH\tERROR")
 
 		for _, t := range task.Triggers {
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
 				t.TriggeredAt,
 				t.SchedulingStatus,
 				t.ScheduledWorkflowID,
 				t.Branch,
+				t.ErrorDescription,
 			)
 		}
 

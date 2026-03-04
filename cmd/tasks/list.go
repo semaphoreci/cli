@@ -22,7 +22,7 @@ func List(projectID string) {
 	for _, t := range taskList {
 		scheduled := fmt.Sprintf("%t", t.Recurring)
 
-		status := ""
+		status := "active"
 		if t.Paused {
 			status = "paused"
 		} else if t.Suspended {
