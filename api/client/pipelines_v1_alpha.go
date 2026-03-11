@@ -3,9 +3,12 @@ package client
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
+	"strings"
 
 	models "github.com/semaphoreci/cli/api/models"
+	retry "github.com/semaphoreci/cli/api/retry"
 	"github.com/semaphoreci/cli/api/uuid"
 )
 
@@ -96,6 +99,7 @@ func (c *PipelinesApiV1AlphaApi) ListPplByWfID(projectID, wfID string) ([]byte, 
 type ListOptions struct {
 	CreatedAfter  int64
 	CreatedBefore int64
+	All           bool
 }
 
 func (c *PipelinesApiV1AlphaApi) ListPpl(projectID string) ([]byte, error) {
@@ -125,15 +129,70 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 		query.Add("created_before", fmt.Sprintf("%d", options.CreatedBefore))
 	}
 
-	body, status, _, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
-
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+	if !options.All {
+		body, status, _, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
+		if err != nil {
+			return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
+		}
+		if status != http.StatusOK {
+			return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, string(body))
+		}
+		return body, nil
 	}
 
-	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+	var allPipelines models.PipelinesListV1Alpha
+	currentPage := 1
+	const maxFailures = 5
+	query.Add("page_size", "200")
+
+	for {
+		query.Set("page", fmt.Sprintf("%d", currentPage))
+
+		var body []byte
+		var status int
+		var headers http.Header
+
+		err := retry.RetryWithMaxFailures(maxFailures, func() error {
+			var err error
+			body, status, headers, err = c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
+			if err != nil {
+				return fmt.Errorf("connecting to Semaphore failed '%s'", err)
+			}
+			if status != http.StatusOK {
+				return fmt.Errorf("http status %d with message \"%s\" received from upstream", status, string(body))
+			}
+			return nil
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		var page models.PipelinesListV1Alpha
+		if err := page.UnmarshalJSON(body); err != nil {
+			return nil, fmt.Errorf("failed to deserialize pipelines list '%s'", err)
+		}
+
+		allPipelines = append(allPipelines, page...)
+
+		if !hasNextPage(headers) {
+			break
+		}
+		currentPage++
 	}
 
-	return body, nil
+	return allPipelines.MarshalJSON()
+}
+
+// hasNextPage checks for a Link header with rel="next" to determine
+// if more pages are available.
+func hasNextPage(headers http.Header) bool {
+	for _, link := range headers.Values("Link") {
+		for _, part := range strings.Split(link, ",") {
+			if strings.Contains(part, `rel="next"`) {
+				return true
+			}
+		}
+	}
+	return false
 }

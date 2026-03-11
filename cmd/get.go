@@ -404,7 +404,12 @@ var GetPplCmd = &cobra.Command{
 		if len(args) == 0 {
 			projectID := getPrj(cmd)
 
-			pipelines.List(projectID, listOptions(cmd))
+			opts := listOptions(cmd)
+			all, err := cmd.Flags().GetBool("all")
+			utils.Check(err)
+			opts.All = all
+
+			pipelines.List(projectID, opts)
 		} else {
 			id := args[0]
 			pipelines.Describe(id, GetPplFollow)
@@ -571,6 +576,8 @@ func init() {
 		"project id; if not specified will be inferred from git origin")
 	GetPplCmd.Flags().DurationP("age", "", DefaultListingAge,
 		"list only pipelines created in the given duration; it accepts a Go duration. e.g. 24h, 30m, 60s")
+	GetPplCmd.Flags().Bool("all", false,
+		"fetch all pipelines across all pages (by default only the first page is returned)")
 	getCmd.AddCommand(GetPplCmd)
 
 	getCmd.AddCommand(GetWfCmd)
