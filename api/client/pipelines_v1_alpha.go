@@ -136,29 +136,26 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 	for {
 		query.Set("page", fmt.Sprintf("%d", currentPage))
 
-		var body []byte
-		var status int
+		var page models.PipelinesListV1Alpha
 		var headers http.Header
 
 		err := retry.RetryWithMaxFailures(maxFailures, func() error {
-			var err error
-			body, status, headers, err = c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
+			body, status, hdrs, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
+			headers = hdrs
 			if err != nil {
 				return fmt.Errorf("connecting to Semaphore failed '%s'", err)
 			}
 			if status != http.StatusOK {
 				return fmt.Errorf("http status %d with message \"%s\" received from upstream", status, string(body))
 			}
+			if err := page.UnmarshalJSON(body); err != nil {
+				return fmt.Errorf("failed to deserialize pipelines list '%s'", err)
+			}
 			return nil
 		})
 
 		if err != nil {
 			return nil, err
-		}
-
-		var page models.PipelinesListV1Alpha
-		if err := page.UnmarshalJSON(body); err != nil {
-			return nil, fmt.Errorf("failed to deserialize pipelines list '%s'", err)
 		}
 
 		allPipelines = append(allPipelines, page...)
