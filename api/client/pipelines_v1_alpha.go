@@ -13,10 +13,6 @@ import (
 	"github.com/semaphoreci/cli/api/uuid"
 )
 
-// maxPages caps pagination depth to prevent runaway loops;
-// at 200 items/page this allows up to 100k pipelines.
-var maxPages = 500
-
 type PipelinesApiV1AlphaApi struct {
 	BaseClient           BaseClient
 	ResourceNameSingular string
@@ -136,6 +132,9 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 	allPipelines := models.PipelinesListV1Alpha{}
 	currentPage := 1
 	const maxFailures = 5
+	// maxPages caps pagination depth to prevent runaway loops;
+	// at 200 items/page this allows up to 100k pipelines.
+	const maxPages = 500
 	query.Add("page_size", "200")
 
 	for {
