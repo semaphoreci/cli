@@ -131,6 +131,7 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 	var allPipelines models.PipelinesListV1Alpha
 	currentPage := 1
 	const maxFailures = 5
+	const maxPages = 500
 	query.Add("page_size", "200")
 
 	for {
@@ -160,7 +161,7 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 
 		allPipelines = append(allPipelines, page...)
 
-		if !hasNextPage(headers) {
+		if !hasNextPage(headers) || currentPage >= maxPages {
 			break
 		}
 		currentPage++
