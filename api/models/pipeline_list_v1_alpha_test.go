@@ -1,12 +1,13 @@
 package models
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPipelinesListV1Alpha_UnmarshalJSON(t *testing.T) {
+func TestPipelinesListV1Alpha_Unmarshal(t *testing.T) {
 	input := `[
 		{
 			"ppl_id": "abc-123",
@@ -25,7 +26,7 @@ func TestPipelinesListV1Alpha_UnmarshalJSON(t *testing.T) {
 	]`
 
 	var list PipelinesListV1Alpha
-	err := list.UnmarshalJSON([]byte(input))
+	err := json.Unmarshal([]byte(input), &list)
 	assert.Nil(t, err)
 	assert.Len(t, list, 2)
 
@@ -40,20 +41,20 @@ func TestPipelinesListV1Alpha_UnmarshalJSON(t *testing.T) {
 	assert.Equal(t, "develop", list[1].Label)
 }
 
-func TestPipelinesListV1Alpha_UnmarshalJSON_Empty(t *testing.T) {
+func TestPipelinesListV1Alpha_Unmarshal_Empty(t *testing.T) {
 	var list PipelinesListV1Alpha
-	err := list.UnmarshalJSON([]byte("[]"))
+	err := json.Unmarshal([]byte("[]"), &list)
 	assert.Nil(t, err)
 	assert.Len(t, list, 0)
 }
 
-func TestPipelinesListV1Alpha_UnmarshalJSON_Invalid(t *testing.T) {
+func TestPipelinesListV1Alpha_Unmarshal_Invalid(t *testing.T) {
 	var list PipelinesListV1Alpha
-	err := list.UnmarshalJSON([]byte("not json"))
+	err := json.Unmarshal([]byte("not json"), &list)
 	assert.NotNil(t, err)
 }
 
-func TestPipelinesListV1Alpha_MarshalJSON(t *testing.T) {
+func TestPipelinesListV1Alpha_RoundTrip(t *testing.T) {
 	list := PipelinesListV1Alpha{
 		{
 			Id:    "abc-123",
@@ -64,12 +65,11 @@ func TestPipelinesListV1Alpha_MarshalJSON(t *testing.T) {
 	}
 	list[0].CreatedAt.Seconds = 1700000000
 
-	data, err := list.MarshalJSON()
+	data, err := json.Marshal(list)
 	assert.Nil(t, err)
 
-	// Round-trip: unmarshal the marshaled output
 	var roundTripped PipelinesListV1Alpha
-	err = roundTripped.UnmarshalJSON(data)
+	err = json.Unmarshal(data, &roundTripped)
 	assert.Nil(t, err)
 	assert.Len(t, roundTripped, 1)
 	assert.Equal(t, "abc-123", roundTripped[0].Id)
@@ -77,9 +77,9 @@ func TestPipelinesListV1Alpha_MarshalJSON(t *testing.T) {
 	assert.Equal(t, int64(1700000000), roundTripped[0].CreatedAt.Seconds)
 }
 
-func TestPipelinesListV1Alpha_MarshalJSON_Empty(t *testing.T) {
+func TestPipelinesListV1Alpha_Marshal_Empty(t *testing.T) {
 	list := PipelinesListV1Alpha{}
-	data, err := list.MarshalJSON()
+	data, err := json.Marshal(list)
 	assert.Nil(t, err)
 	assert.Equal(t, "[]", string(data))
 }

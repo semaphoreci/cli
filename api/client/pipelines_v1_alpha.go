@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -128,7 +129,7 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 		query.Add("created_before", fmt.Sprintf("%d", options.CreatedBefore))
 	}
 
-	var allPipelines models.PipelinesListV1Alpha
+	allPipelines := models.PipelinesListV1Alpha{}
 	currentPage := 1
 	const maxFailures = 5
 	const maxPages = 500
@@ -141,16 +142,23 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 		var headers http.Header
 
 		err := retry.RetryWithMaxFailures(maxFailures, func() error {
+			page = nil
+			headers = nil
+
 			body, status, hdrs, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
 			headers = hdrs
 			if err != nil {
-				return fmt.Errorf("connecting to Semaphore failed '%s'", err)
+				return fmt.Errorf("connecting to Semaphore failed: %w", err)
 			}
 			if status != http.StatusOK {
-				return fmt.Errorf("http status %d with message \"%s\" received from upstream", status, string(body))
+				httpErr := fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
+				if status >= 400 && status < 500 && status != http.StatusTooManyRequests {
+					return retry.NonRetryable(httpErr)
+				}
+				return httpErr
 			}
-			if err := page.UnmarshalJSON(body); err != nil {
-				return fmt.Errorf("failed to deserialize pipelines list '%s'", err)
+			if err := json.Unmarshal(body, &page); err != nil {
+				return retry.NonRetryable(fmt.Errorf("failed to deserialize pipelines list: %w", err))
 			}
 			return nil
 		})
@@ -161,13 +169,16 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 
 		allPipelines = append(allPipelines, page...)
 
-		if !hasNextPage(headers) || currentPage >= maxPages {
+		if !hasNextPage(headers) {
 			break
+		}
+		if currentPage >= maxPages {
+			return nil, fmt.Errorf("pagination safety limit reached (%d pages); results may be incomplete -- please narrow your query", maxPages)
 		}
 		currentPage++
 	}
 
-	return allPipelines.MarshalJSON()
+	return json.Marshal(allPipelines)
 }
 
 // hasNextPage checks for a Link header with rel="next" to determine
