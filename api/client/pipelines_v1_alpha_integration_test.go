@@ -310,6 +310,132 @@ func TestListPplWithOptions_RetryWithStaleHeaders(t *testing.T) {
 	}
 }
 
+func TestListPplWithOptions_429_Retried(t *testing.T) {
+	callCount := 0
+	server, cleanup := setupTestServer(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		callCount++
+		if callCount <= 2 {
+			w.WriteHeader(http.StatusTooManyRequests)
+			w.Write([]byte("rate limited"))
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		data, _ := json.Marshal(makePipelines("p1"))
+		w.Write(data)
+	}))
+	defer cleanup()
+
+	api := newTestPipelinesAPI(server)
+	result, err := api.ListPplWithOptions("proj-1", ListOptions{})
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if callCount != 3 {
+		t.Errorf("expected 3 calls (2 rate-limited + 1 success), got %d", callCount)
+	}
+
+	var got models.PipelinesListV1Alpha
+	if err := json.Unmarshal(result, &got); err != nil {
+		t.Fatalf("failed to unmarshal result: %v", err)
+	}
+	if len(got) != 1 {
+		t.Errorf("expected 1 pipeline, got %d", len(got))
+	}
+}
+
+func TestListPplWithOptions_MaxPagesLimit(t *testing.T) {
+	origMaxPages := maxPages
+	maxPages = 3
+	defer func() { maxPages = origMaxPages }()
+
+	server, cleanup := setupTestServer(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Link", `<http://example.com?page=next>; rel="next"`)
+		data, _ := json.Marshal(makePipelines("p1"))
+		w.Write(data)
+	}))
+	defer cleanup()
+
+	api := newTestPipelinesAPI(server)
+	_, err := api.ListPplWithOptions("proj-1", ListOptions{})
+
+	if err == nil {
+		t.Fatal("expected error but got none")
+	}
+	if !strings.Contains(err.Error(), "pagination safety limit reached") {
+		t.Errorf("expected pagination safety limit error, got: %v", err)
+	}
+	if !strings.Contains(err.Error(), "3 pages") {
+		t.Errorf("expected error to mention page limit of 3, got: %v", err)
+	}
+}
+
+func TestListPplWithOptions_RetryExhaustedOnMiddlePage(t *testing.T) {
+	page1 := makePipelines("p1", "p2")
+
+	server, cleanup := setupTestServer(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		page := r.URL.Query().Get("page")
+		w.Header().Set("Content-Type", "application/json")
+
+		switch page {
+		case "1", "":
+			w.Header().Set("Link", `<http://example.com?page=2>; rel="next"`)
+			data, _ := json.Marshal(page1)
+			w.Write(data)
+		case "2":
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("always fails"))
+		default:
+			t.Errorf("unexpected page: %s", page)
+			w.WriteHeader(http.StatusBadRequest)
+		}
+	}))
+	defer cleanup()
+
+	api := newTestPipelinesAPI(server)
+	result, err := api.ListPplWithOptions("proj-1", ListOptions{})
+
+	if err == nil {
+		t.Fatal("expected error but got none")
+	}
+	if result != nil {
+		t.Error("expected nil result on failure")
+	}
+	if !strings.Contains(err.Error(), "failed fetching page 2") {
+		t.Errorf("expected error to mention page 2, got: %v", err)
+	}
+	if !strings.Contains(err.Error(), "2 pipelines") {
+		t.Errorf("expected error to mention accumulated pipelines, got: %v", err)
+	}
+	if !strings.Contains(err.Error(), "1 pages") {
+		t.Errorf("expected error to mention completed pages, got: %v", err)
+	}
+}
+
+func TestListPplWithOptions_LargeErrorBodyTruncated(t *testing.T) {
+	server, cleanup := setupTestServer(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+		largeBody := strings.Repeat("x", 500)
+		w.Write([]byte(largeBody))
+	}))
+	defer cleanup()
+
+	api := newTestPipelinesAPI(server)
+	_, err := api.ListPplWithOptions("proj-1", ListOptions{})
+
+	if err == nil {
+		t.Fatal("expected error but got none")
+	}
+	if !strings.Contains(err.Error(), "truncated") {
+		t.Errorf("expected truncated error body, got: %v", err)
+	}
+	// The raw 500-char body should not appear in full
+	if strings.Contains(err.Error(), strings.Repeat("x", 500)) {
+		t.Error("expected error body to be truncated, but full body was present")
+	}
+}
+
 func TestListPplWithOptions_PageIncrements(t *testing.T) {
 	var requestedPages []string
 

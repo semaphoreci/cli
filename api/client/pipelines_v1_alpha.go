@@ -13,6 +13,10 @@ import (
 	"github.com/semaphoreci/cli/api/uuid"
 )
 
+// maxPages caps pagination depth to prevent runaway loops;
+// at 200 items/page this allows up to 100k pipelines.
+var maxPages = 500
+
 type PipelinesApiV1AlphaApi struct {
 	BaseClient           BaseClient
 	ResourceNameSingular string
@@ -132,7 +136,6 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 	allPipelines := models.PipelinesListV1Alpha{}
 	currentPage := 1
 	const maxFailures = 5
-	const maxPages = 500
 	query.Add("page_size", "200")
 
 	for {
@@ -151,7 +154,11 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 				return fmt.Errorf("connecting to Semaphore failed: %w", err)
 			}
 			if status != http.StatusOK {
-				httpErr := fmt.Errorf("http status %d with message \"%s\" received from upstream", status, body)
+				msg := string(body)
+				if len(msg) > 200 {
+					msg = msg[:200] + "...(truncated)"
+				}
+				httpErr := fmt.Errorf("http status %d with message \"%s\" received from upstream", status, msg)
 				if status >= 400 && status < 500 && status != http.StatusTooManyRequests {
 					return retry.NonRetryable(httpErr)
 				}
@@ -164,7 +171,8 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 		})
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed fetching page %d (after accumulating %d pipelines from %d pages): %w",
+				currentPage, len(allPipelines), currentPage-1, err)
 		}
 
 		allPipelines = append(allPipelines, page...)
@@ -178,11 +186,16 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 		currentPage++
 	}
 
-	return json.Marshal(allPipelines)
+	result, err := json.Marshal(allPipelines)
+	if err != nil {
+		return nil, fmt.Errorf("failed to serialize aggregated pipeline results: %w", err)
+	}
+	return result, nil
 }
 
 // hasNextPage checks for a Link header with rel="next" to determine
-// if more pages are available.
+// if more pages are available. It handles both comma-separated link values
+// within a single header and multiple Link header entries.
 func hasNextPage(headers http.Header) bool {
 	for _, link := range headers.Values("Link") {
 		for _, part := range strings.Split(link, ",") {

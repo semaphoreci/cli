@@ -15,6 +15,7 @@ const (
 )
 
 // NonRetryableError wraps an error that should not be retried.
+// RetryWithMaxFailures unwraps it before returning, so callers receive the inner error directly.
 type NonRetryableError struct {
 	Err error
 }
@@ -32,8 +33,9 @@ func NonRetryable(err error) error {
 	return &NonRetryableError{Err: err}
 }
 
-// RetryWithMaxFailures executes the given operation with retry logic and exponential backoff.
-// Non-retryable errors (wrapped with NonRetryable) are returned immediately.
+// RetryWithMaxFailures executes the given operation, retrying up to maxFailures times on failure
+// (for a total of maxFailures+1 attempts) with exponential backoff.
+// Non-retryable errors (wrapped with NonRetryable) are returned immediately without further retries.
 func RetryWithMaxFailures(maxFailures int, operation func() error) error {
 	numFailures := 0
 	backoff := InitialBackoff
@@ -54,7 +56,7 @@ func RetryWithMaxFailures(maxFailures int, operation func() error) error {
 			return fmt.Errorf("failed after %d attempts: %w", numFailures, err)
 		}
 
-		log.Printf("attempt %d/%d failed (%v), retrying in %v", numFailures, maxFailures, err, backoff)
+		log.Printf("[retry] attempt %d/%d failed (%v), retrying in %v...", numFailures, maxFailures, err, backoff)
 
 		// Wait before the next retry with exponential backoff
 		time.Sleep(backoff)
