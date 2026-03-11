@@ -99,7 +99,6 @@ func (c *PipelinesApiV1AlphaApi) ListPplByWfID(projectID, wfID string) ([]byte, 
 type ListOptions struct {
 	CreatedAfter  int64
 	CreatedBefore int64
-	All           bool
 }
 
 func (c *PipelinesApiV1AlphaApi) ListPpl(projectID string) ([]byte, error) {
@@ -127,17 +126,6 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 
 	if options.CreatedBefore > 0 {
 		query.Add("created_before", fmt.Sprintf("%d", options.CreatedBefore))
-	}
-
-	if !options.All {
-		body, status, _, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
-		if err != nil {
-			return nil, fmt.Errorf("connecting to Semaphore failed '%s'", err)
-		}
-		if status != http.StatusOK {
-			return nil, fmt.Errorf("http status %d with message \"%s\" received from upstream", status, string(body))
-		}
-		return body, nil
 	}
 
 	var allPipelines models.PipelinesListV1Alpha
