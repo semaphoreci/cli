@@ -30,6 +30,9 @@ func (e *NonRetryableError) Unwrap() error {
 
 // NonRetryable marks an error as non-retryable.
 func NonRetryable(err error) error {
+	if err == nil {
+		return nil
+	}
 	return &NonRetryableError{Err: err}
 }
 

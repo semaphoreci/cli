@@ -158,7 +158,7 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 					msg = msg[:200] + "...(truncated)"
 				}
 				httpErr := fmt.Errorf("http status %d with message \"%s\" received from upstream", status, msg)
-				if status >= 400 && status < 500 && status != http.StatusTooManyRequests {
+				if status >= 300 && status < 500 && status != http.StatusTooManyRequests {
 					return retry.NonRetryable(httpErr)
 				}
 				return httpErr
@@ -176,6 +176,9 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 
 		allPipelines = append(allPipelines, page...)
 
+		if headers == nil {
+			return nil, fmt.Errorf("internal error: response headers missing after fetching page %d", currentPage)
+		}
 		if !hasNextPage(headers) {
 			break
 		}
