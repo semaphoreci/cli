@@ -381,7 +381,7 @@ func Test__GetPipelines__Response200(t *testing.T) {
 		},
 	)
 
-	httpmock.RegisterResponder("GET", `=~^https:\/\/org\.semaphoretext\.xyz\/api\/v1alpha\/pipelines\?created_after=\d+&created_before=\d+&project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe`,
+	httpmock.RegisterResponder("GET", `=~^https:\/\/org\.semaphoretext\.xyz\/api\/v1alpha\/pipelines\?created_after=\d+&created_before=\d+&page=\d+&page_size=\d+&project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe`,
 		func(req *http.Request) (*http.Response, error) {
 			received = true
 
@@ -431,8 +431,8 @@ func Test__GetPipelines__WithCreationTimestampFilters(t *testing.T) {
 	age := 720 * time.Hour
 	createdBefore := fmt.Sprintf("%d", time.Now().Unix())
 	createdAfter := fmt.Sprintf("%d", time.Now().Add(-1*age).Unix())
-	url := fmt.Sprintf("https://org.semaphoretext.xyz/api/v1alpha/pipelines?created_after=%s&created_before=%s&project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe", createdAfter, createdBefore)
-	httpmock.RegisterResponder("GET", url,
+	urlPattern := fmt.Sprintf(`=~^https://org\.semaphoretext\.xyz/api/v1alpha/pipelines\?created_after=%s&created_before=%s&page=\d+&page_size=\d+&project_id=758cb945-7495-4e40-a9a1-4b3991c6a8fe`, createdAfter, createdBefore)
+	httpmock.RegisterResponder("GET", urlPattern,
 		func(req *http.Request) (*http.Response, error) {
 			received = true
 

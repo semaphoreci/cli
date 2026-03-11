@@ -1,6 +1,11 @@
 package retry
 
-import "time"
+import (
+	"errors"
+	"fmt"
+	"log"
+	"time"
+)
 
 const (
 	// InitialBackoff is the initial delay between retries
@@ -9,7 +14,31 @@ const (
 	MaxBackoff = 2 * time.Second
 )
 
-// RetryWithMaxFailures executes the given operation with retry logic and exponential backoff
+// NonRetryableError wraps an error that should not be retried.
+// RetryWithMaxFailures unwraps it before returning, so callers receive the inner error directly.
+type NonRetryableError struct {
+	Err error
+}
+
+func (e *NonRetryableError) Error() string {
+	return e.Err.Error()
+}
+
+func (e *NonRetryableError) Unwrap() error {
+	return e.Err
+}
+
+// NonRetryable marks an error as non-retryable.
+func NonRetryable(err error) error {
+	if err == nil {
+		return nil
+	}
+	return &NonRetryableError{Err: err}
+}
+
+// RetryWithMaxFailures executes the given operation, retrying up to maxFailures times on failure
+// (for a total of maxFailures+1 attempts) with exponential backoff.
+// Non-retryable errors (wrapped with NonRetryable) are returned immediately without further retries.
 func RetryWithMaxFailures(maxFailures int, operation func() error) error {
 	numFailures := 0
 	backoff := InitialBackoff
@@ -20,10 +49,17 @@ func RetryWithMaxFailures(maxFailures int, operation func() error) error {
 			return nil
 		}
 
+		var nonRetryable *NonRetryableError
+		if errors.As(err, &nonRetryable) {
+			return nonRetryable.Err
+		}
+
 		numFailures++
 		if numFailures > maxFailures {
-			return err
+			return fmt.Errorf("failed after %d attempts: %w", numFailures, err)
 		}
+
+		log.Printf("[retry] attempt %d/%d failed (%v), retrying in %v...", numFailures, maxFailures, err, backoff)
 
 		// Wait before the next retry with exponential backoff
 		time.Sleep(backoff)
