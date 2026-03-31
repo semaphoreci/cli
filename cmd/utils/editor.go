@@ -51,8 +51,7 @@ func EditYamlInEditor(objectName string, content string) (string, error) {
 
 	editor := config.GetEditor()
 
-	// #nosec
-	cmd := exec.Command("sh", "-c", fmt.Sprintf("%s %s", editor, tmpfile.Name()))
+	cmd := newEditorCommand(editor, tmpfile.Name())
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	err = cmd.Start()
@@ -74,4 +73,11 @@ func EditYamlInEditor(objectName string, content string) (string, error) {
 	}
 
 	return string(editedContent), nil
+}
+
+// newEditorCommand returns a shell command that runs the configured editor with
+// filePath as a single argument, even when filePath contains spaces.
+func newEditorCommand(editor, filePath string) *exec.Cmd {
+	// #nosec G204 -- editor value is user-controlled CLI configuration.
+	return exec.Command("sh", "-c", fmt.Sprintf(`%s "$1"`, editor), "sem-editor", filePath)
 }
