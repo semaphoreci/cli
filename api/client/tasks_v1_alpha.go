@@ -27,10 +27,6 @@ func NewTasksV1AlphaApi() TasksApiV1AlphaApi {
 	}
 }
 
-// maxTaskPages caps pagination depth to prevent runaway loops;
-// at 200 items/page this allows up to 100k tasks per project.
-var maxTaskPages = 500
-
 // ListTasks fetches all tasks for a project using pagination and aggregates them.
 func (c *TasksApiV1AlphaApi) ListTasks(projectID string) (models.TaskListV1Alpha, error) {
 	query := url.Values{}
@@ -40,6 +36,9 @@ func (c *TasksApiV1AlphaApi) ListTasks(projectID string) (models.TaskListV1Alpha
 	allTasks := make(models.TaskListV1Alpha, 0)
 	currentPage := 1
 	const maxFailures = 5
+	// maxTaskPages caps pagination depth to prevent runaway loops;
+	// at 200 items/page this allows up to 100k tasks per project.
+	const maxTaskPages = 500
 
 	for {
 		query.Set("page", fmt.Sprintf("%d", currentPage))
@@ -81,11 +80,12 @@ func (c *TasksApiV1AlphaApi) ListTasks(projectID string) (models.TaskListV1Alpha
 				currentPage, len(allTasks), currentPage-1, err)
 		}
 
+		if headers == nil {
+			return nil, fmt.Errorf("internal error: response headers missing after fetching page %d (accumulated %d tasks)", currentPage, len(allTasks))
+		}
+
 		allTasks = append(allTasks, page...)
 
-		if headers == nil {
-			return nil, fmt.Errorf("internal error: response headers missing after fetching page %d", currentPage)
-		}
 		if !hasNextPage(headers) {
 			break
 		}

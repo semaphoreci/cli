@@ -226,7 +226,7 @@ func Test__ListTasks__MultiPage(t *testing.T) {
 	page2Received := false
 
 	httpmock.RegisterRegexpResponder("GET",
-		regexp.MustCompile(`https://org\.semaphoretext\.xyz/api/v1alpha/tasks\?.*page=1.*`),
+		regexp.MustCompile(`https://org\.semaphoretext\.xyz/api/v1alpha/tasks.*[?&]page=1(?:&|$)`),
 		func(req *http.Request) (*http.Response, error) {
 			page1Received = true
 			body := `[
@@ -239,7 +239,7 @@ func Test__ListTasks__MultiPage(t *testing.T) {
 	)
 
 	httpmock.RegisterRegexpResponder("GET",
-		regexp.MustCompile(`https://org\.semaphoretext\.xyz/api/v1alpha/tasks\?.*page=2.*`),
+		regexp.MustCompile(`https://org\.semaphoretext\.xyz/api/v1alpha/tasks.*[?&]page=2(?:&|$)`),
 		func(req *http.Request) (*http.Response, error) {
 			page2Received = true
 			body := `[
