@@ -59,7 +59,11 @@ func (c *ProjectApiV1AlphaApi) ListProjects() (*models.ProjectListV1Alpha, error
 				return fmt.Errorf("connecting to Semaphore failed '%s'", err)
 			}
 			if status != http.StatusOK {
-				return fmt.Errorf("http status %d with message \"%s\" received from upstream", status, string(bodyBytes))
+				httpErr := fmt.Errorf("http status %d with message \"%s\" received from upstream", status, string(bodyBytes))
+				if status >= 300 && status < 500 && status != http.StatusTooManyRequests {
+					return retry.NonRetryable(httpErr)
+				}
+				return httpErr
 			}
 			pageList, err = models.NewProjectListV1AlphaFromJson(bodyBytes)
 			if err != nil {
