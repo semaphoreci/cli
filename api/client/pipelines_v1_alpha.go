@@ -1,11 +1,15 @@
 package client
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
+	"strings"
 
 	models "github.com/semaphoreci/cli/api/models"
+	retry "github.com/semaphoreci/cli/api/retry"
 	"github.com/semaphoreci/cli/api/uuid"
 )
 
@@ -125,15 +129,82 @@ func (c *PipelinesApiV1AlphaApi) ListPplWithOptions(projectID string, options Li
 		query.Add("created_before", fmt.Sprintf("%d", options.CreatedBefore))
 	}
 
-	body, status, _, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
+	allPipelines := models.PipelinesListV1Alpha{}
+	currentPage := 1
+	const maxFailures = 5
+	// maxPages caps pagination depth to prevent runaway loops;
+	// at 200 items/page this allows up to 100k pipelines.
+	const maxPages = 500
+	query.Add("page_size", "200")
 
+	for {
+		query.Set("page", fmt.Sprintf("%d", currentPage))
+
+		var page models.PipelinesListV1Alpha
+		var headers http.Header
+
+		err := retry.RetryWithMaxFailures(maxFailures, func() error {
+			page = nil
+			headers = nil
+
+			body, status, hdrs, err := c.BaseClient.ListWithParams(c.ResourceNamePlural, query)
+			headers = hdrs
+			if err != nil {
+				return fmt.Errorf("connecting to Semaphore failed: %w", err)
+			}
+			if status != http.StatusOK {
+				msg := string(body)
+				if len(msg) > 200 {
+					msg = msg[:200] + "...(truncated)"
+				}
+				httpErr := fmt.Errorf("http status %d with message \"%s\" received from upstream", status, msg)
+				if status >= 300 && status < 500 && status != http.StatusTooManyRequests {
+					return retry.NonRetryable(httpErr)
+				}
+				return httpErr
+			}
+			if err := json.Unmarshal(body, &page); err != nil {
+				return retry.NonRetryable(fmt.Errorf("failed to deserialize pipelines list: %w", err))
+			}
+			return nil
+		})
+
+		if err != nil {
+			return nil, fmt.Errorf("failed fetching page %d (after accumulating %d pipelines from %d pages): %w",
+				currentPage, len(allPipelines), currentPage-1, err)
+		}
+
+		allPipelines = append(allPipelines, page...)
+
+		if headers == nil {
+			return nil, fmt.Errorf("internal error: response headers missing after fetching page %d", currentPage)
+		}
+		if !hasNextPage(headers) {
+			break
+		}
+		if currentPage >= maxPages {
+			return nil, fmt.Errorf("pagination safety limit reached (%d pages); results may be incomplete -- please narrow your query", maxPages)
+		}
+		currentPage++
+	}
+
+	result, err := json.Marshal(allPipelines)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("connecting to Semaphore failed '%s'", err))
+		return nil, fmt.Errorf("failed to serialize aggregated pipeline results: %w", err)
 	}
+	return result, nil
+}
 
-	if status != 200 {
-		return nil, errors.New(fmt.Sprintf("http status %d with message \"%s\" received from upstream", status, body))
+// hasNextPage checks for a Link header with rel="next" to determine
+// if more pages are available. It handles both comma-separated link values
+// within a single header and multiple Link header entries.
+func hasNextPage(headers http.Header) bool {
+	for _, link := range headers.Values("Link") {
+		for _, part := range strings.Split(link, ",") {
+			if strings.Contains(part, `rel="next"`) {
+				return true
+			}
+		}
 	}
-
-	return body, nil
+	return false
 }
