@@ -258,4 +258,5 @@ func Test__ListTasks__MultiPage(t *testing.T) {
 	assert.Len(t, tasks, 2, "Expected tasks from both pages to be aggregated")
 	assert.Equal(t, "t1", tasks[0].Name, "Expected first task from page 1")
 	assert.Equal(t, "t2", tasks[1].Name, "Expected second task from page 2")
+	assert.Equal(t, 2, httpmock.GetTotalCallCount(), "Expected exactly two HTTP requests; pagination must stop when Link: rel=next is absent")
 }
