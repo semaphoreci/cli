@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"testing"
 
-	client "github.com/semaphoreci/cli/api/client"
 	httpmock "github.com/jarcoal/httpmock"
+	client "github.com/semaphoreci/cli/api/client"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -259,4 +259,101 @@ func Test__ListTasks__MultiPage(t *testing.T) {
 	assert.Equal(t, "t1", tasks[0].Name, "Expected first task from page 1")
 	assert.Equal(t, "t2", tasks[1].Name, "Expected second task from page 2")
 	assert.Equal(t, 2, httpmock.GetTotalCallCount(), "Expected exactly two HTTP requests; pagination must stop when Link: rel=next is absent")
+}
+
+func Test__DescribeTask__WithParameterRegexValidation(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	taskID := "bb2ba294-d4b3-48bc-90a7-12dd56e9424c"
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/tasks/"+taskID,
+		func(req *http.Request) (*http.Response, error) {
+			body := `{
+				"schedule": {
+					"id": "bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
+					"name": "release",
+					"project_id": "aa1ba294-d4b3-48bc-90a7-12dd56e9424a",
+					"branch": "main",
+					"pipeline_file": ".semaphore/release.yml",
+					"parameters": [
+						{
+							"name": "VERSION",
+							"required": true,
+							"default_value": "1.0.0",
+							"validate_input_format": true,
+							"regex_pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+						},
+						{
+							"name": "ENV",
+							"required": false,
+							"default_value": "staging"
+						}
+					]
+				}
+			}`
+			return httpmock.NewStringResponse(200, body), nil
+		},
+	)
+
+	c := client.NewTasksV1AlphaApi()
+	task, err := c.DescribeTask(taskID)
+
+	assert.NoError(t, err)
+	assert.Len(t, task.Schedule.Parameters, 2)
+
+	versionParam := task.Schedule.Parameters[0]
+	assert.Equal(t, "VERSION", versionParam.Name)
+	assert.True(t, versionParam.ValidateInputFormat, "expected validate_input_format=true to be parsed")
+	assert.Equal(t, `^[0-9]+\.[0-9]+\.[0-9]+$`, versionParam.RegexPattern)
+
+	envParam := task.Schedule.Parameters[1]
+	assert.Equal(t, "ENV", envParam.Name)
+	assert.False(t, envParam.ValidateInputFormat, "expected validate_input_format default false when absent")
+	assert.Equal(t, "", envParam.RegexPattern)
+}
+
+func Test__ListTasks__WithParameterRegexValidation(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	projectID := "758cb945-7495-4e40-a9a1-4b3991c6a8fe"
+
+	httpmock.RegisterRegexpResponder("GET",
+		regexp.MustCompile(`https://org\.semaphoretext\.xyz/api/v1alpha/tasks\?.*project_id=`+projectID),
+		func(req *http.Request) (*http.Response, error) {
+			body := `[
+				{
+					"id": "bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
+					"name": "deploy",
+					"project_id": "758cb945-7495-4e40-a9a1-4b3991c6a8fe",
+					"branch": "main",
+					"pipeline_file": ".semaphore/deploy.yml",
+					"recurring": false,
+					"parameters": [
+						{
+							"name": "TARGET",
+							"required": true,
+							"default_value": "prod",
+							"validate_input_format": true,
+							"regex_pattern": "^(prod|staging|dev)$"
+						}
+					]
+				}
+			]`
+			return httpmock.NewStringResponse(200, body), nil
+		},
+	)
+
+	c := client.NewTasksV1AlphaApi()
+	tasks, err := c.ListTasks(projectID)
+
+	assert.NoError(t, err)
+	assert.Len(t, tasks, 1)
+	assert.Len(t, tasks[0].Parameters, 1)
+
+	param := tasks[0].Parameters[0]
+	assert.Equal(t, "TARGET", param.Name)
+	assert.True(t, param.ValidateInputFormat)
+	assert.Equal(t, "^(prod|staging|dev)$", param.RegexPattern)
 }

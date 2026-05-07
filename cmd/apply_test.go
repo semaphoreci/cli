@@ -174,6 +174,78 @@ spec:
 	}
 }
 
+func Test__ApplyProject__FromYaml_TaskParameterRegexValidation_Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	yaml_file := `
+apiVersion: v1alpha
+kind: Project
+metadata:
+  name: Test
+  id: a13949b7-b2f6-4286-8f26-3962d7e97828
+spec:
+  visibility: public
+  repository:
+    url: "git@github.com:/semaphoreci/cli.git"
+    integration_type: github_token
+    pipeline_file: ".semaphore/semaphore.yml"
+    run_on:
+      - branches
+  tasks:
+    - name: release
+      description: "release task"
+      scheduled: false
+      branch: main
+      pipeline_file: ".semaphore/release.yml"
+      parameters:
+        - name: VERSION
+          required: true
+          default_value: "1.0.0"
+          validate_input_format: true
+          regex_pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        - name: ENV
+          required: false
+          default_value: staging
+`
+
+	yaml_file_path := "/tmp/project_task_params.yaml"
+	ioutil.WriteFile(yaml_file_path, []byte(yaml_file), 0644)
+
+	var received *models.ProjectV1Alpha
+
+	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/a13949b7-b2f6-4286-8f26-3962d7e97828",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			received, _ = models.NewProjectV1AlphaFromJson(body)
+
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"apply", "-f", yaml_file_path})
+	RootCmd.Execute()
+
+	assert.NotNil(t, received)
+	assert.Len(t, received.Spec.Tasks, 1)
+
+	task := received.Spec.Tasks[0]
+	assert.Equal(t, "release", task.Name)
+	assert.Len(t, task.Parameters, 2)
+
+	versionParam := task.Parameters[0]
+	assert.Equal(t, "VERSION", versionParam.Name)
+	assert.Equal(t, true, versionParam.Required)
+	assert.Equal(t, "1.0.0", versionParam.DefaultValue)
+	assert.Equal(t, true, versionParam.ValidateInputFormat)
+	assert.Equal(t, `^[0-9]+\.[0-9]+\.[0-9]+$`, versionParam.RegexPattern)
+
+	envParam := task.Parameters[1]
+	assert.Equal(t, "ENV", envParam.Name)
+	assert.Equal(t, false, envParam.ValidateInputFormat, "absent regex toggle should default to false")
+	assert.Equal(t, "", envParam.RegexPattern, "absent regex pattern should default to empty")
+}
+
 func Test__ApplyDeploymentTarget__FromYaml_Response200(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
