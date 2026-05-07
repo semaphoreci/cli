@@ -316,7 +316,9 @@ func Test__EditProject__WithTasks__Response200(t *testing.T) {
 							"required":true,
 							"description":"param1 description",
 							"default_value":"option1",
-							"options":["option1", "option2"]
+							"options":["option1", "option2"],
+							"validate_input_format":true,
+							"regex_pattern":"^option[12]$"
 						}
 					]
 				}
@@ -371,6 +373,8 @@ func Test__EditProject__WithTasks__Response200(t *testing.T) {
 	assert.Equal(t, task_parameter.Description, "param1 description")
 	assert.Equal(t, task_parameter.DefaultValue, "option1")
 	assert.Equal(t, task_parameter.Options, []string{"option1", "option2"})
+	assert.Equal(t, task_parameter.ValidateInputFormat, true)
+	assert.Equal(t, task_parameter.RegexPattern, "^option[12]$")
 
 	// Test backward compatibility: Branch should auto-create Reference
 	assert.NotNil(t, task.Reference, "Reference should be auto-created from Branch")
