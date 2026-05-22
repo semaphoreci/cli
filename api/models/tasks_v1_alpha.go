@@ -10,11 +10,13 @@ const (
 )
 
 type TaskParameterV1Alpha struct {
-	Name         string   `json:"name" yaml:"name"`
-	Required     bool     `json:"required" yaml:"required"`
-	Description  string   `json:"description,omitempty" yaml:"description,omitempty"`
-	DefaultValue string   `json:"default_value,omitempty" yaml:"default_value,omitempty"`
-	Options      []string `json:"options,omitempty" yaml:"options,omitempty"`
+	Name                string   `json:"name" yaml:"name"`
+	Required            bool     `json:"required" yaml:"required"`
+	Description         string   `json:"description,omitempty" yaml:"description,omitempty"`
+	DefaultValue        string   `json:"default_value,omitempty" yaml:"default_value,omitempty"`
+	Options             []string `json:"options,omitempty" yaml:"options,omitempty"`
+	ValidateInputFormat bool     `json:"validate_input_format,omitempty" yaml:"validate_input_format,omitempty"`
+	RegexPattern        string   `json:"regex_pattern,omitempty" yaml:"regex_pattern,omitempty"`
 }
 
 type TaskV1Alpha struct {

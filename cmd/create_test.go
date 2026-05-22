@@ -54,6 +54,69 @@ spec:
 	}
 }
 
+func Test__CreateProject__FromYaml_TaskParameterRegexValidation_Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	yaml_file := `
+apiVersion: v1alpha
+kind: Project
+metadata:
+  name: Test
+spec:
+  visibility: public
+  repository:
+    url: "git@github.com:/semaphoreci/cli.git"
+    integration_type: github_token
+    pipeline_file: ".semaphore/semaphore.yml"
+    run_on:
+      - branches
+  tasks:
+    - name: release
+      description: "release task"
+      scheduled: false
+      branch: main
+      pipeline_file: ".semaphore/release.yml"
+      parameters:
+        - name: VERSION
+          required: true
+          default_value: "1.0.0"
+          validate_input_format: true
+          regex_pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+`
+
+	yaml_file_path := "/tmp/project_task_params_create.yaml"
+	ioutil.WriteFile(yaml_file_path, []byte(yaml_file), 0644)
+
+	var received *models.ProjectV1Alpha
+
+	httpmock.RegisterResponder("POST", "https://org.semaphoretext.xyz/api/v1alpha/projects",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			received, _ = models.NewProjectV1AlphaFromJson(body)
+
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"create", "-f", yaml_file_path})
+	RootCmd.Execute()
+
+	assert.NotNil(t, received)
+	assert.Len(t, received.Spec.Tasks, 1)
+
+	task := received.Spec.Tasks[0]
+	assert.Equal(t, "release", task.Name)
+	assert.Len(t, task.Parameters, 1)
+
+	param := task.Parameters[0]
+	assert.Equal(t, "VERSION", param.Name)
+	assert.Equal(t, true, param.Required)
+	assert.Equal(t, "1.0.0", param.DefaultValue)
+	assert.Equal(t, true, param.ValidateInputFormat)
+	assert.Equal(t, `^[0-9]+\.[0-9]+\.[0-9]+$`, param.RegexPattern)
+}
+
 func Test__CreateNotification__FromYaml__Response200(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()

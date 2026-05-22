@@ -176,11 +176,13 @@ func (t *Task) MarshalYAML() (interface{}, error) {
 }
 
 type TaskParameter struct {
-	Name         string   `json:"name"`
-	Required     bool     `json:"required"`
-	Description  string   `json:"description,omitempty" yaml:"description,omitempty"`
-	DefaultValue string   `json:"default_value,omitempty" yaml:"default_value,omitempty"`
-	Options      []string `json:"options,omitempty" yaml:"options,omitempty"`
+	Name                string   `json:"name"`
+	Required            bool     `json:"required"`
+	Description         string   `json:"description,omitempty" yaml:"description,omitempty"`
+	DefaultValue        string   `json:"default_value,omitempty" yaml:"default_value,omitempty"`
+	Options             []string `json:"options,omitempty" yaml:"options,omitempty"`
+	ValidateInputFormat bool     `json:"validate_input_format,omitempty" yaml:"validate_input_format,omitempty"`
+	RegexPattern        string   `json:"regex_pattern,omitempty" yaml:"regex_pattern,omitempty"`
 }
 
 type ForkedPullRequests struct {

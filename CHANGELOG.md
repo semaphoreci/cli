@@ -1,5 +1,9 @@
 # Changelog
 
+### Unreleased
+
+- feat: surface `regex_pattern` and `validate_input_format` on task parameters so `sem get`, `sem edit`, `sem apply`, and `sem create` round-trip the new v1alpha API fields
+
 ### v0.28.1
 
 - feat: add troubleshoot command
