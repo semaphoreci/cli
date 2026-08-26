@@ -310,6 +310,8 @@ func Test__EditProject__WithTasks__Response200(t *testing.T) {
 					"scheduled":false,
 					"branch":"master",
 					"pipeline_file":".semaphore/cron.yml",
+					"skip_scheduled_run_notifications":true,
+					"skip_manual_run_notifications":false,
 					"parameters":[
 						{
 							"name":"param1",
@@ -365,6 +367,8 @@ func Test__EditProject__WithTasks__Response200(t *testing.T) {
 	assert.Equal(t, "", task.Branch) // Branch is cleared when auto-creating Reference
 	assert.Equal(t, task.Scheduled, false)
 	assert.Equal(t, task.PipelineFile, ".semaphore/cron.yml")
+	assert.Equal(t, true, task.SkipScheduledRunNotifications, "flag set on the server must survive the edit round-trip")
+	assert.Equal(t, false, task.SkipManualRunNotifications)
 
 	task_parameter := task.Parameters[0]
 
