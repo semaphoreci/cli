@@ -246,6 +246,70 @@ spec:
 	assert.Equal(t, "", envParam.RegexPattern, "absent regex pattern should default to empty")
 }
 
+func Test__ApplyProject__FromYaml_TaskNotificationSkipFlags_Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	yaml_file := `
+apiVersion: v1alpha
+kind: Project
+metadata:
+  name: Test
+  id: a13949b7-b2f6-4286-8f26-3962d7e97828
+spec:
+  visibility: public
+  repository:
+    url: "git@github.com:/semaphoreci/cli.git"
+    integration_type: github_token
+    pipeline_file: ".semaphore/semaphore.yml"
+    run_on:
+      - branches
+  tasks:
+    - name: nightly
+      scheduled: true
+      branch: main
+      at: "0 3 * * *"
+      pipeline_file: ".semaphore/cron.yml"
+      skip_scheduled_run_notifications: true
+      skip_manual_run_notifications: false
+    - name: release
+      scheduled: false
+      branch: main
+      pipeline_file: ".semaphore/release.yml"
+      skip_manual_run_notifications: true
+`
+
+	yaml_file_path := "/tmp/project_task_skip_flags.yaml"
+	ioutil.WriteFile(yaml_file_path, []byte(yaml_file), 0644)
+
+	var received *models.ProjectV1Alpha
+
+	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/a13949b7-b2f6-4286-8f26-3962d7e97828",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			received, _ = models.NewProjectV1AlphaFromJson(body)
+
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"apply", "-f", yaml_file_path})
+	RootCmd.Execute()
+
+	assert.NotNil(t, received)
+	assert.Len(t, received.Spec.Tasks, 2)
+
+	nightly := received.Spec.Tasks[0]
+	assert.Equal(t, "nightly", nightly.Name)
+	assert.Equal(t, true, nightly.SkipScheduledRunNotifications)
+	assert.Equal(t, false, nightly.SkipManualRunNotifications, "explicit false should stay false")
+
+	release := received.Spec.Tasks[1]
+	assert.Equal(t, "release", release.Name)
+	assert.Equal(t, false, release.SkipScheduledRunNotifications, "absent scheduled flag should default to false")
+	assert.Equal(t, true, release.SkipManualRunNotifications)
+}
+
 func Test__ApplyDeploymentTarget__FromYaml_Response200(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
