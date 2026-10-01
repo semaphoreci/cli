@@ -2,7 +2,7 @@ package utils
 
 import (
 	"encoding/base64"
-	"fmt"
+	"errors"
 	"io/ioutil"
 	"regexp"
 	"strings"
@@ -17,8 +17,7 @@ func ParseFileFlag(raw string) (string, string, error) {
 	}
 
 	if matchFormat == false {
-		msg := "The format of --file flag must be: <local-path>:<semaphore-path>"
-		return "", "", fmt.Errorf(msg)
+		return "", "", errors.New("The format of --file flag must be: <local-path>:<semaphore-path>")
 	}
 
 	flagPaths := strings.Split(raw, ":")
