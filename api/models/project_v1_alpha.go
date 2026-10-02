@@ -81,16 +81,20 @@ func (s *Scheduler) MarshalJSON() ([]byte, error) {
 }
 
 type Task struct {
-	Name         string          `json:"name"`
-	Description  string          `json:"description,omitempty"`
-	Scheduled    bool            `json:"scheduled"`
-	Id           string          `json:"id,omitempty"`
-	Branch       string          `json:"branch,omitempty" yaml:"branch,omitempty"` // Deprecated: Use Reference field instead.
-	Reference    *Reference      `json:"reference,omitempty" yaml:"reference,omitempty"`
-	At           string          `json:"at,omitempty"`
-	PipelineFile string          `json:"pipeline_file" yaml:"pipeline_file,omitempty"`
-	Status       string          `json:"status,omitempty" yaml:"status,omitempty"`
-	Parameters   []TaskParameter `json:"parameters,omitempty" yaml:"parameters,omitempty"`
+	Name         string     `json:"name"`
+	Description  string     `json:"description,omitempty"`
+	Scheduled    bool       `json:"scheduled"`
+	Id           string     `json:"id,omitempty"`
+	Branch       string     `json:"branch,omitempty" yaml:"branch,omitempty"` // Deprecated: Use Reference field instead.
+	Reference    *Reference `json:"reference,omitempty" yaml:"reference,omitempty"`
+	At           string     `json:"at,omitempty"`
+	PipelineFile string     `json:"pipeline_file" yaml:"pipeline_file,omitempty"`
+	Status       string     `json:"status,omitempty" yaml:"status,omitempty"`
+	// Tri-state: nil omits the key so the API keeps the stored value;
+	// an explicit true or false is sent and wins, so a flag can be cleared.
+	SkipScheduledRunNotifications *bool           `json:"skip_scheduled_run_notifications,omitempty" yaml:"skip_scheduled_run_notifications,omitempty"`
+	SkipManualRunNotifications    *bool           `json:"skip_manual_run_notifications,omitempty" yaml:"skip_manual_run_notifications,omitempty"`
+	Parameters                    []TaskParameter `json:"parameters,omitempty" yaml:"parameters,omitempty"`
 }
 
 // UnmarshalJSON implements custom JSON unmarshaling for backward compatibility
