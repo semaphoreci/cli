@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -244,6 +245,100 @@ spec:
 	assert.Equal(t, "ENV", envParam.Name)
 	assert.Equal(t, false, envParam.ValidateInputFormat, "absent regex toggle should default to false")
 	assert.Equal(t, "", envParam.RegexPattern, "absent regex pattern should default to empty")
+}
+
+func Test__ApplyProject__FromYaml_TaskNotificationSkipFlags_Response200(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	yaml_file := `
+apiVersion: v1alpha
+kind: Project
+metadata:
+  name: Test
+  id: a13949b7-b2f6-4286-8f26-3962d7e97828
+spec:
+  visibility: public
+  repository:
+    url: "git@github.com:/semaphoreci/cli.git"
+    integration_type: github_token
+    pipeline_file: ".semaphore/semaphore.yml"
+    run_on:
+      - branches
+  tasks:
+    - name: nightly
+      scheduled: true
+      branch: main
+      at: "0 3 * * *"
+      pipeline_file: ".semaphore/cron.yml"
+      skip_scheduled_run_notifications: true
+      skip_manual_run_notifications: false
+    - name: release
+      scheduled: false
+      branch: main
+      pipeline_file: ".semaphore/release.yml"
+      skip_manual_run_notifications: true
+`
+
+	yaml_file_path := "/tmp/project_task_skip_flags.yaml"
+	ioutil.WriteFile(yaml_file_path, []byte(yaml_file), 0644)
+
+	var received *models.ProjectV1Alpha
+	var rawBody []byte
+
+	httpmock.RegisterResponder("PATCH", "https://org.semaphoretext.xyz/api/v1alpha/projects/a13949b7-b2f6-4286-8f26-3962d7e97828",
+		func(req *http.Request) (*http.Response, error) {
+			body, _ := ioutil.ReadAll(req.Body)
+			rawBody = body
+			received, _ = models.NewProjectV1AlphaFromJson(body)
+
+			return httpmock.NewStringResponse(200, string(body)), nil
+		},
+	)
+
+	RootCmd.SetArgs([]string{"apply", "-f", yaml_file_path})
+	RootCmd.Execute()
+
+	assert.NotNil(t, received)
+	assert.Len(t, received.Spec.Tasks, 2)
+
+	nightly := received.Spec.Tasks[0]
+	assert.Equal(t, "nightly", nightly.Name)
+	if assert.NotNil(t, nightly.SkipScheduledRunNotifications) {
+		assert.Equal(t, true, *nightly.SkipScheduledRunNotifications)
+	}
+	if assert.NotNil(t, nightly.SkipManualRunNotifications, "explicit false must be sent so the API clears the flag") {
+		assert.Equal(t, false, *nightly.SkipManualRunNotifications)
+	}
+
+	release := received.Spec.Tasks[1]
+	assert.Equal(t, "release", release.Name)
+	assert.Nil(t, release.SkipScheduledRunNotifications, "absent scheduled flag must stay omitted so the API keeps the stored value")
+	if assert.NotNil(t, release.SkipManualRunNotifications) {
+		assert.Equal(t, true, *release.SkipManualRunNotifications)
+	}
+
+	// The model above can't tell an omitted key from JSON null (both decode to
+	// nil), and the API rejects null with a 422 - so check the wire directly.
+	tasks := taskWireKeys(t, rawBody)
+	assert.NotContains(t, tasks[1], "skip_scheduled_run_notifications", "absent flag must be left out of the body, not sent as null")
+	assert.Equal(t, "true", string(tasks[0]["skip_scheduled_run_notifications"]))
+	assert.Equal(t, "false", string(tasks[0]["skip_manual_run_notifications"]), "explicit false must be sent as a boolean")
+	assert.Equal(t, "true", string(tasks[1]["skip_manual_run_notifications"]))
+}
+
+// taskWireKeys decodes the raw request body just deep enough to see which keys
+// each task object actually carries on the wire.
+func taskWireKeys(t *testing.T, rawBody []byte) []map[string]json.RawMessage {
+	var wire struct {
+		Spec struct {
+			Tasks []map[string]json.RawMessage `json:"tasks"`
+		} `json:"spec"`
+	}
+
+	assert.NoError(t, json.Unmarshal(rawBody, &wire))
+
+	return wire.Spec.Tasks
 }
 
 func Test__ApplyDeploymentTarget__FromYaml_Response200(t *testing.T) {
