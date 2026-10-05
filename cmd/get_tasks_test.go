@@ -357,3 +357,80 @@ func Test__ListTasks__WithParameterRegexValidation(t *testing.T) {
 	assert.True(t, param.ValidateInputFormat)
 	assert.Equal(t, "^(prod|staging|dev)$", param.RegexPattern)
 }
+
+func Test__DescribeTask__WithNotificationSkipFlags(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	taskID := "bb2ba294-d4b3-48bc-90a7-12dd56e9424c"
+
+	httpmock.RegisterResponder("GET", "https://org.semaphoretext.xyz/api/v1alpha/tasks/"+taskID,
+		func(req *http.Request) (*http.Response, error) {
+			body := `{
+				"schedule": {
+					"id": "bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
+					"name": "nightly",
+					"project_id": "aa1ba294-d4b3-48bc-90a7-12dd56e9424a",
+					"branch": "main",
+					"pipeline_file": ".semaphore/cron.yml",
+					"recurring": true,
+					"skip_scheduled_run_notifications": true,
+					"skip_manual_run_notifications": false
+				}
+			}`
+			return httpmock.NewStringResponse(200, body), nil
+		},
+	)
+
+	c := client.NewTasksV1AlphaApi()
+	task, err := c.DescribeTask(taskID)
+
+	assert.NoError(t, err)
+	assert.True(t, task.Schedule.SkipScheduledRunNotifications, "expected skip_scheduled_run_notifications=true to be parsed")
+	assert.False(t, task.Schedule.SkipManualRunNotifications)
+}
+
+func Test__ListTasks__WithNotificationSkipFlags(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	projectID := "758cb945-7495-4e40-a9a1-4b3991c6a8fe"
+
+	httpmock.RegisterRegexpResponder("GET",
+		regexp.MustCompile(`https://org\.semaphoretext\.xyz/api/v1alpha/tasks\?.*project_id=`+projectID),
+		func(req *http.Request) (*http.Response, error) {
+			body := `[
+				{
+					"id": "bb2ba294-d4b3-48bc-90a7-12dd56e9424c",
+					"name": "nightly",
+					"project_id": "758cb945-7495-4e40-a9a1-4b3991c6a8fe",
+					"branch": "main",
+					"pipeline_file": ".semaphore/cron.yml",
+					"recurring": true,
+					"skip_manual_run_notifications": true
+				},
+				{
+					"id": "cc3ba294-d4b3-48bc-90a7-12dd56e9424d",
+					"name": "deploy",
+					"project_id": "758cb945-7495-4e40-a9a1-4b3991c6a8fe",
+					"branch": "main",
+					"pipeline_file": ".semaphore/deploy.yml",
+					"recurring": false
+				}
+			]`
+			return httpmock.NewStringResponse(200, body), nil
+		},
+	)
+
+	c := client.NewTasksV1AlphaApi()
+	tasks, err := c.ListTasks(projectID)
+
+	assert.NoError(t, err)
+	assert.Len(t, tasks, 2)
+
+	assert.False(t, tasks[0].SkipScheduledRunNotifications, "absent scheduled flag should default to false")
+	assert.True(t, tasks[0].SkipManualRunNotifications)
+
+	assert.False(t, tasks[1].SkipScheduledRunNotifications)
+	assert.False(t, tasks[1].SkipManualRunNotifications)
+}
