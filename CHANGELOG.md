@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+- feat: add `sem promote [PIPELINE ID] [PROMOTION NAME]` to trigger a promotion from the CLI, with `--param NAME=VALUE` for parameterized promotions and `--override`
 - feat: surface `regex_pattern` and `validate_input_format` on task parameters so `sem get`, `sem edit`, `sem apply`, and `sem create` round-trip the new v1alpha API fields
 
 ### v0.28.1
